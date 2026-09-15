@@ -1,0 +1,2560 @@
+{
+  "schema": 1,
+  "actualizado": "2026-09-15",
+  "nota": "Metadata curada que WordPress no tiene (edades, género, grupo, aliases, federados, programas). Las claves de \"actividades\" son slugs de la taxonomía \"actividad\" de WordPress. Los horarios de agenda NO van acá: se leen en vivo de los agenda_item.",
+  "agenda": {
+    "publicados_desde": "2026-02-01",
+    "nota": "Los agenda_item publicados antes de esta fecha son de la agenda de verano 2026 y el sitio ya no los muestra. Se puede sobrescribir desde Ajustes > Hacoaj MCP."
+  },
+  "sedes": [
+    {
+      "slug": "tigre-maliar",
+      "nombre": "Tigre Maliar",
+      "direccion": "Luis García 943, Tigre, Buenos Aires",
+      "telefono": "11-2515-6257",
+      "contacto": "WhatsApp: 11-2515-6257",
+      "url": "https://hacoaj.org.ar/tigre-maliar/",
+      "aliases": [
+        "tigre",
+        "maliar",
+        "sede tigre"
+      ],
+      "descripcion": "Sede del Distrito Hacoaj ubicada en Tigre, con infraestructura deportiva, náutica, educativa, social y comunitaria.",
+      "url_agenda": "https://hacoaj.org.ar/agenda-tigre-maliar/"
+    },
+    {
+      "slug": "club-de-campo",
+      "nombre": "Club de Campo",
+      "direccion": "Santa María de las Conchas (Ruta 27) 4002, Rincón de Milberg, Tigre, Buenos Aires",
+      "telefono": "11-5713-5548",
+      "contacto": "WhatsApp: 11-5713-5548",
+      "url": "https://hacoaj.org.ar/club-de-campo/",
+      "aliases": [
+        "cdc",
+        "country",
+        "campo",
+        "rincon de milberg"
+      ],
+      "descripcion": "Sede del Distrito Hacoaj en Rincón de Milberg, con golf, canchas deportivas, natación, espacios sociales, educativos, gastronómicos y desarrollos residenciales.",
+      "url_agenda": "https://hacoaj.org.ar/agenda-club-de-campo/"
+    },
+    {
+      "slug": "ben-gurion",
+      "nombre": "Ben Gurión",
+      "direccion": "Av. Estado de Israel 4156, Ciudad Autónoma de Buenos Aires",
+      "telefono": "11-3984-4100",
+      "contacto": "11-3984-4100 | Int: 205 – 136 – 104 – 115",
+      "url": "https://hacoaj.org.ar/ben-gurion-caba/",
+      "aliases": [
+        "caba",
+        "capital",
+        "capital federal",
+        "ben gurion caba",
+        "ciudad",
+        "almagro"
+      ],
+      "descripcion": "Sede del Distrito Hacoaj en Ciudad de Buenos Aires, con gimnasio Hacoaj Sports, gimnasios deportivos, salones culturales, educativos y sociales, tatami de judo, pedana de gimnasia artística y oficinas administrativas.",
+      "url_agenda": "https://hacoaj.org.ar/agenda-ben-gurion/"
+    },
+    {
+      "slug": "marinas-h",
+      "nombre": "Marinas H",
+      "direccion": "Av. Santa María de las Conchas 4149, Rincón de Milberg, Tigre, Buenos Aires",
+      "telefono": "11-6791-6253",
+      "contacto": "11-6791-6253",
+      "url": "https://hacoaj.org.ar/marinas-h/",
+      "aliases": [
+        "marinas"
+      ],
+      "descripcion": "Sede del Distrito Hacoaj con infraestructura socio deportiva, viviendas, lotes con amarra propia, housings, gimnasio, piscina, padel, spa y restaurante.",
+      "url_agenda": "https://hacoaj.org.ar/agenda-marinas-h/"
+    },
+    {
+      "slug": "isla-hacoaj",
+      "nombre": "Isla Hacoaj",
+      "direccion": "Río Sarmiento Nro 20, 1ra Sección de islas, Tigre, Buenos Aires",
+      "telefono": "11-2515-6257",
+      "contacto": "WhatsApp: 11-2515-6257",
+      "url": "https://hacoaj.org.ar/isla-hacoaj/",
+      "aliases": [
+        "isla",
+        "delta"
+      ],
+      "descripcion": "Sede isleña del Distrito Hacoaj, con sectores verdes, parrillas, canchas deportivas, muelles y acceso por el río.",
+      "url_agenda": "https://hacoaj.org.ar/agenda-isla-hacoaj/"
+    }
+  ],
+  "sedes_no_fisicas": [
+    "deportes-federados",
+    "transporte",
+    "hacoaj-en-casa"
+  ],
+  "terminos": {
+    "transporte": [
+      "transporte",
+      "caba-tigre-maliar-caba",
+      "club-de-campo-marinas-h-tigre",
+      "capital-tigre-maliar",
+      "club-de-campo-marinas-h-tigre-maliar"
+    ],
+    "info_sede": {
+      "isla": "isla-hacoaj",
+      "isla-hacoaj": "isla-hacoaj",
+      "isla-hacoaj-lunes-a-domingos": "isla-hacoaj"
+    },
+    "federados_resumen": [
+      "deportes-federados"
+    ],
+    "ocultos": [
+      "sin-categoria",
+      "remo"
+    ]
+  },
+  "categorias": {
+    "deportes-adultos": {
+      "nombre": "Deportes Adultos",
+      "grupo": "adultos",
+      "edad_min": 18
+    },
+    "escuelas-deportivas": {
+      "nombre": "Escuelas Deportivas (Tigre Maliar y Ben Gurión)",
+      "grupo": "escuelas"
+    },
+    "escuelas-deportivas-club-de-campo": {
+      "nombre": "Escuelas Deportivas (Club de Campo)",
+      "grupo": "escuelas"
+    },
+    "cultura": {
+      "nombre": "Cultura",
+      "grupo": "culturales"
+    },
+    "hadraja": {
+      "nombre": "Hadrajá",
+      "grupo": "hadraja"
+    },
+    "natacion-pileta": {
+      "nombre": "Natación - Pileta"
+    },
+    "actividades-nauticas": {
+      "nombre": "Actividades Náuticas"
+    },
+    "recreacion-y-tiempo-libre": {
+      "nombre": "Recreación y Tiempo Libre",
+      "grupo": "recreacion"
+    },
+    "gimnasio-de-musculacion": {
+      "nombre": "Gimnasio de musculación",
+      "grupo": "adultos",
+      "edad_min": 16
+    }
+  },
+  "sinonimos": {
+    "basquet": [
+      "basket",
+      "basketball",
+      "baloncesto"
+    ],
+    "cestoball": [
+      "cesto"
+    ],
+    "voley": [
+      "volley",
+      "voleibol",
+      "newcom"
+    ],
+    "futbol": [
+      "futsal",
+      "soccer",
+      "fulbito"
+    ],
+    "natacion": [
+      "pileta",
+      "nadar",
+      "piscina",
+      "acquagym",
+      "aquagym"
+    ],
+    "gimnasio": [
+      "gym",
+      "musculacion",
+      "pesas",
+      "sport club",
+      "sportclub"
+    ],
+    "padel": [
+      "paddle"
+    ],
+    "hadraja": [
+      "movimiento juvenil",
+      "tnua",
+      "janijim"
+    ],
+    "remo": [
+      "canotaje",
+      "kayak",
+      "nautica",
+      "nauticas"
+    ],
+    "danza": [
+      "baile",
+      "rikudim",
+      "zumba",
+      "ritmos"
+    ],
+    "yoga": [
+      "meditacion",
+      "stretching"
+    ],
+    "chicos": [
+      "ninos",
+      "ninas",
+      "infantil",
+      "infantiles",
+      "kids"
+    ]
+  },
+  "actividades": {
+    "acquagym": {
+      "nombre_bot": "Aquagym",
+      "base": "aquagym",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "acrobacia-para-adultos": {
+      "nombre_bot": "Acrobacia para adultos",
+      "base": "acrobacia",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "aerobica": {
+      "nombre_bot": "Aeróbica",
+      "base": "aerobica",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "basquet-femenino": {
+      "nombre_bot": "Basquet Femenino",
+      "base": "basquet",
+      "grupo": "adultos",
+      "genero": "femenino",
+      "edad_min": 18
+    },
+    "basquet-jardin": {
+      "nombre_bot": "Basquet Jardín",
+      "base": "basquet",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 4,
+      "edad_max": 5
+    },
+    "basquet-primaria": {
+      "nombre_bot": "Basquet Primaria",
+      "base": "basquet",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 8
+    },
+    "basquet-primaria-cdc": {
+      "nombre_bot": "Basquet Primaria CdC",
+      "base": "basquet",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 9
+    },
+    "basquet-recreativo-adultos": {
+      "nombre_bot": "Básquet Recreativo Adultos",
+      "base": "basquet",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "basquet-sala-de-5": {
+      "nombre_bot": "Básquet Sala de 5",
+      "base": "basquet",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 5,
+      "edad_max": 5
+    },
+    "beit-haieladim": {
+      "grupo": "hadraja",
+      "edad_min_meses": 6,
+      "edad_max_meses": 71,
+      "rango": "6 meses a 5 años",
+      "revisar": true
+    },
+    "body-local": {
+      "nombre_bot": "Body Local",
+      "base": "body",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "body-power": {
+      "grupo": "adultos",
+      "edad_min": 18,
+      "revisar": true
+    },
+    "box-training": {
+      "nombre_bot": "Box Training",
+      "base": "box",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "calistenia": {
+      "grupo": "adultos",
+      "edad_min": 18,
+      "revisar": true
+    },
+    "cesto-adultos": {
+      "nombre_bot": "Cesto adultos",
+      "base": "cesto",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "cesto-jardin": {
+      "nombre_bot": "Cestoball Jardín",
+      "base": "cestoball",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 4,
+      "edad_max": 5
+    },
+    "cesto-primaria": {
+      "nombre_bot": "Cestoball Primaria",
+      "base": "cestoball",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 10
+    },
+    "chiquieled": {
+      "nombre_bot": "Chiquieled",
+      "base": "chiquieled",
+      "grupo": "hadraja",
+      "genero": "mixto",
+      "edad_min": 4,
+      "edad_max": 5,
+      "rango": "4 y 5 años"
+    },
+    "coreo-kids": {
+      "nombre_bot": "Coreo Kids",
+      "base": "coreo",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 3,
+      "edad_max": 7
+    },
+    "coreo-zumba": {
+      "nombre_bot": "Coreo Zumba",
+      "base": "coreo",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 18,
+      "edad_max": 65
+    },
+    "curso-de-arte": {
+      "nombre_bot": "Arte Contemporáneo",
+      "base": "arte",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 40,
+      "edad_max": 100,
+      "aliases": [
+        "Arte Contemporáneo",
+        "Curso de Arte"
+      ]
+    },
+    "elenco-netzaj": {
+      "nombre_bot": "Elenco Netzaj",
+      "base": "elenco",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 35,
+      "edad_max": 50
+    },
+    "emshej": {
+      "nombre_bot": "Emshej",
+      "base": "emshej",
+      "grupo": "hadraja",
+      "genero": "mixto",
+      "edad_min": 13,
+      "edad_max": 21,
+      "rango": "Adolescentes de 13 a 21 años con discapacidad",
+      "discapacidad": true,
+      "aliases": [
+        "programa emshej",
+        "programa-emshej"
+      ]
+    },
+    "encuentros-de-pelicula": {
+      "grupo": "recreacion",
+      "edad_min": 60,
+      "rango": "Adultos mayores",
+      "revisar": true
+    },
+    "encuentros-y-sabores": {
+      "grupo": "recreacion",
+      "edad_min": 60,
+      "rango": "Adultos mayores",
+      "revisar": true
+    },
+    "energia-en-movimiento": {
+      "grupo": "adultos",
+      "edad_min": 18,
+      "revisar": true
+    },
+    "equipo-de-canotaje-promocional": {
+      "nombre_bot": "Equipo de Canotaje Promocional",
+      "base": "canotaje",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 8,
+      "edad_max": 15
+    },
+    "equipo-de-remo-promocional": {
+      "nombre_bot": "Equipo de Remo Promocional",
+      "base": "remo",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 12,
+      "edad_max": 16
+    },
+    "escuela-de-deportes-nauticos": {
+      "nombre_bot": "Escuela de Deportes Náuticos",
+      "base": "nauticos",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 12
+    },
+    "escuela-de-madrijim": {
+      "nombre_bot": "Escuela de Madrijim",
+      "base": "escuela-de-madrijim",
+      "grupo": "hadraja",
+      "genero": "mixto",
+      "edad_min": 15,
+      "edad_max": 17,
+      "rango": "3° y 4° año"
+    },
+    "escuela-de-remo-y-canotaje": {
+      "nombre_bot": "Escuela de Remo y Canotaje",
+      "base": "remo",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 12
+    },
+    "escuelas-deportivas-club-de-campo": {
+      "nombre_bot": "Escuelas Deportivas Club de Campo",
+      "base": "escuelas",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 3,
+      "edad_max": 9
+    },
+    "eventos-especiales": {
+      "nombre_bot": "Eventos especiales",
+      "base": "eventos",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 18,
+      "edad_max": 100
+    },
+    "funcional": {
+      "nombre_bot": "Funcional",
+      "base": "funcional",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "futbol-11": {
+      "nombre_bot": "Fútbol 11 recreativo",
+      "base": "futbol",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "futbol-femenino-primaria": {
+      "nombre_bot": "Fútbol Femenino Primaria",
+      "base": "futbol",
+      "grupo": "escuelas",
+      "genero": "femenino",
+      "edad_min": 6,
+      "edad_max": 8
+    },
+    "futbol-femenino-primaria-escuelas-deportivas-club-de-campo": {
+      "nombre_bot": "Fútbol Femenino Primaria CdC",
+      "base": "futbol",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 9
+    },
+    "futbol-jardin": {
+      "nombre_bot": "Futbol Jardin",
+      "base": "futbol",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 4,
+      "edad_max": 5
+    },
+    "futbol-primaria": {
+      "nombre_bot": "Fútbol Primaria",
+      "base": "futbol",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 8
+    },
+    "futbol-primaria-escuelas-deportivas-club-de-campo": {
+      "nombre_bot": "Fútbol Primaria CdC",
+      "base": "futbol",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 9
+    },
+    "futbol-recreativo-adultos": {
+      "nombre_bot": "Fútbol Recreativo Femenino Adultas",
+      "base": "futbol",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "futbol-recreativo-ninos": {
+      "nombre_bot": "Fútbol Recreativo Niños",
+      "base": "futbol",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 9
+    },
+    "futbol-sala-de-5": {
+      "nombre_bot": "Fútbol Sala de 5",
+      "base": "futbol",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 5,
+      "edad_max": 5
+    },
+    "gap": {
+      "nombre_bot": "GAP",
+      "base": "gap",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "gimnasia-artistica-adolescentes": {
+      "nombre_bot": "Gimnasia Artística Adolescentes",
+      "base": "gimnasia",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 12,
+      "edad_max": 18
+    },
+    "gimnasia-artistica-avanzado": {
+      "nombre_bot": "Gimnasia Artística Avanzado",
+      "base": "gimnasia",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 8,
+      "edad_max": 12
+    },
+    "gimnasia-artistica-jardin": {
+      "nombre_bot": "Gimnasia Artistica Jardín",
+      "base": "gimnasia",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 4,
+      "edad_max": 5
+    },
+    "gimnasia-artistica-nivel-avanzado": {
+      "nombre_bot": "Gimnasia Artística Nivel Avanzado",
+      "base": "gimnasia",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 8,
+      "edad_max": 12
+    },
+    "gimnasia-artistica-primaria": {
+      "nombre_bot": "Gimnasia Artística Primaria CdC",
+      "base": "gimnasia",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 9
+    },
+    "gimnasia-artistica-primaria-escuelas-deportivas": {
+      "nombre_bot": "Gimnasia Artistica Primaria",
+      "base": "gimnasia",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 9
+    },
+    "gimnasia-caballeros": {
+      "nombre_bot": "Gimnasia Caballeros + 60",
+      "base": "gimnasia",
+      "grupo": "adultos",
+      "genero": "masculino",
+      "edad_min": 18
+    },
+    "gimnasia-en-sillas": {
+      "nombre_bot": "Gimnasia en Sillas",
+      "base": "gimnasia",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "gimnasia-postural": {
+      "nombre_bot": "Gimnasia Postural",
+      "base": "gimnasia",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "gimnasia-sala-de-5": {
+      "nombre_bot": "Gimnasia Sala de 5",
+      "base": "gimnasia",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 5,
+      "edad_max": 5
+    },
+    "gimnasio-de-musculacion": {
+      "nombre_bot": "Gimnasios",
+      "base": "gimnasios",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "golf-clases": {
+      "nombre_bot": "Golf Clases",
+      "base": "golf",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "golf-escuela-deportiva": {
+      "nombre_bot": "Golf",
+      "base": "golf",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 4,
+      "edad_max": 12,
+      "aliases": [
+        "Golf",
+        "Golf Escuela Deportiva"
+      ]
+    },
+    "golf-para-chicos": {
+      "base": "golf",
+      "grupo": "escuelas",
+      "edad_min": 4,
+      "edad_max": 12,
+      "revisar": true
+    },
+    "golf-principiantes": {
+      "nombre_bot": "Golf Principiantes",
+      "base": "golf",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 16,
+      "edad_max": 99
+    },
+    "golf-salidas": {
+      "nombre_bot": "Golf Salidas",
+      "base": "golf",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "grupitos": {
+      "grupo": "hadraja",
+      "revisar": true
+    },
+    "grupo-encuentro": {
+      "nombre_bot": "Grupo Encuentro",
+      "base": "grupo",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 65,
+      "edad_max": 100
+    },
+    "grupo-vocal": {
+      "nombre_bot": "Grupo Vocal",
+      "base": "grupo",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 30,
+      "edad_max": 100
+    },
+    "harkada": {
+      "nombre_bot": "Harkadá",
+      "base": "harkada",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 18,
+      "edad_max": 75
+    },
+    "hiit": {
+      "nombre_bot": "HIIT",
+      "base": "hiit",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "hockey-10ma": {
+      "nombre_bot": "Hockey 10ma",
+      "base": "hockey",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 8,
+      "edad_max": 8
+    },
+    "hockey-jardin": {
+      "nombre_bot": "Hockey Jardín",
+      "base": "hockey",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 4,
+      "edad_max": 5
+    },
+    "hockey-primaria": {
+      "nombre_bot": "Hockey Primaria",
+      "base": "hockey",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 8
+    },
+    "hockey-primaria-cdc": {
+      "nombre_bot": "Hockey Primaria CdC",
+      "base": "hockey",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 9
+    },
+    "hockey-recreativo": {
+      "nombre_bot": "Hockey Recreativo",
+      "base": "hockey",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "hockey-sala-de-5": {
+      "nombre_bot": "Hockey Sala de 5",
+      "base": "hockey",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 5,
+      "edad_max": 5
+    },
+    "judo": {
+      "nombre_bot": "Judo",
+      "base": "judo",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 4,
+      "edad_max": 10
+    },
+    "judo-deportes-adultos": {
+      "base": "judo",
+      "grupo": "adultos",
+      "edad_min": 18,
+      "revisar": true
+    },
+    "jueves-en-movimiento": {
+      "nombre_bot": "Jueves en Movimiento",
+      "base": "jueves",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 50,
+      "edad_max": 100
+    },
+    "kesher": {
+      "nombre_bot": "Kesher",
+      "base": "kesher",
+      "grupo": "hadraja",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 9,
+      "rango": "1° a 3° grado"
+    },
+    "kinder-4-sports": {
+      "nombre_bot": "Kinder 4 Sports",
+      "base": "kinder",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 3,
+      "edad_max": 4
+    },
+    "kinder-high-5": {
+      "nombre_bot": "Kinder High 5",
+      "base": "kinder",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 4,
+      "edad_max": 5
+    },
+    "kinder-time-to-play": {
+      "nombre_bot": "Kinder Time to Play",
+      "base": "kinder",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 2,
+      "edad_max": 2
+    },
+    "localizada": {
+      "nombre_bot": "Localizada",
+      "base": "localizada",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "makom": {
+      "nombre_bot": "Makom",
+      "base": "makom",
+      "grupo": "hadraja",
+      "genero": "mixto",
+      "edad_min": 12,
+      "edad_max": 15,
+      "rango": "7° grado a 2° año"
+    },
+    "mini-sports": {
+      "nombre_bot": "Minisports",
+      "base": "minisports",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 3,
+      "edad_max": 4
+    },
+    "natacion-adultos": {
+      "base": "natacion",
+      "grupo": "adultos",
+      "edad_min": 18,
+      "revisar": true
+    },
+    "natacion-ninos-pileta": {
+      "base": "natacion",
+      "grupo": "escuelas",
+      "edad_min": 4,
+      "edad_max": 12,
+      "rango": "Jardín y primaria",
+      "revisar": true
+    },
+    "natacion-ninos-y-adolescentes": {
+      "base": "natacion",
+      "grupo": "escuelas",
+      "edad_min": 4,
+      "edad_max": 17,
+      "rango": "Sala de 4 años a adolescentes",
+      "revisar": true
+    },
+    "natacion-pileta-adolescentes": {
+      "nombre_bot": "Natación Pileta Adolescentes",
+      "base": "natacion-pileta",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 12,
+      "edad_max": 18
+    },
+    "natacion-pileta-adultos": {
+      "nombre_bot": "Natación Pileta Adultos",
+      "base": "natacion-pileta",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18,
+      "edad_max": 99
+    },
+    "natacion-pileta-escuelas": {
+      "nombre_bot": "Natación Pileta Escuelas",
+      "base": "natacion-pileta",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 4,
+      "edad_max": 7
+    },
+    "natacion-pileta-jardin": {
+      "nombre_bot": "Natación Pileta Jardín",
+      "base": "natacion-pileta",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 4,
+      "edad_max": 5
+    },
+    "natacion-pileta-libre": {
+      "nombre_bot": "Natación Pileta Libre",
+      "base": "natacion-pileta",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18,
+      "edad_max": 99
+    },
+    "natacion-pileta-primaria": {
+      "nombre_bot": "Natación Pileta Primaria",
+      "base": "natacion-pileta",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 12
+    },
+    "natacion-pileta-verano": {
+      "base": "natacion",
+      "revisar": true
+    },
+    "newcom-adultas": {
+      "nombre_bot": "Newcom Adultas",
+      "base": "newcom",
+      "grupo": "adultos",
+      "genero": "femenino",
+      "edad_min": 18,
+      "sin_termino_wp": true
+    },
+    "noche-de-amigos": {
+      "grupo": "recreacion",
+      "edad_min": 11,
+      "edad_max": 13,
+      "rango": "11 a 13 años",
+      "revisar": true
+    },
+    "olami": {
+      "nombre_bot": "Olami",
+      "base": "olami",
+      "grupo": "hadraja",
+      "genero": "mixto",
+      "edad_max": 3,
+      "edad_min_meses": 6,
+      "edad_max_meses": 36,
+      "rango": "6 meses a 3 años"
+    },
+    "padel": {
+      "nombre_bot": "Padel",
+      "base": "padel",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "padel-cancha-abierta": {
+      "base": "padel",
+      "grupo": "adultos",
+      "rango": "Cada domingo convoca a un público distinto (mujeres, varones, jóvenes, mixto adultos, familiar)",
+      "revisar": true
+    },
+    "padel-escuela": {
+      "nombre_bot": "Padel",
+      "base": "padel",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 4,
+      "edad_max": 12,
+      "aliases": [
+        "Padel",
+        "Padel Escuela"
+      ]
+    },
+    "patin-artistico": {
+      "nombre_bot": "Patin Artistico",
+      "base": "patin",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 8
+    },
+    "preparacion-fisica": {
+      "nombre_bot": "Preparación Física",
+      "base": "preparacion",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "programa-bitnuah": {
+      "nombre_bot": "Programa Bitnuah",
+      "base": "programa",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 65,
+      "edad_max": 100
+    },
+    "programa-magal": {
+      "nombre_bot": "Programa Magal",
+      "base": "programa-magal",
+      "grupo": "hadraja",
+      "genero": "mixto",
+      "edad_max": 21,
+      "edad_min_meses": 6,
+      "rango": "Niños y niñas de 6 meses en adelante y adolescentes con discapacidad",
+      "discapacidad": true,
+      "sin_termino_wp": true
+    },
+    "randomingos": {
+      "grupo": "escuelas",
+      "edad_min": 3,
+      "edad_max": 5,
+      "rango": "Salas de 3, 4 y 5",
+      "revisar": true
+    },
+    "randomingos-escuelas-deportivas-club-de-campo": {
+      "nombre_bot": "Randomingos Escuelas Club de Campo",
+      "base": "randomingos",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 3,
+      "edad_max": 5
+    },
+    "remo-de-travesia-competitivo": {
+      "nombre_bot": "Remo de Travesía Competitivo",
+      "base": "remo",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "remo-indoor-clases-y-entrenamiento": {
+      "nombre_bot": "Remo Indoor Clases y Entrenamiento",
+      "base": "remo",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "remo-y-canotaje-clases-adultos": {
+      "nombre_bot": "Remo y Canotaje clases adultos",
+      "base": "remo",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "remo-y-canotaje-escuela": {
+      "nombre_bot": "Remo y Canotaje",
+      "base": "remo",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 12
+    },
+    "remo-y-canotaje-salidas": {
+      "nombre_bot": "Remo y Canotaje salidas",
+      "base": "remo",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "rikudim": {
+      "nombre_bot": "Rikudim",
+      "base": "rikudim",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 18,
+      "edad_max": 75
+    },
+    "rikudim-principiantes": {
+      "nombre_bot": "Rikudim Principiantes",
+      "base": "rikudim",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 18,
+      "edad_max": 75
+    },
+    "ritmix-dance": {
+      "nombre_bot": "Ritmix Dance",
+      "base": "ritmix",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 16,
+      "edad_max": 99
+    },
+    "ritmix-dance-deportes-adultos": {
+      "nombre_bot": "Ritmix Dance",
+      "base": "ritmix",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "ritmos": {
+      "nombre_bot": "Ritmos",
+      "base": "ritmos",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 50,
+      "edad_max": 100
+    },
+    "ritmos-65": {
+      "nombre_bot": "Ritmos +65",
+      "base": "ritmos",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 50,
+      "edad_max": 100
+    },
+    "rotacion-2-deportes": {
+      "grupo": "escuelas",
+      "edad_min": 6,
+      "edad_max": 8,
+      "rango": "1er grado hasta categoría 2018",
+      "revisar": true
+    },
+    "rotacion-3-deportes": {
+      "grupo": "escuelas",
+      "edad_min": 6,
+      "edad_max": 8,
+      "rango": "1er grado hasta categoría 2018",
+      "revisar": true
+    },
+    "running": {
+      "nombre_bot": "Running",
+      "base": "running",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "shitufim": {
+      "nombre_bot": "Shitufim",
+      "base": "shitufim",
+      "grupo": "hadraja",
+      "genero": "mixto",
+      "edad_min": 9,
+      "edad_max": 12,
+      "rango": "4° a 6° grado"
+    },
+    "spinning": {
+      "nombre_bot": "Spinning",
+      "base": "spinning",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "sport-club-hacoaj": {
+      "nombre_bot": "Sport Club Hacoaj",
+      "base": "sport",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "squash": {
+      "nombre_bot": "Squash",
+      "base": "squash",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "stretching": {
+      "nombre_bot": "Stretching",
+      "base": "stretching",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "strong-full-body": {
+      "grupo": "adultos",
+      "edad_min": 18,
+      "revisar": true
+    },
+    "tai-chi": {
+      "nombre_bot": "Tai Chi",
+      "base": "tai",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 40,
+      "edad_max": 100
+    },
+    "talleres-de-cine": {
+      "nombre_bot": "Talleres de Cine",
+      "base": "talleres",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 25,
+      "edad_max": 100
+    },
+    "teatro": {
+      "nombre_bot": "Teatro",
+      "base": "teatro",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 40,
+      "edad_max": 100
+    },
+    "tenis": {
+      "nombre_bot": "Tenis",
+      "base": "tenis",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "tenis-escuela": {
+      "nombre_bot": "Tenis",
+      "base": "tenis",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 4,
+      "edad_max": 12,
+      "aliases": [
+        "Tenis",
+        "Tenis Escuela"
+      ]
+    },
+    "tiferet": {
+      "nombre_bot": "Tiferet",
+      "base": "tiferet",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 35,
+      "edad_max": 75
+    },
+    "travesias-recreativas": {
+      "nombre_bot": "Travesías Recreativas",
+      "base": "travesias",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "triatlon": {
+      "nombre_bot": "Triatlón",
+      "base": "triatlon",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "voley-adultos-mixto": {
+      "nombre_bot": "Voley Adultos mixto",
+      "base": "voley",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "voley-escuela": {
+      "nombre_bot": "Voley",
+      "base": "voley",
+      "grupo": "escuelas",
+      "genero": "mixto",
+      "edad_min": 6,
+      "edad_max": 12,
+      "aliases": [
+        "Voley",
+        "Voley Escuela"
+      ]
+    },
+    "yoga": {
+      "nombre_bot": "Yoga",
+      "base": "yoga",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "yoga-power": {
+      "nombre_bot": "Yoga Power",
+      "base": "yoga",
+      "grupo": "adultos",
+      "genero": "mixto",
+      "edad_min": 18
+    },
+    "zugot-parejas": {
+      "nombre_bot": "Zugot Parejas",
+      "base": "zugot",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 35,
+      "edad_max": 65
+    },
+    "zumba": {
+      "nombre_bot": "Zumba",
+      "base": "zumba",
+      "grupo": "culturales",
+      "genero": "mixto",
+      "edad_min": 35,
+      "edad_max": 70
+    }
+  },
+  "federados": [
+    {
+      "slug": "basquet-mosquitos",
+      "deporte": "basquet",
+      "categoria": "Mosquitos",
+      "genero": "masculino",
+      "edad_min": 4,
+      "edad_max": 7,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Martes y jueves de 17.30 a 19.30 h",
+        "Sábados y domingos de 11 a 12.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-premini-azul",
+      "deporte": "basquet",
+      "categoria": "Premini Azul",
+      "genero": "masculino",
+      "edad_min": 8,
+      "edad_max": 9,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes de 17.30 a 18.45 h",
+        "Martes y jueves de 17.30 a 19.30 h",
+        "Domingos de 11 a 12.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-premini-blanco",
+      "deporte": "basquet",
+      "categoria": "Premini Blanco",
+      "genero": "masculino",
+      "edad_min": 8,
+      "edad_max": 9,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes de 17.30 a 18.45 h",
+        "Martes y jueves de 17.30 a 19.30 h",
+        "Domingos de 11 a 12.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-mini-azul",
+      "deporte": "basquet",
+      "categoria": "Mini Azul",
+      "genero": "masculino",
+      "edad_min": 10,
+      "edad_max": 11,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes de 17.30 a 19.30 h",
+        "Martes y jueves de 17.30 a 19.30 h",
+        "Domingos de 11 a 12.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-mini-blanco",
+      "deporte": "basquet",
+      "categoria": "Mini Blanco",
+      "genero": "masculino",
+      "edad_min": 10,
+      "edad_max": 11,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes de 17.30 a 19.30 h",
+        "Martes y jueves de 17.30 a 19.30 h",
+        "Domingos de 11 a 12.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-infantil-azul",
+      "deporte": "basquet",
+      "categoria": "Infantil Azul",
+      "genero": "masculino",
+      "edad_min": 12,
+      "edad_max": 13,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes de 18 a 20 h",
+        "Miércoles y viernes de 18 a 20.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-infantil-blanco",
+      "deporte": "basquet",
+      "categoria": "Infantil Blanco",
+      "genero": "masculino",
+      "edad_min": 12,
+      "edad_max": 13,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes de 18 a 20 h",
+        "Miércoles y viernes de 18 a 20.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-cadete-blanco",
+      "deporte": "basquet",
+      "categoria": "Cadete Blanco",
+      "genero": "masculino",
+      "edad_min": 14,
+      "edad_max": 15,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes de 18 a 20 h",
+        "Miércoles y viernes de 18 a 20.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-cadete-azul",
+      "deporte": "basquet",
+      "categoria": "Cadete Azul",
+      "genero": "masculino",
+      "edad_min": 14,
+      "edad_max": 15,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes de 18 a 20 h",
+        "Miércoles y viernes de 18 a 20.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-cadetes-flex",
+      "deporte": "basquet",
+      "categoria": "Cadetes Flex",
+      "genero": "masculino",
+      "edad_min": 14,
+      "edad_max": 15,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Martes de 18.30 a 20.30 h",
+        "Jueves de 19.30 a 21 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-juvenil-azul",
+      "deporte": "basquet",
+      "categoria": "Juvenil Azul",
+      "genero": "masculino",
+      "edad_min": 16,
+      "edad_max": 17,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes de 19 a 21 h",
+        "Martes y jueves de 18.30 a 21 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-juvenil-blanco",
+      "deporte": "basquet",
+      "categoria": "Juvenil Blanco",
+      "genero": "masculino",
+      "edad_min": 16,
+      "edad_max": 17,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes de 19 a 21 h",
+        "Martes y jueves de 18.30 a 21 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-juvenil-flex",
+      "deporte": "basquet",
+      "categoria": "Juvenil Flex",
+      "genero": "masculino",
+      "edad_min": 16,
+      "edad_max": 17,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Martes de 18.30 a 20.30 h",
+        "Jueves de 19.30 a 21 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-liga-promocional-azul",
+      "deporte": "basquet",
+      "categoria": "Liga Promocional Azul",
+      "genero": "masculino",
+      "edad_min": 18,
+      "edad_max": 21,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes, martes y jueves de 20 a 22.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-liga-promocional-blanco",
+      "deporte": "basquet",
+      "categoria": "Liga Promocional Blanco",
+      "genero": "masculino",
+      "edad_min": 18,
+      "edad_max": 21,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes, martes y jueves de 20 a 22.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-primera-blanco",
+      "deporte": "basquet",
+      "categoria": "Primera Blanco",
+      "genero": "masculino",
+      "edad_min": 21,
+      "edad_max": 45,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes de 20 a 22.30 h",
+        "Martes de 19.30 a 21.30 h",
+        "Miércoles de 20.30 a 22 h",
+        "Jueves de 20 a 22.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-primera-azul",
+      "deporte": "basquet",
+      "categoria": "Primera Azul",
+      "genero": "masculino",
+      "edad_min": 21,
+      "edad_max": 45,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Martes de 20 a 22.30 h",
+        "Jueves de 20 a 22.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-primera-h",
+      "deporte": "basquet",
+      "categoria": "Primera H",
+      "genero": "masculino",
+      "edad_min": 21,
+      "edad_max": 45,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Miércoles y viernes de 20.30 a 22 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-mini",
+      "deporte": "basquet",
+      "categoria": "Mini",
+      "genero": "femenino",
+      "edad_min": 10,
+      "edad_max": 11,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Miércoles y viernes de 17.30 a 19 h",
+        "Sábados de 11 a 12 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-infantil",
+      "deporte": "basquet",
+      "categoria": "Infantil",
+      "genero": "femenino",
+      "edad_min": 12,
+      "edad_max": 13,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Miércoles y viernes de 19 a 20.30 h",
+        "Sábados de 12 a 13 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-cadetas",
+      "deporte": "basquet",
+      "categoria": "Cadetas",
+      "genero": "femenino",
+      "edad_min": 14,
+      "edad_max": 15,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Miércoles y viernes de 19 a 20.30 h",
+        "Sábados de 12 a 13 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "basquet-mayor",
+      "deporte": "basquet",
+      "categoria": "Mayor",
+      "genero": "femenino",
+      "edad_min": 18,
+      "edad_max": 45,
+      "sede": "Tigre Maliar / Club de Campo",
+      "horarios": [
+        "Lunes de 20.30 a 21.30 h",
+        "Sábados de 14.30 a 15.30 h",
+        "Miércoles de 19.30 a 20.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/basquet-federado/"
+    },
+    {
+      "slug": "canotaje-equipo-promocional-8-anos",
+      "deporte": "canotaje",
+      "categoria": "Equipo promocional +8 años",
+      "genero": "mixto",
+      "edad_min": 8,
+      "sede": "Tigre Maliar, Rampa",
+      "horarios": [
+        "Martes y jueves de 17.30 a 20.30 h",
+        "Sábados y domingos de 11 a 13 h"
+      ],
+      "url": "https://hacoaj.org.ar/canotaje-federado/"
+    },
+    {
+      "slug": "canotaje-equipo-oficial",
+      "deporte": "canotaje",
+      "categoria": "Equipo oficial",
+      "genero": "mixto",
+      "sede": "Tigre Maliar, Rampa",
+      "horarios": [
+        "Lunes a viernes de 18 a 21 h",
+        "Sábados de 8 a 10.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/canotaje-federado/"
+    },
+    {
+      "slug": "cestoball-premini",
+      "deporte": "cestoball",
+      "categoria": "Premini",
+      "genero": "femenino",
+      "edad_max": 10,
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Martes y jueves de 17 a 18.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/cestoball-federado/"
+    },
+    {
+      "slug": "cestoball-escuela-premini",
+      "deporte": "cestoball",
+      "categoria": "Escuela Premini",
+      "genero": "femenino",
+      "edad_max": 10,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Sábados y domingos de 13 a 14 h"
+      ],
+      "url": "https://hacoaj.org.ar/cestoball-federado/"
+    },
+    {
+      "slug": "cestoball-mini",
+      "deporte": "cestoball",
+      "categoria": "Mini",
+      "genero": "femenino",
+      "edad_min": 11,
+      "edad_max": 12,
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Martes de 18.30 a 20 h",
+        "Jueves de 18 a 19.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/cestoball-federado/"
+    },
+    {
+      "slug": "cestoball-escuela-mini",
+      "deporte": "cestoball",
+      "categoria": "Escuela Mini",
+      "genero": "femenino",
+      "edad_min": 11,
+      "edad_max": 12,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Sábados o domingos de 14 a 15 h"
+      ],
+      "url": "https://hacoaj.org.ar/cestoball-federado/"
+    },
+    {
+      "slug": "cestoball-infantil",
+      "deporte": "cestoball",
+      "categoria": "Infantil",
+      "genero": "femenino",
+      "edad_min": 13,
+      "edad_max": 14,
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Martes de 17.30 a 19.30 h",
+        "Jueves de 18.30 a 20.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/cestoball-federado/"
+    },
+    {
+      "slug": "cestoball-cadetas",
+      "deporte": "cestoball",
+      "categoria": "Cadetas",
+      "genero": "femenino",
+      "edad_min": 15,
+      "edad_max": 18,
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Martes de 18.30 a 21 h",
+        "Jueves de 19.15 a 21.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/cestoball-federado/"
+    },
+    {
+      "slug": "cestoball-primera-division",
+      "deporte": "cestoball",
+      "categoria": "Primera División",
+      "genero": "femenino",
+      "edad_min": 18,
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Lunes de 19.45 a 22.15 h",
+        "Martes de 19.45 a 22.15 h",
+        "Jueves de 20 a 22.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/cestoball-federado/"
+    },
+    {
+      "slug": "cestoball-masculino",
+      "deporte": "cestoball",
+      "categoria": "Masculino",
+      "genero": "masculino",
+      "edad_min": 18,
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Lunes de 21 a 22.15 h",
+        "Martes de 19.45 a 22.15 h"
+      ],
+      "url": "https://hacoaj.org.ar/cestoball-federado/"
+    },
+    {
+      "slug": "futbol-categorias-2006-2007",
+      "deporte": "futbol",
+      "categoria": "Categorías 2006-2007",
+      "genero": "masculino",
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes, miércoles y jueves de 20.30 a 22.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/",
+      "anio_nacimiento_min": 2006,
+      "anio_nacimiento_max": 2007
+    },
+    {
+      "slug": "futbol-categoria-2008",
+      "deporte": "futbol",
+      "categoria": "Categoría 2008",
+      "genero": "masculino",
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes, miércoles y jueves de 18.30 a 20.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/",
+      "anio_nacimiento_min": 2008,
+      "anio_nacimiento_max": 2008
+    },
+    {
+      "slug": "futbol-categoria-2009",
+      "deporte": "futbol",
+      "categoria": "Categoría 2009",
+      "genero": "masculino",
+      "sede": "Tigre Maliar y Club de Campo",
+      "horarios": [
+        "Lunes, miércoles y jueves de 18.30 a 20.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/",
+      "anio_nacimiento_min": 2009,
+      "anio_nacimiento_max": 2009
+    },
+    {
+      "slug": "futbol-categoria-2010",
+      "deporte": "futbol",
+      "categoria": "Categoría 2010",
+      "genero": "masculino",
+      "sede": "Club de Campo",
+      "horarios": [
+        "Martes y jueves de 18.30 a 20.30 h",
+        "Sábados de 11 a 12.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/",
+      "anio_nacimiento_min": 2010,
+      "anio_nacimiento_max": 2010
+    },
+    {
+      "slug": "futbol-categoria-2011",
+      "deporte": "futbol",
+      "categoria": "Categoría 2011",
+      "genero": "masculino",
+      "sede": "Club de Campo",
+      "horarios": [
+        "Martes y jueves de 18.30 a 20.30 h",
+        "Sábados de 11 a 12.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/",
+      "anio_nacimiento_min": 2011,
+      "anio_nacimiento_max": 2011
+    },
+    {
+      "slug": "futbol-categoria-2012",
+      "deporte": "futbol",
+      "categoria": "Categoría 2012",
+      "genero": "masculino",
+      "sede": "Club de Campo",
+      "horarios": [
+        "Martes y jueves de 18.30 a 20.30 h",
+        "Sábados de 11 a 12.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/",
+      "anio_nacimiento_min": 2012,
+      "anio_nacimiento_max": 2012
+    },
+    {
+      "slug": "futbol-categoria-2013",
+      "deporte": "futbol",
+      "categoria": "Categoría 2013",
+      "genero": "masculino",
+      "sede": "Club de Campo",
+      "horarios": [
+        "Lunes y miércoles de 18 a 20 h",
+        "Sábados de 9.30 a 11 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/",
+      "anio_nacimiento_min": 2013,
+      "anio_nacimiento_max": 2013
+    },
+    {
+      "slug": "futbol-categoria-2014",
+      "deporte": "futbol",
+      "categoria": "Categoría 2014",
+      "genero": "masculino",
+      "sede": "Club de Campo",
+      "horarios": [
+        "Lunes y miércoles de 18 a 20 h",
+        "Sábados de 9.30 a 11 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/",
+      "anio_nacimiento_min": 2014,
+      "anio_nacimiento_max": 2014
+    },
+    {
+      "slug": "futbol-categoria-2015",
+      "deporte": "futbol",
+      "categoria": "Categoría 2015",
+      "genero": "masculino",
+      "sede": "Club de Campo",
+      "horarios": [
+        "Lunes y miércoles de 18 a 20 h",
+        "Sábados de 9.30 a 11 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/",
+      "anio_nacimiento_min": 2015,
+      "anio_nacimiento_max": 2015
+    },
+    {
+      "slug": "futbol-categoria-2016",
+      "deporte": "futbol",
+      "categoria": "Categoría 2016",
+      "genero": "masculino",
+      "sede": "Club de Campo",
+      "horarios": [
+        "Lunes y miércoles de 18 a 20 h",
+        "Sábados de 9.30 a 11 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/",
+      "anio_nacimiento_min": 2016,
+      "anio_nacimiento_max": 2016
+    },
+    {
+      "slug": "futbol-categoria-2017",
+      "deporte": "futbol",
+      "categoria": "Categoría 2017",
+      "genero": "masculino",
+      "sede": "Club de Campo",
+      "horarios": [
+        "Lunes y miércoles de 18 a 20 h",
+        "Sábados de 9.30 a 11 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/",
+      "anio_nacimiento_min": 2017,
+      "anio_nacimiento_max": 2017
+    },
+    {
+      "slug": "futbol-sub-10",
+      "deporte": "futbol",
+      "categoria": "Sub 10",
+      "genero": "femenino",
+      "edad_max": 10,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Martes y jueves de 18 a 20 h",
+        "Sábados de 11 a 12.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/"
+    },
+    {
+      "slug": "futbol-sub-12",
+      "deporte": "futbol",
+      "categoria": "Sub 12",
+      "genero": "femenino",
+      "edad_max": 12,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Martes y jueves de 18 a 20 h",
+        "Sábados de 11 a 12.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/"
+    },
+    {
+      "slug": "futbol-sub-14",
+      "deporte": "futbol",
+      "categoria": "Sub 14",
+      "genero": "femenino",
+      "edad_max": 14,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Martes y jueves de 18 a 20 h",
+        "Sábados de 11 a 12.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/"
+    },
+    {
+      "slug": "futbol-sub17",
+      "deporte": "futbol",
+      "categoria": "Sub17",
+      "genero": "femenino",
+      "edad_max": 17,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Martes y jueves de 18 a 20 h",
+        "Sábados de 11 a 12.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/"
+    },
+    {
+      "slug": "futbol-primera-promocional-amateur-afa",
+      "deporte": "futbol",
+      "categoria": "Primera Promocional Amateur AFA",
+      "genero": "masculino",
+      "edad_min": 18,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes, miércoles y jueves de 20.30 a 22.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/"
+    },
+    {
+      "slug": "futbol-primera-liga-escobar",
+      "deporte": "futbol",
+      "categoria": "Primera Liga Escobar",
+      "genero": "masculino",
+      "edad_min": 18,
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes, miércoles y jueves de 20.30 a 22.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/"
+    },
+    {
+      "slug": "futbol-primera-aifa",
+      "deporte": "futbol",
+      "categoria": "Primera AIFA",
+      "genero": "masculino",
+      "edad_min": 18,
+      "sede": "Club de Campo",
+      "horarios": [
+        "Martes y jueves de 20.30 a 22.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/"
+    },
+    {
+      "slug": "futbol-primera-faccma",
+      "deporte": "futbol",
+      "categoria": "Primera Faccma",
+      "genero": "masculino",
+      "edad_min": 18,
+      "sede": "Club de Campo",
+      "horarios": [
+        "Martes y jueves de 20.30 a 22.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/"
+    },
+    {
+      "slug": "futbol-primera-luefi",
+      "deporte": "futbol",
+      "categoria": "Primera LUEFI",
+      "genero": "femenino",
+      "edad_min": 18,
+      "sede": "Club de Campo",
+      "horarios": [
+        "Martes, miércoles y jueves de 20.30 a 22.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/futbol-federado/"
+    },
+    {
+      "slug": "gimnasia-artistica-equipo-2",
+      "deporte": "gimnasia-artistica",
+      "categoria": "Equipo 2",
+      "genero": "femenino",
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Martes, jueves y viernes de 17 a 20 h"
+      ],
+      "url": "https://hacoaj.org.ar/gimnasia-artistica-federada/"
+    },
+    {
+      "slug": "gimnasia-artistica-equipo-3",
+      "deporte": "gimnasia-artistica",
+      "categoria": "Equipo 3",
+      "genero": "femenino",
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes, miércoles y viernes de 17.30 a 20.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/gimnasia-artistica-federada/"
+    },
+    {
+      "slug": "gimnasia-artistica-equipo-intermedio-1",
+      "deporte": "gimnasia-artistica",
+      "categoria": "Equipo Intermedio 1",
+      "genero": "femenino",
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Lunes, miércoles y viernes de 17 a 20.30 h",
+        "Sábados de 9 a 13 h"
+      ],
+      "url": "https://hacoaj.org.ar/gimnasia-artistica-federada/"
+    },
+    {
+      "slug": "gimnasia-artistica-equipo-intermedio-3",
+      "deporte": "gimnasia-artistica",
+      "categoria": "Equipo Intermedio 3",
+      "genero": "femenino",
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Lunes, miércoles y viernes de 17 a 20.30 h",
+        "Sábados de 9 a 13 h"
+      ],
+      "url": "https://hacoaj.org.ar/gimnasia-artistica-federada/"
+    },
+    {
+      "slug": "gimnasia-artistica-equipo-intermedio-4",
+      "deporte": "gimnasia-artistica",
+      "categoria": "Equipo Intermedio 4",
+      "genero": "femenino",
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Martes, jueves y viernes de 17 a 20 h"
+      ],
+      "url": "https://hacoaj.org.ar/gimnasia-artistica-federada/"
+    },
+    {
+      "slug": "gimnasia-artistica-equipo-intermedio-5",
+      "deporte": "gimnasia-artistica",
+      "categoria": "Equipo Intermedio 5",
+      "genero": "femenino",
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes, miércoles y viernes de 17.30 a 20.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/gimnasia-artistica-federada/"
+    },
+    {
+      "slug": "gimnasia-artistica-equipo-intermedio-6",
+      "deporte": "gimnasia-artistica",
+      "categoria": "Equipo Intermedio 6",
+      "genero": "femenino",
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes, miércoles y viernes de 17.30 a 20.30 h",
+        "Sábados de 9 a 13 h"
+      ],
+      "url": "https://hacoaj.org.ar/gimnasia-artistica-federada/"
+    },
+    {
+      "slug": "gimnasia-artistica-equipo-avanzado-1",
+      "deporte": "gimnasia-artistica",
+      "categoria": "Equipo Avanzado 1",
+      "genero": "femenino",
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Lunes a viernes de 14.30 a 19 h",
+        "Sábados de 9 a 13 h"
+      ],
+      "url": "https://hacoaj.org.ar/gimnasia-artistica-federada/"
+    },
+    {
+      "slug": "gimnasia-artistica-equipo-avanzado-2",
+      "deporte": "gimnasia-artistica",
+      "categoria": "Equipo Avanzado 2",
+      "genero": "femenino",
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Lunes, martes, jueves y viernes de 16.30 a 20.30 h",
+        "Sábados de 9 a 13 h"
+      ],
+      "url": "https://hacoaj.org.ar/gimnasia-artistica-federada/"
+    },
+    {
+      "slug": "gimnasia-artistica-equipo-avanzado-3",
+      "deporte": "gimnasia-artistica",
+      "categoria": "Equipo Avanzado 3",
+      "genero": "femenino",
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Lunes, miércoles y viernes de 17 a 20.30 h",
+        "Sábados de 9 a 12.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/gimnasia-artistica-federada/"
+    },
+    {
+      "slug": "gimnasia-artistica-equipo-avanzado-4",
+      "deporte": "gimnasia-artistica",
+      "categoria": "Equipo Avanzado 4",
+      "genero": "femenino",
+      "sede": "Tigre Maliar",
+      "horarios": [
+        "Lunes, miércoles, jueves y viernes de 17 a 20.30 h",
+        "Sábados de 9 a 13 h"
+      ],
+      "url": "https://hacoaj.org.ar/gimnasia-artistica-federada/"
+    },
+    {
+      "slug": "gimnasia-artistica-equipo-avanzado-5",
+      "deporte": "gimnasia-artistica",
+      "categoria": "Equipo Avanzado 5",
+      "genero": "femenino",
+      "sede": "Ben Gurión",
+      "horarios": [
+        "Lunes, martes y jueves de 17 a 20.30 h",
+        "Viernes de 16 a 20 h",
+        "Sábados de 9 a 13 h"
+      ],
+      "url": "https://hacoaj.org.ar/gimnasia-artistica-federada/"
+    },
+    {
+      "slug": "hockey-9a-division-a",
+      "deporte": "hockey",
+      "categoria": "9ª División A",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes y miércoles de 18 a 20.30 h",
+        "Sábados de 9 a 10 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-9a-division-b",
+      "deporte": "hockey",
+      "categoria": "9ª División B",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes y miércoles de 18 a 20.30 h",
+        "Sábados de 9 a 10 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-9a-division-c",
+      "deporte": "hockey",
+      "categoria": "9ª División C",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes y miércoles de 18 a 20.30 h",
+        "Domingos de 9 a 10 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-9a-division-d",
+      "deporte": "hockey",
+      "categoria": "9ª División D",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes y miércoles de 18 a 20.30 h",
+        "Domingos de 9 a 10 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-8a-division-a",
+      "deporte": "hockey",
+      "categoria": "8ª División A",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes y miércoles de 18 a 20.30 h",
+        "Sábados de 9 a 10 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-8a-division-b",
+      "deporte": "hockey",
+      "categoria": "8ª División B",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes y miércoles de 18 a 20.30 h",
+        "Sábados de 9 a 10 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-8a-division-c",
+      "deporte": "hockey",
+      "categoria": "8ª División C",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes y miércoles de 18 a 20.30 h",
+        "Domingos de 9 a 10 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-8a-division-d",
+      "deporte": "hockey",
+      "categoria": "8ª División D",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes y miércoles de 18 a 20.30 h",
+        "Domingos de 9 a 10 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-7a-division-a",
+      "deporte": "hockey",
+      "categoria": "7ª División A",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes, martes y jueves de 18 a 20.30 h",
+        "Sábados de 10 a 11.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-7a-division-b",
+      "deporte": "hockey",
+      "categoria": "7ª División B",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes, martes y jueves de 18 a 20.30 h",
+        "Sábados de 10 a 11.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-7a-division-c",
+      "deporte": "hockey",
+      "categoria": "7ª División C",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes y jueves de 18 a 20.30 h",
+        "Domingos de 10 a 11.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-6a-division-a",
+      "deporte": "hockey",
+      "categoria": "6ª División A",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes, martes y jueves de 18 a 20.30 h",
+        "Sábados de 11.30 a 13 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-6a-division-b",
+      "deporte": "hockey",
+      "categoria": "6ª División B",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes, martes y jueves de 18 a 20.30 h",
+        "Sábados de 11.30 a 13 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-6a-division-c",
+      "deporte": "hockey",
+      "categoria": "6ª División C",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes y jueves de 18 a 20.30 h",
+        "Domingos de 11.30 a 13 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-5a-division-a",
+      "deporte": "hockey",
+      "categoria": "5ª División A",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes, martes y jueves de 18 a 20.30 h",
+        "Sábados de 13 a 14.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-5a-division-b",
+      "deporte": "hockey",
+      "categoria": "5ª División B",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes, martes y jueves de 18 a 20.30 h",
+        "Sábados de 13 a 14.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-mayores-a",
+      "deporte": "hockey",
+      "categoria": "Mayores A",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes, martes y jueves de 20.30 a 23 h",
+        "Sábados de 14.30 a 18 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-mayores-b",
+      "deporte": "hockey",
+      "categoria": "Mayores B",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Lunes, miércoles y jueves de 20.30 a 23 h",
+        "Sábados de 14.30 a 18 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-4a-division",
+      "deporte": "hockey",
+      "categoria": "4ª División",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Martes de 20.30 a 22 h",
+        "Sábados de 18 a 19.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "hockey-2a-division",
+      "deporte": "hockey",
+      "categoria": "2ª División",
+      "genero": "femenino",
+      "sede": "Tigre Maliar, Estadio Golda Meir o Cancha 1 de arena",
+      "horarios": [
+        "Jueves de 20.30 a 22.30 h",
+        "Sábados de 18 a 19.30 h"
+      ],
+      "url": "https://hacoaj.org.ar/hockey-federado/"
+    },
+    {
+      "slug": "judo-escuela-juveniles",
+      "deporte": "judo",
+      "categoria": "Escuela / Juveniles",
+      "genero": "mixto",
+      "edad_min": 10,
+      "edad_max": 14,
+      "sede": "Ben Gurión / Tigre Maliar",
+      "horarios": [
+        "Lunes y miércoles de 18 a 19.30 h - Ben Gurión",
+        "Sábados y domingos de 13.30 a 15.30 h - Tigre Maliar",
+        "Martes y jueves de 18 a 19.30 h - Tigre Maliar"
+      ],
+      "url": "https://hacoaj.org.ar/judo-federado/"
+    },
+    {
+      "slug": "judo-adultos",
+      "deporte": "judo",
+      "categoria": "Adultos",
+      "genero": "mixto",
+      "edad_min": 18,
+      "sede": "Ben Gurión / Tigre Maliar",
+      "horarios": [
+        "Lunes y miércoles de 19.30 a 21 h - Ben Gurión",
+        "Jueves de 19.30 a 21 h - Ben Gurión",
+        "Jueves de 19.30 a 21 h - Tigre Maliar",
+        "Sábados de 16 a 17.30 h - Tigre Maliar",
+        "Domingos de 11.30 a 13 h - Tigre Maliar"
+      ],
+      "url": "https://hacoaj.org.ar/judo-federado/"
+    },
+    {
+      "slug": "remo-equipo-promocional-12-anos",
+      "deporte": "remo",
+      "categoria": "Equipo promocional +12 años",
+      "genero": "mixto",
+      "edad_min": 12,
+      "sede": "Tigre Maliar, Rampa",
+      "horarios": [
+        "Martes y jueves de 17.30 a 20.30 h",
+        "Sábados y domingos de 9.30 a 12 h"
+      ],
+      "url": "https://hacoaj.org.ar/remo-federado/"
+    },
+    {
+      "slug": "remo-equipo-oficial",
+      "deporte": "remo",
+      "categoria": "Equipo oficial",
+      "genero": "mixto",
+      "sede": "Tigre Maliar, Rampa",
+      "horarios": [
+        "Lunes a jueves de 7.30 a 10 h",
+        "Martes a viernes de 17 a 20 h",
+        "Sábados de 7.30 a 11 h"
+      ],
+      "url": "https://hacoaj.org.ar/remo-federado/"
+    },
+    {
+      "slug": "remo-equipo-remo-de-travesia-14-anos-con-carnet-de-remo",
+      "deporte": "remo",
+      "categoria": "Equipo Remo de Travesía +14 años con carnet de remo",
+      "genero": "mixto",
+      "edad_min": 14,
+      "sede": "Tigre Maliar, Rampa",
+      "horarios": [
+        "Sábados y domingos de 9 a 12 h"
+      ],
+      "url": "https://hacoaj.org.ar/remo-federado/"
+    },
+    {
+      "slug": "tenis-federado-aat-faccma-citenis",
+      "deporte": "tenis",
+      "categoria": "Federado / AAT / FACCMA / Citenis",
+      "genero": "mixto",
+      "edad_min": 9,
+      "edad_max": 75,
+      "sede": "Tigre Maliar / Náutico Buchardo",
+      "url": "https://hacoaj.org.ar/tenis-federado/"
+    },
+    {
+      "slug": "voley-inferiores-femenino",
+      "deporte": "voley",
+      "categoria": "Inferiores Femenino",
+      "genero": "femenino",
+      "sede": "Ben Gurión / Tigre Maliar",
+      "url": "https://hacoaj.org.ar/voley-federado/"
+    },
+    {
+      "slug": "voley-primera-femenino",
+      "deporte": "voley",
+      "categoria": "Primera Femenino",
+      "genero": "femenino",
+      "sede": "Ben Gurión / Tigre Maliar",
+      "url": "https://hacoaj.org.ar/voley-federado/"
+    },
+    {
+      "slug": "voley-inferiores-caballeros",
+      "deporte": "voley",
+      "categoria": "Inferiores Caballeros",
+      "genero": "masculino",
+      "sede": "Ben Gurión / Tigre Maliar",
+      "url": "https://hacoaj.org.ar/voley-federado/"
+    },
+    {
+      "slug": "voley-primera-division-de-honor",
+      "deporte": "voley",
+      "categoria": "Primera División de Honor",
+      "genero": "masculino",
+      "sede": "Ben Gurión / Tigre Maliar",
+      "url": "https://hacoaj.org.ar/voley-federado/"
+    }
+  ],
+  "transporte": [
+    {
+      "slug": "caba-tigre-maliar-caba",
+      "nombre": "Micro CABA - Tigre Maliar - CABA",
+      "recorrido": [
+        "Ben Gurión (CABA)",
+        "Tigre Maliar",
+        "Ben Gurión (CABA)"
+      ],
+      "terminos": [
+        "caba-tigre-maliar-caba",
+        "capital-tigre-maliar"
+      ],
+      "url": "https://hacoaj.org.ar/agenda-transporte/"
+    },
+    {
+      "slug": "club-de-campo-marinas-h-tigre",
+      "nombre": "Combi Club de Campo - Marinas H - Tigre Maliar",
+      "recorrido": [
+        "Club de Campo",
+        "Marinas H",
+        "Tigre Maliar"
+      ],
+      "terminos": [
+        "club-de-campo-marinas-h-tigre",
+        "club-de-campo-marinas-h-tigre-maliar"
+      ],
+      "url": "https://hacoaj.org.ar/agenda-transporte/"
+    }
+  ],
+  "programas": [
+    {
+      "name": "Tikun Hacoaj",
+      "slug": "tikun-hacoaj",
+      "tipo": "voluntariado",
+      "descripcion": "Programa de voluntariado solidario y acción social.",
+      "publico": "Socios interesados en participar de acciones solidarias y comunitarias.",
+      "url": "https://hacoaj.org.ar/programas/#tikun/",
+      "contacto_recomendado": true
+    },
+    {
+      "name": "Magal Hacoaj",
+      "slug": "magal-hacoaj",
+      "tipo": "inclusion",
+      "descripcion": "Programa de inclusión de niños, niñas y adolescentes con discapacidad en actividades deportivas, náuticas y de Hadrajá.",
+      "publico": "Niños, niñas y adolescentes con discapacidad.",
+      "url": "https://hacoaj.org.ar/programas/#magal/",
+      "contacto_recomendado": true
+    },
+    {
+      "name": "Bitnuah",
+      "slug": "bitnuah",
+      "tipo": "longevidad_saludable",
+      "descripcion": "Programa dedicado a desarrollar una longevidad saludable, llevado adelante en conjunto por Hacoaj y Ledor Vador.",
+      "publico": "Personas interesadas en propuestas de bienestar, movimiento y vida saludable.",
+      "url": "https://hacoaj.org.ar/programas/#bitnuah/",
+      "contacto_recomendado": true
+    }
+  ],
+  "distrito": [
+    {
+      "name": "Distrito Hacoaj",
+      "slug": "distrito-hacoaj",
+      "tipo": "ecosistema_institucional",
+      "descripcion": "Distrito Hacoaj es un ecosistema que integra deporte, educación, vida comunitaria judía, naturaleza, río, desarrollos residenciales e infraestructura social y deportiva.",
+      "sedes": [
+        "tigre-maliar",
+        "club-de-campo",
+        "isla-hacoaj",
+        "marinas-h",
+        "ben-gurion-caba"
+      ],
+      "componentes": [
+        "polo-educativo"
+      ],
+      "url": "https://hacoaj.org.ar/distrito-hacoaj/"
+    },
+    {
+      "name": "Polo Educativo",
+      "slug": "polo-educativo",
+      "tipo": "componente_educativo",
+      "descripcion": "Componente educativo del Distrito Hacoaj, desarrollado junto a ORT Argentina y Colegio Tarbut, con Escuela Primaria ORT en Tigre Maliar y Jardín de Infantes Tarbut proyectado en Club de Campo.",
+      "url": "https://hacoaj.org.ar/polo-educativo/"
+    }
+  ]
+}

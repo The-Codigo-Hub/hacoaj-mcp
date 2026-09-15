@@ -1,0 +1,56 @@
+name: Release
+
+# Se dispara al pushear un tag vX.Y.Z (ver bin/release.sh).
+# Arma hacoaj-mcp.zip y crea el GitHub Release. Los WordPress con el plugin instalado lo toman solos.
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          coverage: none
+
+      - name: Verificar versión
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          HEADER=$(grep -m1 -E '^\s*\*\s*Version:' hacoaj-mcp.php | awk '{print $NF}')
+          CONST=$(grep -m1 "HACOAJ_MCP_VERSION'," hacoaj-mcp.php | sed -E "s/.*'([0-9.]+)'.*/\1/")
+          echo "tag=$TAG header=$HEADER const=$CONST"
+          if [ "$TAG" != "$HEADER" ] || [ "$TAG" != "$CONST" ]; then
+            echo "::error::La versión del tag ($TAG) no coincide con el header ($HEADER) o la constante ($CONST)."
+            exit 1
+          fi
+
+      - name: Tests
+        run: |
+          find . -name '*.php' -not -path './dev/*' -print0 | xargs -0 -n1 php -l
+          php tests/run.php
+
+      - name: Armar zip
+        run: |
+          mkdir -p build/hacoaj-mcp
+          rsync -a --exclude-from=.distignore ./ build/hacoaj-mcp/
+          (cd build && zip -rq hacoaj-mcp.zip hacoaj-mcp)
+          unzip -l build/hacoaj-mcp.zip | tail -n +1 | head -40
+
+      - name: Crear release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NOTES=$(awk -v v="${GITHUB_REF_NAME#v}" '
+            $0 ~ "^## \\[?"v"\\]?" {f=1; next}
+            f && /^## / {exit}
+            f {print}
+          ' CHANGELOG.md)
+          [ -z "$NOTES" ] && NOTES="Release ${GITHUB_REF_NAME}"
+          gh release create "$GITHUB_REF_NAME" build/hacoaj-mcp.zip --title "$GITHUB_REF_NAME" --notes "$NOTES"

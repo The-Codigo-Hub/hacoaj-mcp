@@ -1,0 +1,12 @@
+.git
+.github
+.gitignore
+.gitattributes
+.distignore
+.DS_Store
+build
+dev
+bin
+tests
+node_modules
+*.zip
