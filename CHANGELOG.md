@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.0] - 2026-09-17
+
+- Temporada de agenda tomada de agenda_version, igual que la web; documentación de n8n y prompts.
+
 - Filtro de temporada por el meta `agenda_version` y la temporada pública del sitio (`hacoaj_agenda_temporada_publica`), el mismo criterio que la web. El filtro por fecha de publicación queda como respaldo para sitios sin ese campo.
 - Ajustes: selector de temporada (automática, regular, verano, todas).
 - Corrige `publicados_desde = off`, que no desactivaba el filtro por fecha.
