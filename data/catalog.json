@@ -4,7 +4,7 @@
   "nota": "Metadata curada que WordPress no tiene (edades, género, grupo, aliases, federados, programas). Las claves de \"actividades\" son slugs de la taxonomía \"actividad\" de WordPress. Los horarios de agenda NO van acá: se leen en vivo de los agenda_item.",
   "agenda": {
     "publicados_desde": "2026-02-01",
-    "nota": "Los agenda_item publicados antes de esta fecha son de la agenda de verano 2026 y el sitio ya no los muestra. Se puede sobrescribir desde Ajustes > Hacoaj MCP."
+    "nota": "Respaldo para sitios sin el campo agenda_version: los agenda_item publicados antes de esta fecha son de la agenda de verano 2026. En hacoaj.org.ar la temporada se toma de agenda_version. Se puede sobrescribir desde Ajustes > Hacoaj MCP."
   },
   "sedes": [
     {

@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
 final class Settings {
 
 	const PAGE                    = 'hacoaj-mcp';
+	const OPTION_SEASON           = 'hacoaj_mcp_temporada';
 	const OPTION_PUBLISHED_SINCE  = 'hacoaj_mcp_publicados_desde';
 	const OPTION_DELETE_UNINSTALL = 'hacoaj_mcp_delete_data_on_uninstall';
 
@@ -70,6 +71,10 @@ final class Settings {
 			case 'save_settings':
 				update_option( Updater::OPTION_AUTO, empty( $_POST['auto_update'] ) ? '0' : '1', false );
 				update_option( self::OPTION_DELETE_UNINSTALL, empty( $_POST['delete_on_uninstall'] ) ? '0' : '1', false );
+				$season = isset( $_POST['temporada'] ) ? sanitize_key( wp_unslash( $_POST['temporada'] ) ) : '';
+				if ( in_array( $season, array( '', 'regular', 'verano', 'todas' ), true ) ) {
+					update_option( self::OPTION_SEASON, $season, false );
+				}
 				$since = isset( $_POST['publicados_desde'] ) ? sanitize_text_field( wp_unslash( $_POST['publicados_desde'] ) ) : '';
 				if ( '' === $since || 'off' === $since || preg_match( '/^\d{4}-\d{2}-\d{2}$/', $since ) ) {
 					update_option( self::OPTION_PUBLISHED_SINCE, $since, false );
@@ -180,9 +185,24 @@ final class Settings {
 						<?php if ( ! wp_is_file_mod_allowed( 'automatic_updater' ) || ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED ) ) : ?><br><span style="color:#b32d2e">Atención: este WordPress tiene deshabilitadas las actualizaciones automáticas (DISALLOW_FILE_MODS o AUTOMATIC_UPDATER_DISABLED).</span><?php endif; ?>
 						</p>
 					</td></tr>
-					<tr><th><label for="publicados_desde">Temporada de agenda</label></th><td>
+					<tr><th><label for="temporada">Temporada de agenda</label></th><td>
+						<?php $site_season = Repository::site_season(); $season_opt = (string) get_option( self::OPTION_SEASON, '' ); ?>
+						<select id="temporada" name="temporada">
+							<?php foreach ( array( '' => 'Automática (la misma que muestra la web)', 'regular' => 'Regular', 'verano' => 'Verano', 'todas' => 'Todas (no filtrar)' ) as $value => $label ) : ?>
+								<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $season_opt, $value ); ?>><?php echo esc_html( $label ); ?></option>
+							<?php endforeach; ?>
+						</select>
+						<p class="description">Se indexan sólo los agenda_item cuyo campo <code>agenda_version</code> coincide con la temporada (sin valor válido = regular).
+						<?php if ( $site_season ) : ?>
+							Temporada pública del sitio: <strong><?php echo esc_html( $site_season ); ?></strong>.
+						<?php else : ?>
+							<br><span style="color:#996800">Este sitio no define la temporada pública (<code><?php echo esc_html( Repository::SITE_SEASON_OPTION ); ?></code>): en modo automático se usa el filtro por fecha de abajo.</span>
+						<?php endif; ?>
+						</p>
+					</td></tr>
+					<tr><th><label for="publicados_desde">Respaldo por fecha</label></th><td>
 						<input type="text" id="publicados_desde" name="publicados_desde" placeholder="<?php echo esc_attr( (string) $repo->catalog()->agenda_published_since() ); ?>" value="<?php echo esc_attr( (string) get_option( self::OPTION_PUBLISHED_SINCE, '' ) ); ?>" style="width:140px">
-						<p class="description">Se ignoran los agenda_item publicados antes de esta fecha (AAAA-MM-DD). Vacío = valor del catálogo (<code><?php echo esc_html( (string) $repo->catalog()->agenda_published_since() ); ?></code>). <code>off</code> = no filtrar.</p>
+						<p class="description">Sólo si el sitio no usa <code>agenda_version</code>: se ignoran los agenda_item publicados antes de esta fecha (AAAA-MM-DD). Vacío = valor del catálogo (<code><?php echo esc_html( (string) $repo->catalog()->agenda_published_since() ); ?></code>). <code>off</code> = no filtrar.</p>
 					</td></tr>
 					<tr><th>Desinstalación</th><td>
 						<label><input type="checkbox" name="delete_on_uninstall" value="1" <?php checked( '1', get_option( self::OPTION_DELETE_UNINSTALL, '0' ) ); ?>> Borrar token y ajustes al <em>eliminar</em> el plugin</label>
@@ -201,7 +221,10 @@ final class Settings {
 				<table class="widefat striped" style="max-width:720px">
 					<tbody>
 						<tr><td>Items de agenda publicados</td><td><?php echo (int) $stats['items']; ?></td></tr>
-						<tr><td>Excluidos por temporada (antes de <?php echo esc_html( (string) $stats['publicados_desde'] ); ?>)</td><td><?php echo (int) $stats['items_excluidos_temporada']; ?></td></tr>
+						<tr><td>Excluidos por temporada (<?php
+							$criterio = isset( $stats['criterio_temporada'] ) ? $stats['criterio_temporada'] : null;
+							echo esc_html( 'agenda_version' === $criterio ? 'agenda_version distinto de ' . $stats['temporada'] : ( 'fecha' === $criterio ? 'publicados antes de ' . $stats['publicados_desde'] : 'sin filtro' ) );
+						?>)</td><td><?php echo (int) $stats['items_excluidos_temporada']; ?></td></tr>
 						<tr><td>Items de actividades indexados</td><td><?php echo (int) $stats['items_actividad']; ?></td></tr>
 						<tr><td>…con horario estructurado</td><td><?php echo (int) $stats['items_con_horario']; ?></td></tr>
 						<tr><td>Actividades (con agenda)</td><td><?php echo (int) $stats['actividades']; ?> (<?php echo (int) $stats['actividades_con_agenda']; ?>)</td></tr>
@@ -244,7 +267,7 @@ final class Settings {
 	}
 
 	/**
-	 * Diagnóstico: meta keys que usan los agenda_item fuera de ACF (para detectar cómo el sitio marca temporadas).
+	 * Diagnóstico: meta keys de los agenda_item que el plugin no lee.
 	 */
 	private function render_meta_keys() {
 		global $wpdb;
@@ -255,7 +278,7 @@ final class Settings {
 		if ( ! $rows ) {
 			return;
 		}
-		$known = array( 'dias', 'detalle', 'hora_inicio', 'hora_fin', 'lugar', 'edad', 'profe', '_edit_lock', '_edit_last', '_dias', '_detalle', '_hora_inicio', '_hora_fin', '_lugar', '_edad', '_profe' );
+		$known = array( 'dias', 'detalle', 'hora_inicio', 'hora_fin', 'lugar', 'edad', 'profe', 'agenda_version', '_agenda_version', '_edit_lock', '_edit_last', '_dias', '_detalle', '_hora_inicio', '_hora_fin', '_lugar', '_edad', '_profe' );
 		$other = array();
 		foreach ( $rows as $r ) {
 			if ( ! in_array( $r->meta_key, $known, true ) ) {

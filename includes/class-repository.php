@@ -14,6 +14,9 @@ final class Repository {
 	const CACHE_GEN_OPTION = 'hacoaj_mcp_cache_gen';
 	const CACHE_TTL        = 12 * HOUR_IN_SECONDS;
 
+	/** Option del sitio (no de este plugin) con la temporada pública: auto | regular | verano. */
+	const SITE_SEASON_OPTION = 'hacoaj_agenda_temporada_publica';
+
 	/** @var Catalog */
 	private $catalog;
 	/** @var array|null */
@@ -93,7 +96,7 @@ final class Repository {
 	}
 
 	private function cache_key() {
-		return 'hacoaj_mcp_idx_' . md5( HACOAJ_MCP_VERSION . '|' . (int) get_option( self::CACHE_GEN_OPTION, 0 ) . '|' . (string) $this->catalog->version() . '|' . (string) $this->published_since() );
+		return 'hacoaj_mcp_idx_' . md5( HACOAJ_MCP_VERSION . '|' . (int) get_option( self::CACHE_GEN_OPTION, 0 ) . '|' . (string) $this->catalog->version() . '|' . (string) $this->season() . '|' . (string) $this->published_since() );
 	}
 
 	public function index() {
@@ -105,13 +108,71 @@ final class Repository {
 		if ( is_array( $cached ) && isset( $cached['actividades'] ) ) {
 			return $this->index = $cached;
 		}
-		$this->index = Index_Builder::build( $this->raw_from_wordpress(), $this->catalog, home_url(), array( 'publicados_desde' => $this->published_since() ) );
+		$this->index = Index_Builder::build(
+			$this->raw_from_wordpress(),
+			$this->catalog,
+			home_url(),
+			array(
+				'temporada'        => $this->season(),
+				'publicados_desde' => $this->published_since(),
+			)
+		);
 		set_transient( $key, $this->index, self::CACHE_TTL );
 		return $this->index;
 	}
 
 	/**
-	 * Fecha de corte de temporada: option del admin > catálogo. 'off' desactiva el filtro.
+	 * Temporada de agenda a indexar: 'regular', 'verano', 'todas' o null (el sitio no marca temporadas).
+	 * Override del admin > la misma temporada pública que muestra la web.
+	 */
+	public function season() {
+		$opt = get_option( Settings::OPTION_SEASON, '' );
+		if ( in_array( $opt, array( 'regular', 'verano', 'todas' ), true ) ) {
+			return $opt;
+		}
+		return self::site_season();
+	}
+
+	/**
+	 * Temporada pública del sitio, con el mismo criterio que los shortcodes agenda=auto del tema.
+	 * null si el sitio no tiene el mecanismo de agenda_version.
+	 */
+	public static function site_season() {
+		$has_option = false !== get_option( self::SITE_SEASON_OPTION, false );
+		if ( ! $has_option && ! function_exists( 'ha_resolve_agenda_version' ) && ! function_exists( 'ha_auto_agenda_version' ) ) {
+			return null;
+		}
+		if ( function_exists( 'ha_resolve_agenda_version' ) ) {
+			$season = self::call_season_function( 'ha_resolve_agenda_version', array( 'auto' ) );
+			if ( $season ) {
+				return $season;
+			}
+		}
+		$season = Index_Builder::normalize_season( get_option( self::SITE_SEASON_OPTION, '' ) );
+		if ( $season ) {
+			return $season;
+		}
+		if ( function_exists( 'ha_auto_agenda_version' ) ) {
+			$season = self::call_season_function( 'ha_auto_agenda_version', array() );
+			if ( $season ) {
+				return $season;
+			}
+		}
+		return 'regular';
+	}
+
+	/** Las funciones son del sitio y no conocemos su firma exacta: cualquier error o valor raro se ignora. */
+	private static function call_season_function( $fn, array $args ) {
+		try {
+			$value = call_user_func_array( $fn, $args );
+		} catch ( \Throwable $e ) {
+			return null;
+		}
+		return is_string( $value ) ? Index_Builder::normalize_season( $value ) : null;
+	}
+
+	/**
+	 * Fecha de corte de temporada (respaldo si el sitio no usa agenda_version): option del admin > catálogo. 'off' desactiva el filtro.
 	 */
 	public function published_since() {
 		$opt = get_option( Settings::OPTION_PUBLISHED_SINCE, '' );
@@ -155,7 +216,7 @@ final class Repository {
 		);
 		foreach ( $q->posts as $post ) {
 			$meta = array();
-			foreach ( array( 'dias', 'detalle', 'hora_inicio', 'hora_fin', 'lugar', 'edad', 'profe' ) as $key ) {
+			foreach ( array( 'dias', 'detalle', 'hora_inicio', 'hora_fin', 'lugar', 'edad', 'profe', 'agenda_version' ) as $key ) {
 				$meta[ $key ] = get_post_meta( $post->ID, $key, true );
 			}
 			if ( ! is_array( $meta['dias'] ) ) {

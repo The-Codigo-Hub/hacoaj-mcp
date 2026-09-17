@@ -20,8 +20,15 @@ final class Index_Builder {
 	 */
 	public static function build( array $raw, Catalog $catalog, $site_url, array $options = array() ) {
 		$site_url         = rtrim( $site_url, '/' );
-		$publicados_desde = isset( $options['publicados_desde'] ) ? $options['publicados_desde'] : $catalog->agenda_published_since();
-		$excluidos        = 0;
+		// Temporada: con 'regular'/'verano' se filtra por el meta agenda_version (mismo criterio que la web);
+		// 'todas' no filtra; sin temporada (sitio sin agenda_version) se usa la fecha de publicación como respaldo.
+		$temporada        = isset( $options['temporada'] ) ? $options['temporada'] : null;
+		$publicados_desde = array_key_exists( 'publicados_desde', $options ) ? $options['publicados_desde'] : $catalog->agenda_published_since();
+		if ( null !== $temporada ) {
+			$publicados_desde = null;
+		}
+		$criterio  = 'todas' === $temporada ? null : ( $temporada ? 'agenda_version' : ( $publicados_desde ? 'fecha' : null ) );
+		$excluidos = 0;
 		$terms    = array();
 		$children = array();
 		foreach ( $raw['actividad'] as $t ) {
@@ -79,7 +86,11 @@ final class Index_Builder {
 		);
 
 		foreach ( $raw['agenda_item'] as $raw_item ) {
-			if ( $publicados_desde && ! empty( $raw_item['date'] ) && substr( $raw_item['date'], 0, 10 ) < $publicados_desde ) {
+			if ( 'agenda_version' === $criterio && self::item_season( $raw_item ) !== $temporada ) {
+				$excluidos++;
+				continue;
+			}
+			if ( 'fecha' === $criterio && ! empty( $raw_item['date'] ) && substr( $raw_item['date'], 0, 10 ) < $publicados_desde ) {
 				$excluidos++;
 				continue;
 			}
@@ -293,6 +304,8 @@ final class Index_Builder {
 				'terminos'              => count( $terms ),
 				'items'                 => count( $raw['agenda_item'] ),
 				'items_excluidos_temporada' => $excluidos,
+				'criterio_temporada'    => $criterio,
+				'temporada'             => $temporada,
 				'publicados_desde'      => $publicados_desde,
 				'items_actividad'       => count( $items ),
 				'actividades'           => count( $activities ),
@@ -305,5 +318,18 @@ final class Index_Builder {
 				'actividades_sin_catalogo' => $sin_meta,
 			),
 		);
+	}
+
+	/** 'regular' | 'verano' | null si el valor no es una temporada válida. */
+	public static function normalize_season( $value ) {
+		$value = is_string( $value ) ? strtolower( trim( $value ) ) : '';
+		return in_array( $value, array( 'regular', 'verano' ), true ) ? $value : null;
+	}
+
+	/** Temporada de un agenda_item: como en el sitio, sin un valor válido cuenta como regular. */
+	public static function item_season( array $raw_item ) {
+		$value = isset( $raw_item['meta']['agenda_version'] ) ? $raw_item['meta']['agenda_version'] : '';
+		$season = self::normalize_season( $value );
+		return $season ? $season : 'regular';
 	}
 }

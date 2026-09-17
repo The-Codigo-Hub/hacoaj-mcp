@@ -176,6 +176,33 @@ printf( "Índice: %d actividades (%d con agenda), %d items, %.0f ms, %d KB seria
 if ( getenv( 'VERBOSE' ) ) {
 	echo 'Sin catálogo: ' . implode( ', ', $index['stats']['actividades_sin_catalogo'] ) . "\n";
 }
+check( 'temporada sin agenda_version usa fecha', $index['stats']['criterio_temporada'], 'fecha' );
+
+// Temporadas por agenda_version: mismo criterio que la web (sin valor válido = regular).
+$season_snap                = $snap;
+$season_snap['agenda_item'] = array();
+foreach ( array( 'verano', 'regular', '', 'Verano ', 'otra' ) as $i => $version ) {
+	$season_snap['agenda_item'][] = array(
+		'id'        => 900 + $i,
+		'title'     => 'Golf ' . $i,
+		'slug'      => 'golf-' . $i,
+		'date'      => '2026-01-10 10:00:00',
+		'actividad' => array( 'golf-clases' ),
+		'sede'      => array(),
+		'meta'      => array( 'detalle' => '10 a 11 h', 'agenda_version' => $version ),
+	);
+}
+$season_ids = function ( $options ) use ( $season_snap, $catalog ) {
+	$idx = Index_Builder::build( $season_snap, $catalog, 'https://hacoaj.org.ar', $options );
+	return array( array_keys( $idx['items'] ), $idx['stats']['items_excluidos_temporada'], $idx['stats']['criterio_temporada'] );
+};
+check( 'temporada regular', $season_ids( array( 'temporada' => 'regular' ) ), array( array( 901, 902, 904 ), 2, 'agenda_version' ) );
+check( 'temporada verano', $season_ids( array( 'temporada' => 'verano' ) ), array( array( 900, 903 ), 3, 'agenda_version' ) );
+check( 'temporada ignora fecha', $season_ids( array( 'temporada' => 'regular', 'publicados_desde' => '2026-02-01' ) )[0], array( 901, 902, 904 ) );
+check( 'temporada todas', $season_ids( array( 'temporada' => 'todas' ) ), array( array( 900, 901, 902, 903, 904 ), 0, null ) );
+check( 'respaldo fecha', $season_ids( array() ), array( array(), 5, 'fecha' ) );
+check( 'respaldo fecha off', $season_ids( array( 'publicados_desde' => null ) ), array( array( 900, 901, 902, 903, 904 ), 0, null ) );
+
 $A = $index['actividades'];
 check( 'body-power categoria', $A['body-power']['categoria'], 'deportes-adultos' );
 check( 'body-power edad por categoría', array( $A['body-power']['edad_min'], $A['body-power']['fuente_edad'] ), array( 18, 'catalogo' ) );

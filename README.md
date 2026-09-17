@@ -8,6 +8,11 @@ Reemplaza a `/bot/filter.php`: lee la agenda **en vivo** desde WordPress (CPT `a
 - Auth: `Authorization: Bearer <token>` (o `X-Hacoaj-Token: <token>`)
 - Se actualiza solo desde los Releases de este repo.
 
+**Documentación:**
+
+- [docs/n8n.md](docs/n8n.md) — cómo funciona el MCP, el endpoint y el protocolo, las tools con ejemplos reales de respuesta, la configuración en n8n, seguridad y diagnóstico.
+- [docs/prompts.md](docs/prompts.md) — prompts de sistema listos para pegar en el AI Agent de n8n.
+
 ## Tools
 
 | Tool | Para qué |
@@ -43,6 +48,8 @@ Nodo **AI Agent** → tool **MCP Client Tool**:
 - **Server Transport**: HTTP Streamable
 - **Authentication**: Bearer Auth → el token (o Header Auth con `X-Hacoaj-Token`)
 - **Tools to Include**: All
+
+Guía detallada, con ejemplos de las respuestas y qué revisar cuando algo falla: [docs/n8n.md](docs/n8n.md). Prompts para el agente: [docs/prompts.md](docs/prompts.md).
 
 ## Token: por qué sobrevive a todo
 
@@ -87,7 +94,13 @@ La caché del índice se invalida sola cuando se edita un `agenda_item` o un té
 
 ### Temporadas
 
-En el sitio conviven 152 `agenda_item` de la **agenda de verano 2026** (publicados del 8 al 26 de enero) con la agenda regular (desde el 6 de febrero). La web ya no muestra los de verano, pero el mecanismo no es visible por la REST API. El plugin ignora los publicados antes de `agenda.publicados_desde` del catálogo (`2026-02-01`), configurable en Ajustes. La pantalla de ajustes lista las meta keys de `agenda_item` para identificar si el sitio usa otro campo para marcar temporada.
+En el sitio conviven 152 `agenda_item` de la **agenda de verano 2026** (publicados del 8 al 26 de enero) con la agenda regular. El plugin usa el mismo criterio que la web:
+
+- Cada `agenda_item` tiene el meta `agenda_version` (`regular` o `verano`). Sin un valor válido cuenta como `regular`.
+- La temporada visible sale de la option del sitio `hacoaj_agenda_temporada_publica`, resuelta con `ha_resolve_agenda_version( 'auto' )` si existe (o `ha_auto_agenda_version()` si la option está en `auto`).
+- Sólo se indexan los items de esa temporada. Desde Ajustes se puede forzar `regular`, `verano` o `todas`.
+
+Si el sitio no tiene ese mecanismo, se usa como respaldo la fecha de publicación: se ignoran los publicados antes de `agenda.publicados_desde` del catálogo (`2026-02-01`), configurable en Ajustes.
 
 Además se ocultan avisos vencidos del estilo "Sin horarios durante enero" o "comienza la semana del 2 de marzo 2026".
 

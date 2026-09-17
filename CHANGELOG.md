@@ -1,5 +1,9 @@
 # Changelog
 
+- Filtro de temporada por el meta `agenda_version` y la temporada pública del sitio (`hacoaj_agenda_temporada_publica`), el mismo criterio que la web. El filtro por fecha de publicación queda como respaldo para sitios sin ese campo.
+- Ajustes: selector de temporada (automática, regular, verano, todas).
+- Corrige `publicados_desde = off`, que no desactivaba el filtro por fecha.
+
 ## [1.0.0] - 2026-09-15
 
 - Servidor MCP (Streamable HTTP, JSON-RPC) en `/wp-json/hacoaj-mcp/v1/mcp` con 10 tools de sólo lectura.
