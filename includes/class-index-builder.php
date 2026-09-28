@@ -230,7 +230,10 @@ final class Index_Builder {
 			);
 		}
 
-		// Metadata: ACF de WordPress > catálogo de la actividad > defaults de su categoría.
+		// Metadata: edad_min, edad_max, genero y grupo salen EXCLUSIVAMENTE del ACF de WordPress
+		// (sin respaldo de catalog.json): mientras una actividad no esté migrada, esos 4 campos
+		// no aparecen. El resto (base, aliases, discapacidad, rango, nombre_bot) sigue viniendo
+		// del catálogo, que no tiene equivalente en ACF.
 		$sin_meta = array();
 		foreach ( $activities as $slug => &$a ) {
 			$meta      = $catalog->activity_meta( $slug );
@@ -247,25 +250,15 @@ final class Index_Builder {
 					}
 				}
 			}
-			$fuente    = null;
-			$has_age   = function ( $m ) {
+			$has_age = function ( $m ) {
 				return is_array( $m ) && ( isset( $m['edad_min'] ) || isset( $m['edad_max'] ) || isset( $m['edad_min_meses'] ) || isset( $m['edad_max_meses'] ) );
 			};
-			if ( $has_age( $wp_meta ) ) {
-				$fuente = 'wordpress';
-			} elseif ( $has_age( $meta ) ) {
-				$fuente = 'catalogo';
-			} elseif ( $has_age( $defaults ) ) {
-				$fuente = 'categoria';
+			$fuente = $has_age( $wp_meta ) ? 'wordpress' : null;
+			$merged = array_merge( $defaults, $meta ? $meta : array() );
+			foreach ( array( 'edad_min', 'edad_max', 'edad_min_meses', 'edad_max_meses', 'genero', 'grupo' ) as $k ) {
+				unset( $merged[ $k ] );
 			}
-			$merged = array_merge( $defaults, $meta ? $meta : array(), $wp_meta );
-			if ( 'categoria' === $fuente ) {
-				foreach ( array( 'edad_min', 'edad_max', 'edad_min_meses', 'edad_max_meses' ) as $k ) {
-					if ( isset( $defaults[ $k ] ) ) {
-						$merged[ $k ] = $defaults[ $k ];
-					}
-				}
-			}
+			$merged = array_merge( $merged, $wp_meta );
 			foreach ( array( 'base', 'grupo', 'genero', 'edad_min', 'edad_max', 'edad_min_meses', 'edad_max_meses', 'rango', 'discapacidad', 'aliases', 'revisar', 'nombre_bot' ) as $k ) {
 				if ( isset( $merged[ $k ] ) ) {
 					$a[ $k ] = $merged[ $k ];
