@@ -3,7 +3,7 @@
  * Plugin Name:       Hacoaj MCP
  * Plugin URI:        https://github.com/The-Codigo-Hub/hacoaj-mcp
  * Description:       Servidor MCP (Model Context Protocol) de sólo lectura con actividades, agenda, sedes, deportes federados y transporte del Club Náutico Hacoaj, para conectar a n8n y otros agentes de IA. Se actualiza solo desde GitHub.
- * Version:           1.4.0
+ * Version:           1.4.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            The Codigo Hub
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'HACOAJ_MCP_VERSION', '1.4.0' );
+define( 'HACOAJ_MCP_VERSION', '1.4.1' );
 define( 'HACOAJ_MCP_FILE', __FILE__ );
 define( 'HACOAJ_MCP_DIR', plugin_dir_path( __FILE__ ) );
 

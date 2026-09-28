@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.1] - 2026-09-28
+
+- Fix: actividades con ACF completo se muestran aunque todavia no tengan agenda cargada (tipo_categoria=hija); corrige fatal error en deportes_federados con datos incompletos
+
 ## [1.4.0] - 2026-09-28
 
 - Deportes federados leen de WordPress (grupo=federadas) en vez de catalog.json, con recalculo de edad por año de nacimiento
