@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.0] - 2026-09-28
+
+- edad, género y grupo de actividades salen exclusivamente del ACF de WordPress (sin respaldo de catalog.json): permite ver en vivo el avance de la migración actividad por actividad
+
 ## [1.2.0] - 2026-09-28
 
 - Metadata de actividades (edad, género, grupo) desde ACF de WordPress, con prioridad sobre catalog.json
