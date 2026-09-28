@@ -230,6 +230,26 @@ final class Index_Builder {
 			);
 		}
 
+		// Actividades del ACF de WordPress sin agenda todavía: mismo caso que arriba pero para
+		// términos que no están en catalog.json (ej. una categoría federada recién creada, sin
+		// ningún agenda_item cargado). tipo_categoria=hija es la señal que ya usa el cliente para
+		// marcar "esto es una actividad real, no un término contenedor" (los "padre" se ignoran).
+		foreach ( $terms as $slug => $t ) {
+			if ( isset( $activities[ $slug ] ) || ! isset( $t['tipo_categoria'] ) || 'hija' !== $t['tipo_categoria'] ) {
+				continue;
+			}
+			$root = $root_of( $slug );
+			$activities[ $slug ] = array(
+				'slug'      => $slug,
+				'nombre'    => $t['name'],
+				'categoria' => $root && $root !== $slug ? $root : null,
+				'sedes'     => array(),
+				'dias'      => array(),
+				'items'     => array(),
+				'titulos'   => array(),
+			);
+		}
+
 		// Metadata: edad_min, edad_max, genero y grupo salen EXCLUSIVAMENTE del ACF de WordPress
 		// (sin respaldo de catalog.json): mientras una actividad no esté migrada, esos 4 campos
 		// no aparecen. El resto (base, aliases, discapacidad, rango, nombre_bot) sigue viniendo
