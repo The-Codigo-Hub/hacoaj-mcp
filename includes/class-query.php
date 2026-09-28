@@ -358,6 +358,9 @@ final class Query {
 		if ( 'categoria' === $a['fuente_edad'] ) {
 			$out['edades'] = $out['edades'] ? $out['edades'] . ' (estimado por categoría)' : null;
 		}
+		if ( ! empty( $a['fuente_edad'] ) ) {
+			$out['fuente_metadata'] = $a['fuente_edad'];
+		}
 		if ( ! empty( $a['discapacidad'] ) ) {
 			$out['inclusion_discapacidad'] = true;
 		}

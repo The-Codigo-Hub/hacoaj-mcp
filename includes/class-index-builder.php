@@ -230,7 +230,7 @@ final class Index_Builder {
 			);
 		}
 
-		// Metadata: catálogo de la actividad > defaults de su categoría.
+		// Metadata: ACF de WordPress > catálogo de la actividad > defaults de su categoría.
 		$sin_meta = array();
 		foreach ( $activities as $slug => &$a ) {
 			$meta      = $catalog->activity_meta( $slug );
@@ -238,16 +238,27 @@ final class Index_Builder {
 			$own_cat   = $catalog->category_meta( $slug );
 			$defaults  = array_merge( $cat_meta ? $cat_meta : array(), $own_cat ? $own_cat : array() );
 			unset( $defaults['nombre'] );
+			$wp_term  = isset( $terms[ $slug ] ) ? $terms[ $slug ] : null;
+			$wp_meta  = array();
+			if ( $wp_term ) {
+				foreach ( array( 'edad_min', 'edad_max', 'genero', 'grupo' ) as $k ) {
+					if ( isset( $wp_term[ $k ] ) ) {
+						$wp_meta[ $k ] = $wp_term[ $k ];
+					}
+				}
+			}
 			$fuente    = null;
 			$has_age   = function ( $m ) {
 				return is_array( $m ) && ( isset( $m['edad_min'] ) || isset( $m['edad_max'] ) || isset( $m['edad_min_meses'] ) || isset( $m['edad_max_meses'] ) );
 			};
-			if ( $has_age( $meta ) ) {
+			if ( $has_age( $wp_meta ) ) {
+				$fuente = 'wordpress';
+			} elseif ( $has_age( $meta ) ) {
 				$fuente = 'catalogo';
 			} elseif ( $has_age( $defaults ) ) {
 				$fuente = 'categoria';
 			}
-			$merged = array_merge( $defaults, $meta ? $meta : array() );
+			$merged = array_merge( $defaults, $meta ? $meta : array(), $wp_meta );
 			if ( 'categoria' === $fuente ) {
 				foreach ( array( 'edad_min', 'edad_max', 'edad_min_meses', 'edad_max_meses' ) as $k ) {
 					if ( isset( $defaults[ $k ] ) ) {
