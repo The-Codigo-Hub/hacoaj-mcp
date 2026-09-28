@@ -268,12 +268,14 @@ final class Repository {
 	}
 
 	/**
-	 * Metadata cargada por ACF sobre el término de actividad: edad_min, edad_max, genero, grupo, tipo_categoria.
+	 * Metadata cargada por ACF sobre el término de actividad: edad_min, edad_max, genero, grupo,
+	 * tipo_categoria, y anio_nacimiento_min/max (federadas que se definen por año de nacimiento,
+	 * ej. fútbol infantil, en vez de por banda etaria fija).
 	 * Fallback a get_term_meta() si ACF no está activo. Descarta valores vacíos/null.
 	 */
 	private function term_acf_meta( $term_id, $taxonomy ) {
 		$out = array();
-		foreach ( array( 'edad_min', 'edad_max', 'genero', 'grupo', 'tipo_categoria' ) as $key ) {
+		foreach ( array( 'edad_min', 'edad_max', 'genero', 'grupo', 'tipo_categoria', 'anio_nacimiento_min', 'anio_nacimiento_max' ) as $key ) {
 			$value = function_exists( 'get_field' )
 				? get_field( $key, $taxonomy . '_' . $term_id )
 				: get_term_meta( $term_id, $key, true );
