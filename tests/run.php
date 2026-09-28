@@ -205,7 +205,7 @@ check( 'respaldo fecha off', $season_ids( array( 'publicados_desde' => null ) ),
 
 $A = $index['actividades'];
 check( 'body-power categoria', $A['body-power']['categoria'], 'deportes-adultos' );
-check( 'body-power edad por categoría', array( $A['body-power']['edad_min'], $A['body-power']['fuente_edad'] ), array( 18, 'catalogo' ) );
+check( 'body-power sin ACF no trae edad', array( isset( $A['body-power']['edad_min'] ), $A['body-power']['fuente_edad'] ), array( false, null ) );
 check( 'gimnasio de musculación cat', $A['gimnasio-de-musculacion']['categoria'], 'deportes-adultos' );
 check( 'natación hojas', in_array( 6050, $A['natacion-pileta-primaria']['items'], true ), true );
 check( 'categoría no es actividad', isset( $A['natacion-pileta'] ), false );
@@ -217,7 +217,8 @@ check( 'golf-principiantes sin agenda', $A['golf-principiantes']['tiene_agenda']
 check( 'olami sedes', $A['olami']['sedes'], array( 'club-de-campo', 'tigre-maliar' ) );
 check( 'escuelas CdC nombre', $index['categorias']['escuelas-deportivas-club-de-campo']['nombre'], 'Escuelas Deportivas (Club de Campo)' );
 
-// ACF de WordPress sobre el término de actividad > catalog.json para el mismo slug.
+// edad_min, edad_max, genero y grupo salen EXCLUSIVAMENTE del ACF de WordPress: sin catalog.json
+// como respaldo. catalog.json solo sigue aportando lo que no tiene equivalente en ACF (aliases, base, etc.).
 $acf_snap = $snap;
 foreach ( $acf_snap['actividad'] as &$t ) {
 	if ( 'golf-escuela-deportiva' === $t['slug'] ) {
@@ -229,17 +230,17 @@ foreach ( $acf_snap['actividad'] as &$t ) {
 unset( $t );
 $acf_index = Index_Builder::build( $acf_snap, $catalog, 'https://hacoaj.org.ar' );
 $acf_a     = $acf_index['actividades']['golf-escuela-deportiva'];
-check( 'ACF gana sobre catalog.json: edad_min', $acf_a['edad_min'], 99 );
-check( 'ACF gana sobre catalog.json: edad_max', $acf_a['edad_max'], 100 );
-check( 'ACF gana sobre catalog.json: grupo', $acf_a['grupo'], 'generales' );
-check( 'ACF gana sobre catalog.json: fuente_edad', $acf_a['fuente_edad'], 'wordpress' );
+check( 'ACF es la fuente: edad_min', $acf_a['edad_min'], 99 );
+check( 'ACF es la fuente: edad_max', $acf_a['edad_max'], 100 );
+check( 'ACF es la fuente: grupo', $acf_a['grupo'], 'generales' );
+check( 'ACF es la fuente: fuente_edad', $acf_a['fuente_edad'], 'wordpress' );
 $acf_q       = new Query( $acf_index, $catalog, $sept );
 $acf_summary = $acf_q->activity_summary( $acf_a );
 check( 'buscar_actividades expone fuente_metadata wordpress', $acf_summary['fuente_metadata'], 'wordpress' );
-check( 'sin ACF expone fuente_metadata catalogo', ( new Query( $index, $catalog, $sept ) )->activity_summary( $A['golf-escuela-deportiva'] )['fuente_metadata'], 'catalogo' );
-// Sin ACF, sigue viniendo del catálogo (no rompe lo existente).
-check( 'sin ACF sigue usando catalog.json', $A['golf-escuela-deportiva']['edad_max'], 12 );
-check( 'sin ACF fuente_edad catalogo', $A['golf-escuela-deportiva']['fuente_edad'], 'catalogo' );
+// Sin ACF, catalog.json ya NO se usa de respaldo: el campo directamente no aparece.
+check( 'sin ACF no trae edad_max', isset( $A['golf-escuela-deportiva']['edad_max'] ), false );
+check( 'sin ACF fuente_edad null', $A['golf-escuela-deportiva']['fuente_edad'], null );
+check( 'sin ACF no expone fuente_metadata', isset( ( new Query( $index, $catalog, $sept ) )->activity_summary( $A['golf-escuela-deportiva'] )['fuente_metadata'] ), false );
 
 $q = new Query( $index, $catalog, $sept );
 
@@ -250,26 +251,32 @@ $slugs = array_map( function ( $a ) {
 sort( $slugs );
 check( 'buscar golf', $slugs, array( 'golf-clases', 'golf-escuela-deportiva', 'golf-para-chicos', 'golf-principiantes', 'golf-salidas' ) );
 
+// Sin ACF cargado, golf no tiene edad: el filtro por edad las excluye a todas (no hay respaldo de catalog.json).
 $r     = $q->buscar_actividades( array( 'texto' => 'golf', 'edad' => 8 ) );
 $slugs = array_map( function ( $a ) {
 	return $a['slug'];
 }, $r['actividades'] );
-check( 'golf 8 años', $slugs, array( 'golf-para-chicos', 'golf-escuela-deportiva' ) );
-check( 'golf 8 años sin datos', isset( $r['sin_datos_de_edad'] ), false );
+check( 'golf 8 años sin ACF: sin resultados', $slugs, array() );
+check( 'golf 8 años sin ACF: sin_datos_de_edad', $r['sin_datos_de_edad']['cantidad'], 5 );
 
 $r = $q->buscar_actividades( array( 'texto' => 'basket', 'sede' => 'capital' ) );
 check( 'sinónimo basket en CABA', count( $r['actividades'] ) > 0 && ! array_filter( $r['actividades'], function ( $a ) {
 	return ! in_array( 'Ben Gurión', $a['sedes'], true );
 } ), true );
 
+// Ídem natación, hadrajá y fútbol femenino: sin ACF cargado para esas actividades, un filtro por
+// edad las deja afuera hasta que se migren (comportamiento buscado: nada de catalog.json de respaldo).
 $r = $q->buscar_actividades( array( 'texto' => 'natacion', 'edad' => 5, 'sede' => 'tigre' ) );
-check( 'natación 5 años tigre', count( $r['actividades'] ) >= 1, true );
+check( 'natación 5 años tigre sin ACF: sin resultados', count( $r['actividades'] ), 0 );
+check( 'natación 5 años tigre sin ACF: sin_datos_de_edad', $r['sin_datos_de_edad']['cantidad'] > 0, true );
 
+$r = $q->buscar_actividades( array( 'categoria' => 'hadraja' ) );
+check( 'hadrajá sin filtro de edad sigue apareciendo', in_array( 'kesher', array_column( $r['actividades'], 'slug' ), true ), true );
 $r = $q->buscar_actividades( array( 'categoria' => 'hadraja', 'edad' => 7 ) );
-check( 'hadrajá 7 años', array_column( $r['actividades'], 'slug' ), array( 'kesher', 'programa-magal' ) );
+check( 'hadrajá 7 años sin ACF: sin resultados', $r['actividades'], array() );
 
 $r = $q->buscar_actividades( array( 'texto' => 'futbol', 'genero' => 'nena', 'edad' => 7 ) );
-check( 'fútbol nena 7', in_array( 'futbol-femenino-primaria', array_column( $r['actividades'], 'slug' ), true ), true );
+check( 'fútbol nena 7 sin ACF: sin resultados', $r['actividades'], array() );
 
 $r = $q->obtener_agenda( array( 'actividad' => 'golf-clases' ) );
 check( 'agenda golf-clases', $r['total'], 1 );
