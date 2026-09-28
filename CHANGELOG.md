@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.0] - 2026-09-28
+
+- Deportes federados leen de WordPress (grupo=federadas) en vez de catalog.json, con recalculo de edad por año de nacimiento
+
 ## [1.3.0] - 2026-09-28
 
 - edad, género y grupo de actividades salen exclusivamente del ACF de WordPress (sin respaldo de catalog.json): permite ver en vivo el avance de la migración actividad por actividad
