@@ -233,6 +233,10 @@ check( 'ACF gana sobre catalog.json: edad_min', $acf_a['edad_min'], 99 );
 check( 'ACF gana sobre catalog.json: edad_max', $acf_a['edad_max'], 100 );
 check( 'ACF gana sobre catalog.json: grupo', $acf_a['grupo'], 'generales' );
 check( 'ACF gana sobre catalog.json: fuente_edad', $acf_a['fuente_edad'], 'wordpress' );
+$acf_q       = new Query( $acf_index, $catalog, $sept );
+$acf_summary = $acf_q->activity_summary( $acf_a );
+check( 'buscar_actividades expone fuente_metadata wordpress', $acf_summary['fuente_metadata'], 'wordpress' );
+check( 'sin ACF expone fuente_metadata catalogo', ( new Query( $index, $catalog, $sept ) )->activity_summary( $A['golf-escuela-deportiva'] )['fuente_metadata'], 'catalogo' );
 // Sin ACF, sigue viniendo del catálogo (no rompe lo existente).
 check( 'sin ACF sigue usando catalog.json', $A['golf-escuela-deportiva']['edad_max'], 12 );
 check( 'sin ACF fuente_edad catalogo', $A['golf-escuela-deportiva']['fuente_edad'], 'catalogo' );
