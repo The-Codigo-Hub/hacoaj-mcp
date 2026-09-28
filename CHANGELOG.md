@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.0] - 2026-09-28
+
+- Metadata de actividades (edad, género, grupo) desde ACF de WordPress, con prioridad sobre catalog.json
+
 ## [1.1.0] - 2026-09-17
 
 - Temporada de agenda tomada de agenda_version, igual que la web; documentación de n8n y prompts.
