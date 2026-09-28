@@ -324,6 +324,13 @@ $fed_snap['agenda_item'][] = array(
 	'actividad' => array( 'futbol-categoria-2015-test' ), 'sede' => array( 'club-de-campo' ),
 	'meta' => array( 'detalle' => 'Lunes y miércoles de 18 a 20 h' ),
 );
+// Categoría con ACF completo (tipo_categoria=hija) pero SIN ningún agenda_item todavía: debe
+// aparecer igual (tiene_agenda=false), no quedar invisible hasta que carguen un horario.
+$fed_snap['actividad'][] = array( 'id' => 9005, 'name' => 'Vóley Federado', 'slug' => 'voley-federado-test', 'parent' => 0, 'description' => '' );
+$fed_snap['actividad'][] = array(
+	'id' => 9006, 'name' => 'Inferiores Caballeros Sub 11', 'slug' => 'voley-inferiores-sub11-test', 'parent' => 9005, 'description' => '',
+	'grupo' => 'federadas', 'genero' => 'masculino', 'edad_max' => 11, 'tipo_categoria' => 'hija',
+);
 $fed_index = Index_Builder::build( $fed_snap, $catalog, 'https://hacoaj.org.ar' );
 $fed_q     = new Query( $fed_index, $catalog, $sept );
 
@@ -338,6 +345,16 @@ check( 'federada por año de nacimiento: edad recalculada (2026-2015)', $r['cate
 // Las federadas no se duplican en buscar_actividades/obtener_agenda (esas usan deportes_federados).
 $r = $fed_q->buscar_actividades( array( 'texto' => 'basquet' ) );
 check( 'federada no aparece en buscar_actividades', in_array( 'basquet-mosquitos', array_column( $r['actividades'], 'slug' ), true ), false );
+
+// tipo_categoria=hija sin ningún agenda_item: igual entra al índice (tiene_agenda=false), no
+// queda invisible hasta que carguen un horario.
+check( 'categoria sin agenda entra al indice', isset( $fed_index['actividades']['voley-inferiores-sub11-test'] ), true );
+check( 'categoria sin agenda: tiene_agenda false', $fed_index['actividades']['voley-inferiores-sub11-test']['tiene_agenda'], false );
+$r = $fed_q->deportes_federados( array( 'deporte' => 'voley' ) );
+check( 'federada sin agenda aparece en deportes_federados', array_column( $r['categorias'], 'categoria' ), array( 'Inferiores Caballeros Sub 11' ) );
+check( 'federada sin agenda: sin url', isset( $r['categorias'][0]['url'] ), false );
+// Un término "padre" (sin tipo_categoria=hija) nunca se cuela como actividad aunque no tenga agenda.
+check( 'termino padre no se cuela como actividad', isset( $fed_index['actividades']['voley-federado-test'] ), false );
 
 $r = $q->transporte();
 check( 'transporte rutas', count( $r['transporte'] ), 2 );

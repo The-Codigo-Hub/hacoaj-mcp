@@ -627,12 +627,12 @@ final class Query {
 				return array_filter( array(
 					'deporte'   => $r['deporte'],
 					'categoria' => $r['categoria'],
-					'genero'    => $r['genero'],
+					'genero'    => isset( $r['genero'] ) ? $r['genero'] : null,
 					'edades'    => Catalog::age_label( $r ),
 					'anios_nacimiento' => isset( $r['anio_nacimiento_min'] ) ? ( $r['anio_nacimiento_min'] === $r['anio_nacimiento_max'] ? (string) $r['anio_nacimiento_min'] : $r['anio_nacimiento_min'] . '-' . $r['anio_nacimiento_max'] ) : null,
-					'sede'      => $r['sede'],
-					'horarios'  => $r['horarios'],
-					'url'       => $r['url'],
+					'sede'      => isset( $r['sede'] ) && '' !== $r['sede'] ? $r['sede'] : null,
+					'horarios'  => isset( $r['horarios'] ) ? $r['horarios'] : array(),
+					'url'       => isset( $r['url'] ) ? $r['url'] : null,
 				) );
 			}, array_slice( $rows, 0, $limit ) ),
 		);
