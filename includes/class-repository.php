@@ -250,17 +250,39 @@ final class Repository {
 			return array();
 		}
 		return array_map(
-			function ( $t ) {
-				return array(
+			function ( $t ) use ( $taxonomy ) {
+				$term = array(
 					'id'          => (int) $t->term_id,
 					'name'        => html_entity_decode( $t->name, ENT_QUOTES, 'UTF-8' ),
 					'slug'        => $t->slug,
 					'parent'      => (int) $t->parent,
 					'description' => $t->description,
 				);
+				if ( 'actividad' === $taxonomy ) {
+					$term = array_merge( $term, $this->term_acf_meta( $t->term_id, $taxonomy ) );
+				}
+				return $term;
 			},
 			$terms
 		);
+	}
+
+	/**
+	 * Metadata cargada por ACF sobre el término de actividad: edad_min, edad_max, genero, grupo, tipo_categoria.
+	 * Fallback a get_term_meta() si ACF no está activo. Descarta valores vacíos/null.
+	 */
+	private function term_acf_meta( $term_id, $taxonomy ) {
+		$out = array();
+		foreach ( array( 'edad_min', 'edad_max', 'genero', 'grupo', 'tipo_categoria' ) as $key ) {
+			$value = function_exists( 'get_field' )
+				? get_field( $key, $taxonomy . '_' . $term_id )
+				: get_term_meta( $term_id, $key, true );
+			if ( '' === $value || null === $value ) {
+				continue;
+			}
+			$out[ $key ] = $value;
+		}
+		return $out;
 	}
 
 	private function post_term_slugs( $post_id, $taxonomy ) {

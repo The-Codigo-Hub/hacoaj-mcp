@@ -217,6 +217,26 @@ check( 'golf-principiantes sin agenda', $A['golf-principiantes']['tiene_agenda']
 check( 'olami sedes', $A['olami']['sedes'], array( 'club-de-campo', 'tigre-maliar' ) );
 check( 'escuelas CdC nombre', $index['categorias']['escuelas-deportivas-club-de-campo']['nombre'], 'Escuelas Deportivas (Club de Campo)' );
 
+// ACF de WordPress sobre el término de actividad > catalog.json para el mismo slug.
+$acf_snap = $snap;
+foreach ( $acf_snap['actividad'] as &$t ) {
+	if ( 'golf-escuela-deportiva' === $t['slug'] ) {
+		$t['edad_min'] = 99;
+		$t['edad_max'] = 100;
+		$t['grupo']    = 'generales';
+	}
+}
+unset( $t );
+$acf_index = Index_Builder::build( $acf_snap, $catalog, 'https://hacoaj.org.ar' );
+$acf_a     = $acf_index['actividades']['golf-escuela-deportiva'];
+check( 'ACF gana sobre catalog.json: edad_min', $acf_a['edad_min'], 99 );
+check( 'ACF gana sobre catalog.json: edad_max', $acf_a['edad_max'], 100 );
+check( 'ACF gana sobre catalog.json: grupo', $acf_a['grupo'], 'generales' );
+check( 'ACF gana sobre catalog.json: fuente_edad', $acf_a['fuente_edad'], 'wordpress' );
+// Sin ACF, sigue viniendo del catálogo (no rompe lo existente).
+check( 'sin ACF sigue usando catalog.json', $A['golf-escuela-deportiva']['edad_max'], 12 );
+check( 'sin ACF fuente_edad catalogo', $A['golf-escuela-deportiva']['fuente_edad'], 'catalogo' );
+
 $q = new Query( $index, $catalog, $sept );
 
 $r     = $q->buscar_actividades( array( 'texto' => 'golf' ) );

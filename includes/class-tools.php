@@ -70,7 +70,7 @@ final class Tools {
 						'dia'       => $dia,
 						'categoria' => array(
 							'type'        => 'string',
-							'description' => 'Categoría o grupo: "escuelas" (chicos), "adultos", "cultura", "hadraja", "natacion", "nauticas", "recreacion".',
+							'description' => 'Categoría o grupo: "generales", "federadas", "hadrajá", "escuelas", "culturales".',
 						),
 						'limite'    => $limite( 15, 50 ),
 					)
