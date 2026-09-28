@@ -70,7 +70,7 @@ final class Tools {
 						'dia'       => $dia,
 						'categoria' => array(
 							'type'        => 'string',
-							'description' => 'Categoría o grupo: "generales", "federadas", "hadrajá", "escuelas", "culturales".',
+							'description' => 'Categoría o grupo: "generales", "hadrajá", "escuelas", "culturales". Los deportes federados/competitivos no están acá: usá deportes_federados.',
 						),
 						'limite'    => $limite( 15, 50 ),
 					)

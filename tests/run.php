@@ -300,10 +300,44 @@ check( 'agenda hoy franja', $r['total'] > 0 && isset( $r['fecha_referencia'] ), 
 check( 'agenda sin filtros', isset( $q->obtener_agenda( array() )['error'] ), true );
 check( 'agenda sede inválida', isset( $q->obtener_agenda( array( 'sede' => 'Rosario' ) )['error'] ), true );
 
-$r = $q->deportes_federados( array( 'deporte' => 'futbol', 'anio_nacimiento' => 2015, 'genero' => 'masculino' ) );
-check( 'federados fútbol 2015', array_column( $r['categorias'], 'categoria' ), array( 'Categoría 2015' ) );
-$r = $q->deportes_federados( array( 'deporte' => 'cesto', 'edad' => 12 ) );
-check( 'federados cesto 12', array_column( $r['categorias'], 'categoria' ), array( 'Mini', 'Escuela Mini' ) );
+// deportes_federados() ahora lee grupo=federadas del ACF de WordPress (índice), no catalog.json.
+// Se arma un snapshot sintético con una categoría por banda etaria fija (básquet) y otra por año
+// de nacimiento (fútbol, como las reales), cada una con su término padre (deporte) e hijo (categoría).
+$fed_snap                = $snap;
+$fed_snap['actividad'][] = array( 'id' => 9001, 'name' => 'Básquet Federado', 'slug' => 'basquet-federado', 'parent' => 0, 'description' => '' );
+$fed_snap['actividad'][] = array(
+	'id' => 9002, 'name' => 'Mosquitos', 'slug' => 'basquet-mosquitos', 'parent' => 9001, 'description' => '',
+	'grupo' => 'federadas', 'genero' => 'masculino', 'edad_min' => 4, 'edad_max' => 7,
+);
+$fed_snap['actividad'][] = array( 'id' => 9003, 'name' => 'Fútbol Federado', 'slug' => 'futbol-federado-test', 'parent' => 0, 'description' => '' );
+$fed_snap['actividad'][] = array(
+	'id' => 9004, 'name' => 'Categoría 2015', 'slug' => 'futbol-categoria-2015-test', 'parent' => 9003, 'description' => '',
+	'grupo' => 'federadas', 'genero' => 'masculino', 'anio_nacimiento_min' => 2015, 'anio_nacimiento_max' => 2015,
+);
+$fed_snap['agenda_item'][] = array(
+	'id' => 9101, 'title' => 'Básquet Mosquitos', 'slug' => 'basquet-mosquitos-agenda', 'date' => '2026-03-01 10:00:00',
+	'actividad' => array( 'basquet-mosquitos' ), 'sede' => array( 'tigre-maliar' ),
+	'meta' => array( 'detalle' => 'Martes y jueves de 17.30 a 19.30 h' ),
+);
+$fed_snap['agenda_item'][] = array(
+	'id' => 9102, 'title' => 'Fútbol Categoría 2015', 'slug' => 'futbol-cat-2015-agenda', 'date' => '2026-03-01 10:00:00',
+	'actividad' => array( 'futbol-categoria-2015-test' ), 'sede' => array( 'club-de-campo' ),
+	'meta' => array( 'detalle' => 'Lunes y miércoles de 18 a 20 h' ),
+);
+$fed_index = Index_Builder::build( $fed_snap, $catalog, 'https://hacoaj.org.ar' );
+$fed_q     = new Query( $fed_index, $catalog, $sept );
+
+$r = $fed_q->deportes_federados( array( 'deporte' => 'basquet' ) );
+check( 'federada por edad fija: categoria', array_column( $r['categorias'], 'categoria' ), array( 'Mosquitos' ) );
+check( 'federada por edad fija: edades', $r['categorias'][0]['edades'], '4 a 7 años' );
+
+$r = $fed_q->deportes_federados( array( 'deporte' => 'futbol', 'anio_nacimiento' => 2015 ) );
+check( 'federada por año de nacimiento: categoria', array_column( $r['categorias'], 'categoria' ), array( 'Categoría 2015' ) );
+check( 'federada por año de nacimiento: edad recalculada (2026-2015)', $r['categorias'][0]['edades'], '11 años' );
+
+// Las federadas no se duplican en buscar_actividades/obtener_agenda (esas usan deportes_federados).
+$r = $fed_q->buscar_actividades( array( 'texto' => 'basquet' ) );
+check( 'federada no aparece en buscar_actividades', in_array( 'basquet-mosquitos', array_column( $r['actividades'], 'slug' ), true ), false );
 
 $r = $q->transporte();
 check( 'transporte rutas', count( $r['transporte'] ), 2 );

@@ -244,22 +244,25 @@ final class Index_Builder {
 			$wp_term  = isset( $terms[ $slug ] ) ? $terms[ $slug ] : null;
 			$wp_meta  = array();
 			if ( $wp_term ) {
-				foreach ( array( 'edad_min', 'edad_max', 'genero', 'grupo' ) as $k ) {
+				foreach ( array( 'edad_min', 'edad_max', 'genero', 'grupo', 'anio_nacimiento_min', 'anio_nacimiento_max' ) as $k ) {
 					if ( isset( $wp_term[ $k ] ) ) {
 						$wp_meta[ $k ] = $wp_term[ $k ];
 					}
 				}
 			}
+			// anio_nacimiento_min/max (federadas por año, ej. fútbol infantil) valen como "tiene edad"
+			// tanto como edad_min/edad_max, aunque no filtran directo: Query::deportes_federados() las
+			// convierte a edad_min/edad_max recalculando contra el año en curso.
 			$has_age = function ( $m ) {
-				return is_array( $m ) && ( isset( $m['edad_min'] ) || isset( $m['edad_max'] ) || isset( $m['edad_min_meses'] ) || isset( $m['edad_max_meses'] ) );
+				return is_array( $m ) && ( isset( $m['edad_min'] ) || isset( $m['edad_max'] ) || isset( $m['edad_min_meses'] ) || isset( $m['edad_max_meses'] ) || isset( $m['anio_nacimiento_min'] ) );
 			};
 			$fuente = $has_age( $wp_meta ) ? 'wordpress' : null;
 			$merged = array_merge( $defaults, $meta ? $meta : array() );
-			foreach ( array( 'edad_min', 'edad_max', 'edad_min_meses', 'edad_max_meses', 'genero', 'grupo' ) as $k ) {
+			foreach ( array( 'edad_min', 'edad_max', 'edad_min_meses', 'edad_max_meses', 'genero', 'grupo', 'anio_nacimiento_min', 'anio_nacimiento_max' ) as $k ) {
 				unset( $merged[ $k ] );
 			}
 			$merged = array_merge( $merged, $wp_meta );
-			foreach ( array( 'base', 'grupo', 'genero', 'edad_min', 'edad_max', 'edad_min_meses', 'edad_max_meses', 'rango', 'discapacidad', 'aliases', 'revisar', 'nombre_bot' ) as $k ) {
+			foreach ( array( 'base', 'grupo', 'genero', 'edad_min', 'edad_max', 'edad_min_meses', 'edad_max_meses', 'anio_nacimiento_min', 'anio_nacimiento_max', 'rango', 'discapacidad', 'aliases', 'revisar', 'nombre_bot' ) as $k ) {
 				if ( isset( $merged[ $k ] ) ) {
 					$a[ $k ] = $merged[ $k ];
 				}

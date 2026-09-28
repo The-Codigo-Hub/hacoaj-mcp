@@ -165,7 +165,11 @@ final class Query {
 	 * @return array{actividades: array[], meta: array}
 	 */
 	private function filter_activities( array $f, $only_with_agenda = false ) {
-		$acts = array_values( $this->index['actividades'] );
+		// Las federadas (grupo=federadas) se consultan con deportes_federados, no acá:
+		// evita que una misma categoría aparezca duplicada en ambas tools.
+		$acts = array_values( array_filter( $this->index['actividades'], function ( $a ) {
+			return ! isset( $a['grupo'] ) || 'federadas' !== $a['grupo'];
+		} ) );
 		$meta = array();
 
 		$scores = array();
@@ -498,9 +502,65 @@ final class Query {
 
 	// ------------------------------------------------------------------ Federados / transporte / institucional.
 
+	/**
+	 * Actividades con grupo=federadas del índice (ACF de WordPress), con la misma forma que antes
+	 * tenía Catalog::federados_with_ages(): deporte, categoria, genero, edad_min/max, sede, horarios,
+	 * dias, url. Si la categoría tiene año de nacimiento en vez de edad fija (ej. fútbol infantil),
+	 * la edad se recalcula contra el año en curso, igual que hacía el catálogo.
+	 */
+	private function federadas_rows( $year ) {
+		$rows = array();
+		foreach ( $this->index['actividades'] as $a ) {
+			if ( ! isset( $a['grupo'] ) || 'federadas' !== $a['grupo'] ) {
+				continue;
+			}
+			$deporte = $a['categoria'] && isset( $this->index['categorias'][ $a['categoria'] ] )
+				? $this->index['categorias'][ $a['categoria'] ]['nombre']
+				: $a['nombre'];
+			$row     = array_filter(
+				array(
+					'deporte'             => $deporte,
+					'categoria'           => $a['nombre'],
+					'genero'              => isset( $a['genero'] ) ? $a['genero'] : null,
+					'edad_min'            => isset( $a['edad_min'] ) ? $a['edad_min'] : null,
+					'edad_max'            => isset( $a['edad_max'] ) ? $a['edad_max'] : null,
+					'anio_nacimiento_min' => isset( $a['anio_nacimiento_min'] ) ? $a['anio_nacimiento_min'] : null,
+					'anio_nacimiento_max' => isset( $a['anio_nacimiento_max'] ) ? $a['anio_nacimiento_max'] : null,
+					'sede'                => implode( ' / ', $this->sede_labels( $a['sedes'] ) ),
+					'dias'                => $a['dias'],
+					'horarios'            => $this->federada_horarios( $a ),
+					'url'                 => $a['url'],
+				),
+				function ( $v ) {
+					return null !== $v;
+				}
+			);
+			if ( isset( $row['anio_nacimiento_min'] ) ) {
+				$row['edad_min'] = $year - (int) $row['anio_nacimiento_max'];
+				$row['edad_max'] = $year - (int) $row['anio_nacimiento_min'];
+			}
+			$rows[] = $row;
+		}
+		return $rows;
+	}
+
+	/** Textos de horario (los mismos que muestra obtener_agenda) de todos los items de una actividad. */
+	private function federada_horarios( array $a ) {
+		$out = array();
+		foreach ( $a['items'] as $id ) {
+			if ( ! isset( $this->index['items'][ $id ] ) ) {
+				continue;
+			}
+			foreach ( $this->index['items'][ $id ]['horarios'] as $h ) {
+				$out[] = $h['texto'];
+			}
+		}
+		return array_values( array_unique( $out ) );
+	}
+
 	public function deportes_federados( array $f ) {
 		$year = (int) $this->now->format( 'Y' );
-		$rows = $this->catalog->federados_with_ages( $year );
+		$rows = $this->federadas_rows( $year );
 
 		if ( ! empty( $f['deporte'] ) ) {
 			$tokens   = Text::tokens( $f['deporte'] );
