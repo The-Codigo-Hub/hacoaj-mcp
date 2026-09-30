@@ -286,7 +286,7 @@ También se ocultan los avisos vencidos del tipo "Sin horarios durante enero" o 
 
 - **Sólo lectura**: ninguna tool escribe. No hay forma de crear, editar ni borrar contenido a través del MCP.
 - **Token**: 256 bits de entropía, guardado sólo como hash sha256 en `wp_options` (sin autoload). No depende de `wp_salt()`, ni de usuarios, ni de application passwords: sobrevive a updates, desactivaciones y a que Wordfence regenere los salts. La constante `HACOAJ_MCP_TOKEN_HASH` en `wp-config.php` tiene prioridad y lo hace sobrevivir incluso a una restauración de la base.
-- **Rate limit**: 20 intentos fallidos cada 10 minutos por IP; 240 requests por minuto con token válido (filtro `hacoaj_mcp_rate_limit_per_minute`).
+- **Rate limit**: 20 intentos fallidos cada 10 minutos por IP; 720 requests por minuto con token válido (filtro `hacoaj_mcp_rate_limit_per_minute`).
 - **Origin**: si el request trae un header `Origin` que no sea el del propio sitio, se rechaza con 403 (protege contra un navegador ajeno; n8n no manda `Origin`). Ampliable con el filtro `hacoaj_mcp_allowed_origins`.
 - **Rotar el token**: *Ajustes → Hacoaj MCP → Rotar token*, o `wp hacoaj-mcp token generate`. Hay que actualizar la credencial en n8n; el token anterior deja de servir.
 - El endpoint `/health` es público a propósito, para poder diagnosticar sin credenciales: no devuelve datos del club ni del token.

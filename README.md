@@ -57,7 +57,7 @@ Guía detallada, con ejemplos de las respuestas y qué revisar cuando algo falla
 - No se borra al desactivar ni al actualizar. `uninstall.php` sólo lo borra si se tildó explícitamente en Ajustes.
 - La constante `HACOAJ_MCP_TOKEN_HASH` en `wp-config.php` tiene prioridad y convive con el de la base (permite migrar sin corte).
 - Rotar: botón *Rotar token* o `wp hacoaj-mcp token generate`.
-- Rate limit: 20 intentos fallidos cada 10 min por IP; 240 requests/min con token (filtro `hacoaj_mcp_rate_limit_per_minute`).
+- Rate limit: 20 intentos fallidos cada 10 min por IP; 720 requests/min con token (filtro `hacoaj_mcp_rate_limit_per_minute`).
 
 ## Actualizaciones automáticas
 

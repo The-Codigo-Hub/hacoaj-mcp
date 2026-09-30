@@ -131,7 +131,7 @@ final class Auth {
 			return new \WP_Error( 'hacoaj_mcp_unauthorized', 'Token inválido o ausente. Enviá "Authorization: Bearer <token>".', array( 'status' => 401 ) );
 		}
 
-		$per_minute = (int) apply_filters( 'hacoaj_mcp_rate_limit_per_minute', 240 );
+		$per_minute = (int) apply_filters( 'hacoaj_mcp_rate_limit_per_minute', 720 );
 		if ( $per_minute > 0 && Rate_Limiter::is_blocked( 'ok', 'token', $per_minute, MINUTE_IN_SECONDS ) ) {
 			return new \WP_Error( 'hacoaj_mcp_rate_limited', 'Límite de requests por minuto alcanzado.', array( 'status' => 429 ) );
 		}

@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.2] - 2026-09-30
+
+- Rate limit por token de 240 a 720 requests/min
+
 ## [1.4.1] - 2026-09-28
 
 - Fix: actividades con ACF completo se muestran aunque todavia no tengan agenda cargada (tipo_categoria=hija); corrige fatal error en deportes_federados con datos incompletos
