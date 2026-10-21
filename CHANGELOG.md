@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.3] - 2026-10-21
+
+- Federadas ordenadas por deporte, género (caballeros, damas, mixto), edad y nombre; actividades con el ACF grupo mal cargado se descartan de todas las tools y se listan en stats.actividades_grupo_invalido y en Ajustes → Diagnóstico
+
 ## [1.4.2] - 2026-09-30
 
 - Rate limit por token de 240 a 720 requests/min
