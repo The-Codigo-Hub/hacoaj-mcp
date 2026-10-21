@@ -59,8 +59,10 @@ final class Query {
 
 		if ( ! empty( $f['actividad'] ) ) {
 			$slug = Text::slugify( $f['actividad'] );
-			if ( isset( $this->index['actividades'][ $slug ] ) ) {
+			if ( isset( $this->index['actividades'][ $slug ] ) && self::visible( $this->index['actividades'][ $slug ] ) ) {
 				$acts = array( $this->index['actividades'][ $slug ] );
+			} elseif ( isset( $this->index['actividades'][ $slug ] ) ) {
+				$acts = array();
 			} else {
 				$f['texto'] = trim( ( isset( $f['texto'] ) ? $f['texto'] . ' ' : '' ) . $f['actividad'] );
 			}
@@ -103,7 +105,7 @@ final class Query {
 		$items = array();
 		foreach ( $item_ids as $id ) {
 			$item = $this->index['items'][ $id ];
-			if ( Schedule_Parser::is_stale( $item, $this->now ) ) {
+			if ( Schedule_Parser::is_stale( $item, $this->now ) || ! $this->item_visible( $item ) ) {
 				continue;
 			}
 			if ( $sede && ! in_array( $sede, $item['sedes'], true ) ) {
@@ -167,8 +169,10 @@ final class Query {
 	private function filter_activities( array $f, $only_with_agenda = false ) {
 		// Las federadas (grupo=federadas) se consultan con deportes_federados, no acá:
 		// evita que una misma categoría aparezca duplicada en ambas tools.
+		// Las que tienen el grupo mal cargado en WordPress (grupo_invalido) se descartan: si no,
+		// una federada con grupo "f" aparece como actividad general.
 		$acts = array_values( array_filter( $this->index['actividades'], function ( $a ) {
-			return ! isset( $a['grupo'] ) || 'federadas' !== $a['grupo'];
+			return self::visible( $a ) && ( ! isset( $a['grupo'] ) || 'federadas' !== $a['grupo'] );
 		} ) );
 		$meta = array();
 
@@ -443,6 +447,9 @@ final class Query {
 	public function listar_sedes() {
 		$counts = array();
 		foreach ( $this->index['actividades'] as $a ) {
+			if ( ! self::visible( $a ) ) {
+				continue;
+			}
 			foreach ( $a['sedes'] as $s ) {
 				$counts[ $s ] = isset( $counts[ $s ] ) ? $counts[ $s ] + 1 : 1;
 			}
@@ -482,13 +489,19 @@ final class Query {
 		foreach ( $this->index['categorias'] as $c ) {
 			$acts = array();
 			foreach ( $c['actividades'] as $slug ) {
-				$a      = $this->index['actividades'][ $slug ];
+				$a = $this->index['actividades'][ $slug ];
+				if ( ! self::visible( $a ) ) {
+					continue;
+				}
 				$acts[] = array_filter( array(
 					'slug'   => $slug,
 					'nombre' => $a['nombre'],
 					'edades' => Catalog::age_label( $a ),
 					'sedes'  => $this->sede_labels( $a['sedes'] ),
 				) );
+			}
+			if ( ! $acts ) {
+				continue;
 			}
 			$out[] = array_filter( array(
 				'slug'        => $c['slug'],
@@ -541,7 +554,53 @@ final class Query {
 			}
 			$rows[] = $row;
 		}
+		usort( $rows, array( __CLASS__, 'compare_federadas' ) );
 		return $rows;
+	}
+
+	/** Orden de género en deportes_federados: caballeros, damas, mixto, sin dato. */
+	const ORDEN_GENERO = array( 'masculino' => 0, 'femenino' => 1, 'mixto' => 2 );
+
+	/**
+	 * Ordena las federadas en origen: deporte, género, edad (menor primero) y nombre. Antes salían
+	 * en orden alfabético de slug, con damas y caballeros intercalados ("Cadetas femenino",
+	 * "Cadete Azul masculino", "Infantil femenino"...), y el prompt pide no reordenarlas.
+	 */
+	public static function compare_federadas( array $a, array $b ) {
+		$c = strcmp( Text::fold( $a['deporte'] ), Text::fold( $b['deporte'] ) );
+		if ( 0 !== $c ) {
+			return $c;
+		}
+		$orden = self::ORDEN_GENERO;
+		$ga    = isset( $a['genero'], $orden[ $a['genero'] ] ) ? $orden[ $a['genero'] ] : 3;
+		$gb    = isset( $b['genero'], $orden[ $b['genero'] ] ) ? $orden[ $b['genero'] ] : 3;
+		if ( $ga !== $gb ) {
+			return $ga - $gb;
+		}
+		$ea = isset( $a['edad_min'] ) ? (float) $a['edad_min'] : ( isset( $a['edad_max'] ) ? (float) $a['edad_max'] : PHP_INT_MAX );
+		$eb = isset( $b['edad_min'] ) ? (float) $b['edad_min'] : ( isset( $b['edad_max'] ) ? (float) $b['edad_max'] : PHP_INT_MAX );
+		if ( $ea !== $eb ) {
+			return $ea < $eb ? -1 : 1;
+		}
+		return strnatcmp( Text::fold( $a['categoria'] ), Text::fold( $b['categoria'] ) );
+	}
+
+	/** false si la actividad tiene el ACF "grupo" mal cargado (ver Index_Builder::GRUPOS_VALIDOS). */
+	private static function visible( array $a ) {
+		return empty( $a['grupo_invalido'] );
+	}
+
+	/** Un item de agenda se muestra si al menos una de sus actividades es visible. */
+	private function item_visible( array $item ) {
+		if ( empty( $item['actividades'] ) ) {
+			return true;
+		}
+		foreach ( $item['actividades'] as $slug ) {
+			if ( ! isset( $this->index['actividades'][ $slug ] ) || self::visible( $this->index['actividades'][ $slug ] ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/** Textos de horario (los mismos que muestra obtener_agenda) de todos los items de una actividad. */

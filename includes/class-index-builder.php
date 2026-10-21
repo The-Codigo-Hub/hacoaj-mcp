@@ -13,6 +13,28 @@ defined( 'ABSPATH' ) || defined( 'HACOAJ_MCP_TESTING' ) || exit;
 final class Index_Builder {
 
 	/**
+	 * Valores válidos del ACF "grupo" (comparados sin tildes ni mayúsculas). Un término con
+	 * cualquier otro valor (ej. "f" en vez de "federadas") se marca grupo_invalido y Query lo
+	 * descarta de las respuestas, en vez de mostrarlo en el grupo equivocado.
+	 */
+	const GRUPOS_VALIDOS = array( 'generales', 'escuelas', 'adultos', 'culturales', 'hadraja', 'recreacion', 'federadas' );
+
+	/**
+	 * Normaliza un valor de grupo: 'Hadrajá ' -> 'hadraja'. Devuelve null si no es un grupo válido.
+	 * Acepta el array que devuelve ACF en campos select con "valor y etiqueta".
+	 */
+	public static function normalize_grupo( $value ) {
+		if ( is_array( $value ) ) {
+			$value = isset( $value['value'] ) ? $value['value'] : reset( $value );
+		}
+		if ( ! is_string( $value ) ) {
+			return null;
+		}
+		$g = Text::fold( trim( $value ) );
+		return in_array( $g, self::GRUPOS_VALIDOS, true ) ? $g : null;
+	}
+
+	/**
 	 * @param array   $raw     ['actividad' => terms[], 'sede' => terms[], 'agenda_item' => items[]]
 	 * @param Catalog $catalog
 	 * @param string  $site_url Sin barra final.
@@ -254,7 +276,8 @@ final class Index_Builder {
 		// (sin respaldo de catalog.json): mientras una actividad no esté migrada, esos 4 campos
 		// no aparecen. El resto (base, aliases, discapacidad, rango, nombre_bot) sigue viniendo
 		// del catálogo, que no tiene equivalente en ACF.
-		$sin_meta = array();
+		$sin_meta       = array();
+		$grupo_invalido = array();
 		foreach ( $activities as $slug => &$a ) {
 			$meta      = $catalog->activity_meta( $slug );
 			$cat_meta  = $a['categoria'] ? $catalog->category_meta( $a['categoria'] ) : $catalog->category_meta( $slug );
@@ -282,6 +305,17 @@ final class Index_Builder {
 				unset( $merged[ $k ] );
 			}
 			$merged = array_merge( $merged, $wp_meta );
+			if ( isset( $merged['grupo'] ) ) {
+				$grupo = self::normalize_grupo( $merged['grupo'] );
+				if ( null === $grupo ) {
+					$raw_grupo               = is_scalar( $merged['grupo'] ) ? (string) $merged['grupo'] : (string) json_encode( $merged['grupo'], JSON_UNESCAPED_UNICODE );
+					$a['grupo_invalido']     = $raw_grupo;
+					$grupo_invalido[ $slug ] = $raw_grupo;
+					unset( $merged['grupo'] );
+				} else {
+					$merged['grupo'] = $grupo;
+				}
+			}
 			foreach ( array( 'base', 'grupo', 'genero', 'edad_min', 'edad_max', 'edad_min_meses', 'edad_max_meses', 'anio_nacimiento_min', 'anio_nacimiento_max', 'rango', 'discapacidad', 'aliases', 'revisar', 'nombre_bot' ) as $k ) {
 				if ( isset( $merged[ $k ] ) ) {
 					$a[ $k ] = $merged[ $k ];
@@ -343,6 +377,8 @@ final class Index_Builder {
 					return ! empty( $i['horarios'] );
 				} ) ),
 				'actividades_sin_catalogo' => $sin_meta,
+				// slug => valor cargado en el ACF "grupo" que no es válido; esas actividades no se muestran.
+				'actividades_grupo_invalido' => $grupo_invalido,
 			),
 		);
 	}

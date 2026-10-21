@@ -230,6 +230,14 @@ final class Settings {
 						<tr><td>Actividades (con agenda)</td><td><?php echo (int) $stats['actividades']; ?> (<?php echo (int) $stats['actividades_con_agenda']; ?>)</td></tr>
 						<tr><td>Catálogo</td><td><?php echo esc_html( (string) $repo->catalog()->version() ); ?></td></tr>
 						<tr><td>Actividades sin metadata en el catálogo</td><td><?php echo esc_html( $stats['actividades_sin_catalogo'] ? implode( ', ', $stats['actividades_sin_catalogo'] ) : '—' ); ?></td></tr>
+						<tr><td>Actividades descartadas por grupo mal cargado (ACF «grupo»)</td><td><?php
+							$invalidos = isset( $stats['actividades_grupo_invalido'] ) ? $stats['actividades_grupo_invalido'] : array();
+							$lineas    = array();
+							foreach ( $invalidos as $slug => $valor ) {
+								$lineas[] = $slug . ' = "' . $valor . '"';
+							}
+							echo esc_html( $lineas ? implode( ', ', $lineas ) : '—' );
+						?></td></tr>
 					</tbody>
 				</table>
 				<?php $this->render_meta_keys(); ?>
