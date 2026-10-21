@@ -136,7 +136,8 @@ final class Tools {
 			'deportes_federados' => array(
 				'title'       => 'Deportes federados',
 				'description' => 'Categorías de deportes federados/competitivos (básquet, fútbol, hockey, cestoball, vóley, gimnasia artística, judo, remo, canotaje, tenis) con género, edades o años de nacimiento, sede, horarios de entrenamiento y link. '
-					. 'Las categorías por año ("Categoría 2015") se recalculan con el año actual.',
+					. 'Las categorías por año ("Categoría 2015") se recalculan con el año actual. '
+					. 'Vienen ordenadas por deporte, género (primero caballeros, después damas), edad y nombre: mostralas en ese orden.',
 				'inputSchema' => self::schema(
 					array(
 						'deporte'         => array(

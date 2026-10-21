@@ -356,6 +356,63 @@ check( 'federada sin agenda: sin url', isset( $r['categorias'][0]['url'] ), fals
 // Un término "padre" (sin tipo_categoria=hija) nunca se cuela como actividad aunque no tenga agenda.
 check( 'termino padre no se cuela como actividad', isset( $fed_index['actividades']['voley-federado-test'] ), false );
 
+// Federadas ordenadas en origen: deporte, género (caballeros, damas), edad y nombre. Antes salían
+// por slug alfabético y el bot mostraba damas y caballeros intercalados (pruebas de Diego 15/10).
+$ord_snap                = $snap;
+$ord_snap['actividad'][] = array( 'id' => 9201, 'name' => 'Básquet Federado', 'slug' => 'bf-test', 'parent' => 0, 'description' => '' );
+foreach ( array(
+	array( 9202, 'Cadetas femenino', 'bf-cadetas-femenino', 'femenino', 14, 15 ),
+	array( 9203, 'Cadete Azul masculino', 'bf-cadete-azul-masculino', 'masculino', 14, 15 ),
+	array( 9204, 'Infantil femenino', 'bf-infantil-femenino', 'femenino', 12, 13 ),
+	array( 9205, 'Infantil Azul masculino', 'bf-infantil-azul-masculino', 'masculino', 12, 13 ),
+	array( 9206, 'Mosquitos masculino', 'bf-mosquitos-masculino', 'masculino', 4, 7 ),
+) as $c ) {
+	$ord_snap['actividad'][] = array(
+		'id' => $c[0], 'name' => $c[1], 'slug' => $c[2], 'parent' => 9201, 'description' => '', 'tipo_categoria' => 'hija',
+		'grupo' => 'federadas', 'genero' => $c[3], 'edad_min' => $c[4], 'edad_max' => $c[5],
+	);
+}
+// Grupo mal cargado en WP ("f" en vez de "federadas", como Hockey 8va división A): se descarta.
+$ord_snap['actividad'][] = array(
+	'id' => 9207, 'name' => 'Hockey federado 8va división A', 'slug' => 'hockey-8va-a-test', 'parent' => 0, 'description' => '', 'tipo_categoria' => 'hija',
+	'grupo' => 'f', 'genero' => 'femenino', 'edad_min' => 10, 'edad_max' => 11,
+);
+$ord_snap['agenda_item'][] = array(
+	'id' => 9301, 'title' => 'Hockey 8va A', 'slug' => 'hockey-8va-a-agenda', 'date' => '2026-03-01 10:00:00',
+	'actividad' => array( 'hockey-8va-a-test' ), 'sede' => array( 'club-de-campo' ),
+	'meta' => array( 'detalle' => '10 a 12 h', 'dias' => array( 'domingo' ) ),
+);
+// Variantes de mayúsculas/tildes de un grupo válido se normalizan, no se descartan.
+$ord_snap['actividad'][] = array(
+	'id' => 9208, 'name' => 'Grupo Hadrajá Test', 'slug' => 'hadraja-test', 'parent' => 0, 'description' => '', 'tipo_categoria' => 'hija',
+	'grupo' => ' Hadrajá ', 'edad_min' => 8, 'edad_max' => 12,
+);
+$ord_index = Index_Builder::build( $ord_snap, $catalog, 'https://hacoaj.org.ar' );
+$ord_q     = new Query( $ord_index, $catalog, $sept );
+$r = $ord_q->deportes_federados( array( 'deporte' => 'basquet' ) );
+check(
+	'federadas ordenadas por género y edad',
+	array_values( array_filter( array_column( $r['categorias'], 'categoria' ), function ( $c ) {
+		return in_array( $c, array( 'Cadetas femenino', 'Cadete Azul masculino', 'Infantil femenino', 'Infantil Azul masculino', 'Mosquitos masculino' ), true );
+	} ) ),
+	array( 'Mosquitos masculino', 'Infantil Azul masculino', 'Cadete Azul masculino', 'Infantil femenino', 'Cadetas femenino' )
+);
+check( 'grupo inválido: marcado en el índice', $ord_index['actividades']['hockey-8va-a-test']['grupo_invalido'], 'f' );
+check( 'grupo inválido: sin grupo', isset( $ord_index['actividades']['hockey-8va-a-test']['grupo'] ), false );
+check( 'grupo inválido: en stats', $ord_index['stats']['actividades_grupo_invalido'], array( 'hockey-8va-a-test' => 'f' ) );
+$r = $ord_q->buscar_actividades( array( 'texto' => 'hockey' ) );
+check( 'grupo inválido: no aparece en buscar_actividades', in_array( 'hockey-8va-a-test', array_column( $r['actividades'], 'slug' ), true ), false );
+$r = $ord_q->obtener_agenda( array( 'actividad' => 'hockey-8va-a-test' ) );
+check( 'grupo inválido: obtener_agenda por slug no devuelve items', $r['total'], 0 );
+$r = $ord_q->obtener_agenda( array( 'sede' => 'club-de-campo', 'dia' => 'domingo', 'limite' => 80 ) );
+check( 'grupo inválido: obtener_agenda por sede no muestra su item', in_array( 'Hockey 8va A', array_column( $r['items'], 'titulo' ), true ), false );
+$r = $ord_q->deportes_federados( array( 'deporte' => 'hockey' ) );
+check( 'grupo inválido: no aparece en deportes_federados', in_array( 'Hockey federado 8va división A', array_column( $r['categorias'], 'categoria' ), true ), false );
+check( 'grupo normalizado (mayúsculas/tildes)', $ord_index['actividades']['hadraja-test']['grupo'], 'hadraja' );
+check( 'normalize_grupo válido', Index_Builder::normalize_grupo( 'Federadas' ), 'federadas' );
+check( 'normalize_grupo ACF select', Index_Builder::normalize_grupo( array( 'value' => 'escuelas', 'label' => 'Escuelas' ) ), 'escuelas' );
+check( 'normalize_grupo inválido', Index_Builder::normalize_grupo( 'f' ), null );
+
 $r = $q->transporte();
 check( 'transporte rutas', count( $r['transporte'] ), 2 );
 check( 'transporte servicios', count( $r['transporte'][0]['servicios'] ) > 0 && count( $r['transporte'][1]['servicios'] ) > 0, true );
