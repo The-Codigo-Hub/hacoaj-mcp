@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.6] - 2026-10-22
+
+- Las actividades salen únicamente de WordPress: las del catálogo que no existen como término en WP ya no se agregan al índice (eran actividades viejas que seguían apareciendo en búsquedas). Ajustes → Diagnóstico y stats.actividades_solo_catalogo listan los slugs del catálogo que WP ya no tiene
+
 ## [1.4.5] - 2026-10-22
 
 - buscar_actividades agrupa la misma actividad dictada en varias sedes (ej. "Hockey Primaria" en Tigre Maliar y Club de Campo) en un solo resultado con sedes y variantes; la tool pide preguntar la sede al elegirla
