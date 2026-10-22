@@ -234,16 +234,17 @@ final class Index_Builder {
 			}
 		}
 
-		// Actividades del catálogo sin agenda (término sin items o sin término en WP).
+		// Actividades del catálogo con término en WP pero sin agenda todavía. Una actividad que está
+		// en el catálogo y NO existe como término en WordPress no se crea: WordPress es la única
+		// fuente de qué actividades existen (el catálogo sólo enriquece las que ya están en WP).
 		foreach ( $catalog->raw()['actividades'] as $slug => $meta ) {
-			if ( isset( $activities[ $slug ] ) ) {
+			if ( isset( $activities[ $slug ] ) || ! isset( $terms[ $slug ] ) ) {
 				continue;
 			}
-			$in_wp = isset( $terms[ $slug ] );
-			$root  = $in_wp ? $root_of( $slug ) : null;
+			$root = $root_of( $slug );
 			$activities[ $slug ] = array(
 				'slug'      => $slug,
-				'nombre'    => $in_wp ? $terms[ $slug ]['name'] : ( isset( $meta['nombre_bot'] ) ? $meta['nombre_bot'] : $slug ),
+				'nombre'    => $terms[ $slug ]['name'],
 				'categoria' => $root && $root !== $slug ? $root : null,
 				'sedes'     => array(),
 				'dias'      => array(),
@@ -377,6 +378,7 @@ final class Index_Builder {
 					return ! empty( $i['horarios'] );
 				} ) ),
 				'actividades_sin_catalogo' => $sin_meta,
+				'actividades_solo_catalogo' => array_keys( $catalog->activities_without_term( array_keys( $terms ) ) ),
 				// slug => valor cargado en el ACF "grupo" que no es válido; esas actividades no se muestran.
 				'actividades_grupo_invalido' => $grupo_invalido,
 			),
