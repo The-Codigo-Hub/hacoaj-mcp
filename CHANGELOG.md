@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.4] - 2026-10-22
+
+- Deportes federados reparte el límite entre caballeros y damas cuando no se filtra por género (con total_por_genero y aviso; límite por defecto 30 -> 12); "hijo"/"hija" cuentan como género y se infieren del texto; avisos de "hay más" para no superar el largo de WhatsApp
+
 ## [1.4.3] - 2026-10-21
 
 - Federadas ordenadas por deporte, género (caballeros, damas, mixto), edad y nombre; actividades con el ACF grupo mal cargado se descartan de todas las tools y se listan en stats.actividades_grupo_invalido y en Ajustes → Diagnóstico
