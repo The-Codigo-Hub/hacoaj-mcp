@@ -57,6 +57,7 @@ final class Tools {
 				'title'       => 'Buscar actividades',
 				'description' => 'Busca actividades del Club Náutico Hacoaj (deportes, escuelas deportivas, cultura, Hadrajá, natación, náuticas, recreación) y devuelve un resumen: nombre, categoría, edades, género, sedes, días y link. '
 					. 'Usala primero cuando alguien pregunta "¿qué hay para...?" o por un deporte. Combiná texto con edad/sede/día. Para ver horarios concretos usá obtener_agenda con el slug devuelto. '
+					. 'Si una actividad está en varias sedes viene una sola vez con "variantes" (cada una con su slug y sede): listá el nombre una sola vez y, cuando la elijan, preguntá en qué sede antes de pedir la agenda (si ya dijeron la sede, usá esa variante directo). '
 					. 'Los deportes federados (competitivos) están en deportes_federados.',
 				'inputSchema' => self::schema(
 					array(

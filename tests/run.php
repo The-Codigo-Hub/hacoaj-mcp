@@ -472,6 +472,25 @@ check( 'federadas con género: sin reparto ni total_por_genero', array( count( $
 $r = $bal_q->deportes_federados( array( 'deporte' => 'basquet' ) );
 check( 'federadas: límite por defecto 12', count( $r['categorias'] ), 12 );
 
+// La misma actividad en varias sedes sale una sola vez, con variantes: antes "Hockey Primaria" salía
+// dos veces y el bot le agregaba la sede al lado (pruebas de Mica, 22/10).
+$r  = $q->buscar_actividades( array( 'texto' => 'hockey', 'limite' => 50 ) );
+$hp = array_values( array_filter( $r['actividades'], function ( $a ) {
+	return 'Hockey Primaria' === $a['nombre'];
+} ) );
+check( 'agrupadas: Hockey Primaria una sola vez', count( $hp ), 1 );
+check( 'agrupadas: slugs de las variantes', array_column( $hp[0]['variantes'], 'slug' ), array( 'hockey-primaria', 'hockey-primaria-cdc' ) );
+check( 'agrupadas: sedes combinadas', $hp[0]['sedes'], array( 'Tigre Maliar', 'Club de Campo' ) );
+check( 'agrupadas: categoría sin la sede', $hp[0]['categoria'], 'Escuelas Deportivas' );
+check( 'agrupadas: sin slug propio', isset( $hp[0]['slug'] ), false );
+check( 'agrupadas: variante sin agenda toma la sede de la categoría', $hp[0]['variantes'][1]['sedes'], array( 'Club de Campo' ) );
+check( 'agrupadas: total cuenta grupos', $r['total'], count( $r['actividades'] ) );
+check( 'agrupadas: nota_variantes', isset( $r['nota_variantes'] ), true );
+$r = $q->buscar_actividades( array( 'texto' => 'judo', 'limite' => 50 ) );
+check( 'mismo nombre en otra categoría no se agrupa', array( count( $r['actividades'] ), isset( $r['nota_variantes'] ) ), array( 2, false ) );
+$r = $q->buscar_actividades( array( 'texto' => 'hockey jardin' ) );
+check( 'actividad única: mismo formato de siempre', array( $r['actividades'][0]['slug'], isset( $r['actividades'][0]['variantes'] ) ), array( 'hockey-jardin', false ) );
+
 $r = $q->transporte();
 check( 'transporte rutas', count( $r['transporte'] ), 2 );
 check( 'transporte servicios', count( $r['transporte'][0]['servicios'] ) > 0 && count( $r['transporte'][1]['servicios'] ) > 0, true );

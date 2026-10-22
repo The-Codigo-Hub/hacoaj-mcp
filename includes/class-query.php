@@ -35,12 +35,17 @@ final class Query {
 		$filtered = $this->filter_activities( $f );
 		$acts     = $filtered['actividades'];
 
+		$grupos = $this->group_by_name( $acts );
+
 		$out = array(
-			'total'       => count( $acts ),
-			'actividades' => array_map( array( $this, 'activity_summary' ), array_slice( $acts, 0, $limit ) ),
+			'total'       => count( $grupos ),
+			'actividades' => array_map( array( $this, 'group_summary' ), array_slice( $grupos, 0, $limit ) ),
 		);
-		if ( count( $acts ) > $limit ) {
-			$out['aviso'] = sprintf( 'Se muestran %d de %d. Hay %d actividades más: decí que hay más opciones y preguntá edad, sede o día para afinar, en vez de listar todo (WhatsApp corta los mensajes largos).', $limit, count( $acts ), count( $acts ) - $limit );
+		if ( count( $grupos ) > $limit ) {
+			$out['aviso'] = sprintf( 'Se muestran %d de %d. Hay %d actividades más: decí que hay más opciones y preguntá edad, sede o día para afinar, en vez de listar todo (WhatsApp corta los mensajes largos).', $limit, count( $grupos ), count( $grupos ) - $limit );
+		}
+		if ( count( $grupos ) < count( $acts ) ) {
+			$out['nota_variantes'] = 'Algunas actividades están en varias sedes y vienen una sola vez, con "variantes". Listá el nombre una vez; cuando la elijan, preguntá en qué sede (opciones: sedes) y usá el slug de esa variante en obtener_agenda.';
 		}
 		$out = array_merge( $out, $filtered['meta'] );
 		if ( ! $acts ) {
@@ -353,6 +358,81 @@ final class Query {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Agrupa la misma actividad dictada en varias sedes (ej. "Hockey Primaria" en Escuelas Deportivas
+	 * de Tigre Maliar y de Club de Campo), respetando el orden de relevancia. Antes salían dos veces y
+	 * el bot les agregaba la sede al lado para distinguirlas (pruebas de Mica, 22/10). La clave es
+	 * nombre + categoría sin la sede entre paréntesis + género: "Judo" de Escuelas y de Deportes
+	 * Adultos, o "Zumba" de Deportes Adultos y de Cultura, son actividades distintas y no se juntan.
+	 *
+	 * @return array[] lista de grupos; cada grupo es una lista de actividades.
+	 */
+	private function group_by_name( array $acts ) {
+		$grupos = array();
+		foreach ( $acts as $a ) {
+			$key              = Text::fold( trim( $a['nombre'] ) ) . '|' . Text::fold( self::categoria_base( $this->categoria_nombre( $a ) ) ) . '|' . ( isset( $a['genero'] ) ? $a['genero'] : '' );
+			$grupos[ $key ][] = $a;
+		}
+		return array_values( $grupos );
+	}
+
+	/** Resumen de un grupo: el de la actividad si es una sola; si son varias, uno con "variantes". */
+	public function group_summary( array $grupo ) {
+		$out = $this->activity_summary( $grupo[0] );
+		if ( count( $grupo ) === 1 ) {
+			return $out;
+		}
+		$sedes     = array();
+		$edades    = array();
+		$variantes = array();
+		foreach ( $grupo as $a ) {
+			$v = $this->activity_summary( $a );
+			if ( empty( $v['sedes'] ) ) {
+				// Sin agenda cargada no hay sede: se toma del nombre de la categoría, "Escuelas Deportivas (Club de Campo)".
+				$v['sedes'] = $this->sedes_de_categoria( $this->categoria_nombre( $a ) );
+			}
+			$sedes       = array_merge( $sedes, $v['sedes'] );
+			$edades[]    = isset( $v['edades'] ) ? $v['edades'] : null;
+			$variantes[] = array_filter( array_intersect_key( $v, array_flip( array( 'slug', 'sedes', 'edades', 'dias', 'horarios_cargados', 'url' ) ) ), function ( $x ) {
+				return null !== $x && array() !== $x;
+			} );
+		}
+		unset( $out['slug'], $out['dias'], $out['url'], $out['horarios_cargados'], $out['edades'] );
+		$out['categoria'] = self::categoria_base( $out['categoria'] );
+		$out['sedes']     = array_values( array_unique( $sedes ) );
+		if ( count( array_unique( $edades, SORT_REGULAR ) ) === 1 && null !== $edades[0] ) {
+			$out['edades'] = $edades[0];
+		}
+		$out['variantes'] = $variantes;
+		return array_filter( $out, function ( $x ) {
+			return null !== $x && array() !== $x;
+		} );
+	}
+
+	private function categoria_nombre( array $a ) {
+		return $a['categoria'] && isset( $this->index['categorias'][ $a['categoria'] ] ) ? $this->index['categorias'][ $a['categoria'] ]['nombre'] : null;
+	}
+
+	/** "Escuelas Deportivas (Club de Campo)" → "Escuelas Deportivas". */
+	private static function categoria_base( $nombre ) {
+		return null === $nombre ? null : trim( preg_replace( '/\s*\([^)]*\)\s*$/', '', $nombre ) );
+	}
+
+	/** Sedes nombradas entre paréntesis en una categoría: "(Tigre Maliar y Ben Gurión)" → [Tigre Maliar, Ben Gurión]. */
+	private function sedes_de_categoria( $nombre ) {
+		if ( null === $nombre || ! preg_match( '/\(([^)]*)\)\s*$/', $nombre, $m ) ) {
+			return array();
+		}
+		$slugs = array();
+		foreach ( preg_split( '/\s*(?:,|\by\b)\s*/u', $m[1] ) as $parte ) {
+			$slug = '' === trim( $parte ) ? null : $this->catalog->resolve_sede( $parte );
+			if ( $slug ) {
+				$slugs[] = $slug;
+			}
+		}
+		return $this->sede_labels( array_values( array_unique( $slugs ) ) );
 	}
 
 	public function activity_summary( array $a ) {
