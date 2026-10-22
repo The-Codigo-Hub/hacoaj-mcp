@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.5] - 2026-10-22
+
+- buscar_actividades agrupa la misma actividad dictada en varias sedes (ej. "Hockey Primaria" en Tigre Maliar y Club de Campo) en un solo resultado con sedes y variantes; la tool pide preguntar la sede al elegirla
+
 ## [1.4.4] - 2026-10-22
 
 - Deportes federados reparte el límite entre caballeros y damas cuando no se filtra por género (con total_por_genero y aviso; límite por defecto 30 -> 12); "hijo"/"hija" cuentan como género y se infieren del texto; avisos de "hay más" para no superar el largo de WhatsApp
