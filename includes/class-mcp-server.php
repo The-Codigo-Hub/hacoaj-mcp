@@ -194,7 +194,9 @@ final class MCP_Server {
 		return 'Datos oficiales del Club Náutico Hacoaj (hacoaj.org.ar), leídos en vivo de su WordPress. '
 			. 'Flujo recomendado: buscar_actividades (qué hay según edad/sede/día) → obtener_agenda (horarios concretos). '
 			. 'Competencia: deportes_federados. Traslados: transporte. Direcciones y contactos: listar_sedes. '
-			. 'Los días "hoy"/"mañana" se resuelven con la hora de Argentina. Si un dato no está, sugerí contactar a la sede; no inventes horarios ni precios.';
+			. 'Los días "hoy"/"mañana" se resuelven con la hora de Argentina. "Mi hijo"/"mi hija" es un dato de género: pasalo en genero. '
+			. 'WhatsApp corta los mensajes largos: si una tool trae aviso de que hay más resultados, no listes todo; decí cuántos más hay y preguntá para afinar. '
+			. 'Si un dato no está, sugerí contactar a la sede; no inventes horarios ni precios.';
 	}
 
 	private static function result( $id, $result ) {

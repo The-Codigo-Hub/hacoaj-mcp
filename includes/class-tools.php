@@ -32,7 +32,7 @@ final class Tools {
 		$genero = array(
 			'type'        => 'string',
 			'enum'        => array( 'femenino', 'masculino' ),
-			'description' => 'Filtra actividades exclusivas de un género. Las mixtas siempre se incluyen.',
+			'description' => 'Filtra actividades exclusivas de un género. Las mixtas siempre se incluyen. "Mi hijo" = masculino, "mi hija" = femenino.',
 		);
 		$sede   = array(
 			'type'        => 'string',
@@ -137,7 +137,8 @@ final class Tools {
 				'title'       => 'Deportes federados',
 				'description' => 'Categorías de deportes federados/competitivos (básquet, fútbol, hockey, cestoball, vóley, gimnasia artística, judo, remo, canotaje, tenis) con género, edades o años de nacimiento, sede, horarios de entrenamiento y link. '
 					. 'Las categorías por año ("Categoría 2015") se recalculan con el año actual. '
-					. 'Vienen ordenadas por deporte, género (primero caballeros, después damas), edad y nombre: mostralas en ese orden.',
+					. 'Vienen ordenadas por deporte, género (primero caballeros, después damas), edad y nombre: mostralas en ese orden, agrupadas por género. '
+					. 'Sin filtro de género el límite se reparte entre caballeros y damas (total_por_genero dice cuántas hay de cada uno): no muestres un solo género como si fuera todo. Si hay aviso, decí que hay más y preguntá cuál quiere ver.',
 				'inputSchema' => self::schema(
 					array(
 						'deporte'         => array(
@@ -154,7 +155,7 @@ final class Tools {
 						),
 						'sede'            => $sede,
 						'dia'             => $dia,
-						'limite'          => $limite( 30, 100 ),
+						'limite'          => $limite( 12, 100 ),
 					)
 				),
 				'handler'     => function ( $args ) {

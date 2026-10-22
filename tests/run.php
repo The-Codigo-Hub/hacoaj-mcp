@@ -413,6 +413,65 @@ check( 'normalize_grupo válido', Index_Builder::normalize_grupo( 'Federadas' ),
 check( 'normalize_grupo ACF select', Index_Builder::normalize_grupo( array( 'value' => 'escuelas', 'label' => 'Escuelas' ) ), 'escuelas' );
 check( 'normalize_grupo inválido', Index_Builder::normalize_grupo( 'f' ), null );
 
+// "Mi hijo"/"mi hija" es género: antes "fútbol para mi hijo de 18" devolvía categorías femeninas.
+check( 'normalize_gender hijo', Query::normalize_gender( 'Hijo' ), 'masculino' );
+check( 'normalize_gender hija', Query::normalize_gender( 'hija' ), 'femenino' );
+check( 'gender_from_text hijo', Query::gender_from_text( 'fútbol para mi hijo de 18' ), array( 'masculino', 'hijo' ) );
+check( 'gender_from_text hija', Query::gender_from_text( 'básquet, mi HIJA tiene 13' ), array( 'femenino', 'hija' ) );
+check( 'gender_from_text plural no infiere', Query::gender_from_text( 'algo para mis hijos' ), null );
+$r = $ord_q->deportes_federados( array( 'deporte' => 'basquet mi hija' ) );
+check(
+	'federadas: "mi hija" filtra damas',
+	array_values( array_unique( array_column( $r['categorias'], 'genero' ) ) ),
+	array( 'femenino' )
+);
+check( 'federadas: genero_inferido', $r['genero_inferido'], 'femenino (por "hija" en el texto)' );
+$gen_snap = $snap;
+foreach ( array( array( 9501, 'Fútbol Recreativo Test Damas', 'femenino' ), array( 9502, 'Fútbol Recreativo Test Caballeros', 'masculino' ) ) as $c ) {
+	$gen_snap['actividad'][] = array(
+		'id' => $c[0], 'name' => $c[1], 'slug' => Text::slugify( $c[1] ), 'parent' => 0, 'description' => '', 'tipo_categoria' => 'hija',
+		'grupo' => 'generales', 'genero' => $c[2], 'edad_min' => 18,
+	);
+}
+$gen_q = new Query( Index_Builder::build( $gen_snap, $catalog, 'https://hacoaj.org.ar' ), $catalog, $sept );
+$r     = $gen_q->buscar_actividades( array( 'texto' => 'futbol recreativo test para mi hijo', 'limite' => 50 ) );
+check( 'buscar_actividades: "mi hijo" excluye femeninas', array_values( array_intersect( array( 'futbol-recreativo-test-damas', 'futbol-recreativo-test-caballeros' ), array_column( $r['actividades'], 'slug' ) ) ), array( 'futbol-recreativo-test-caballeros' ) );
+check( 'buscar_actividades: genero_inferido', $r['genero_inferido'], 'masculino (por "hijo" en el texto)' );
+$r = $gen_q->buscar_actividades( array( 'texto' => 'futbol recreativo test', 'limite' => 50 ) );
+check( 'buscar_actividades: sin "hijo" trae ambos', count( array_intersect( array( 'futbol-recreativo-test-damas', 'futbol-recreativo-test-caballeros' ), array_column( $r['actividades'], 'slug' ) ) ), 2 );
+
+// Sin filtro de género el límite se reparte entre caballeros y damas: con el orden por género y
+// un límite fijo el bot mostraba sólo caballeros (pruebas de Mica, 22/10).
+$bal_snap                = $snap;
+$bal_snap['actividad'][] = array( 'id' => 9401, 'name' => 'Básquet Federado', 'slug' => 'bb-test', 'parent' => 0, 'description' => '' );
+for ( $i = 0; $i < 10; $i++ ) {
+	$bal_snap['actividad'][] = array(
+		'id' => 9410 + $i, 'name' => "Masc $i", 'slug' => "bb-masc-$i", 'parent' => 9401, 'description' => '', 'tipo_categoria' => 'hija',
+		'grupo' => 'federadas', 'genero' => 'masculino', 'edad_min' => 5 + $i, 'edad_max' => 6 + $i,
+	);
+}
+for ( $i = 0; $i < 3; $i++ ) {
+	$bal_snap['actividad'][] = array(
+		'id' => 9430 + $i, 'name' => "Fem $i", 'slug' => "bb-fem-$i", 'parent' => 9401, 'description' => '', 'tipo_categoria' => 'hija',
+		'grupo' => 'federadas', 'genero' => 'femenino', 'edad_min' => 5 + $i, 'edad_max' => 6 + $i,
+	);
+}
+$bal_q = new Query( Index_Builder::build( $bal_snap, $catalog, 'https://hacoaj.org.ar' ), $catalog, $sept );
+$r     = $bal_q->deportes_federados( array( 'deporte' => 'basquet', 'limite' => 6 ) );
+check(
+	'federadas balanceadas: cupo repartido y agrupado por género',
+	array_column( $r['categorias'], 'categoria' ),
+	array( 'Masc 0', 'Masc 1', 'Masc 2', 'Fem 0', 'Fem 1', 'Fem 2' )
+);
+check( 'federadas balanceadas: total_por_genero', $r['total_por_genero'], array( 'masculino' => 10, 'femenino' => 3 ) );
+check( 'federadas balanceadas: aviso con detalle', false !== strpos( $r['aviso'], 'Se muestran 6 de 13 categorías (3 de 10 masculino, 3 de 3 femenino)' ), true );
+$r = $bal_q->deportes_federados( array( 'deporte' => 'basquet', 'limite' => 8 ) );
+check( 'federadas balanceadas: sobrante va al género con más', count( array_keys( array_column( $r['categorias'], 'genero' ), 'masculino', true ) ), 5 );
+$r = $bal_q->deportes_federados( array( 'deporte' => 'basquet', 'genero' => 'masculino', 'limite' => 6 ) );
+check( 'federadas con género: sin reparto ni total_por_genero', array( count( $r['categorias'] ), isset( $r['total_por_genero'] ) ), array( 6, false ) );
+$r = $bal_q->deportes_federados( array( 'deporte' => 'basquet' ) );
+check( 'federadas: límite por defecto 12', count( $r['categorias'] ), 12 );
+
 $r = $q->transporte();
 check( 'transporte rutas', count( $r['transporte'] ), 2 );
 check( 'transporte servicios', count( $r['transporte'][0]['servicios'] ) > 0 && count( $r['transporte'][1]['servicios'] ) > 0, true );
