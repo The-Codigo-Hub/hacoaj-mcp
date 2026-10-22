@@ -40,7 +40,7 @@ final class Query {
 			'actividades' => array_map( array( $this, 'activity_summary' ), array_slice( $acts, 0, $limit ) ),
 		);
 		if ( count( $acts ) > $limit ) {
-			$out['aviso'] = sprintf( 'Se muestran %d de %d. Refiná con más filtros.', $limit, count( $acts ) );
+			$out['aviso'] = sprintf( 'Se muestran %d de %d. Hay %d actividades más: decí que hay más opciones y preguntá edad, sede o día para afinar, en vez de listar todo (WhatsApp corta los mensajes largos).', $limit, count( $acts ), count( $acts ) - $limit );
 		}
 		$out = array_merge( $out, $filtered['meta'] );
 		if ( ! $acts ) {
@@ -175,6 +175,14 @@ final class Query {
 			return self::visible( $a ) && ( ! isset( $a['grupo'] ) || 'federadas' !== $a['grupo'] );
 		} ) );
 		$meta = array();
+
+		if ( empty( $f['genero'] ) && ! empty( $f['texto'] ) ) {
+			$inferido = self::gender_from_text( $f['texto'] );
+			if ( $inferido ) {
+				$f['genero']             = $inferido[0];
+				$meta['genero_inferido'] = sprintf( '%s (por "%s" en el texto)', $inferido[0], $inferido[1] );
+			}
+		}
 
 		$scores = array();
 		if ( ! empty( $f['texto'] ) ) {
@@ -620,6 +628,15 @@ final class Query {
 	public function deportes_federados( array $f ) {
 		$year = (int) $this->now->format( 'Y' );
 		$rows = $this->federadas_rows( $year );
+		$meta = array();
+
+		if ( empty( $f['genero'] ) && ! empty( $f['deporte'] ) ) {
+			$inferido = self::gender_from_text( $f['deporte'] );
+			if ( $inferido ) {
+				$f['genero']             = $inferido[0];
+				$meta['genero_inferido'] = sprintf( '%s (por "%s" en el texto)', $inferido[0], $inferido[1] );
+			}
+		}
 
 		if ( ! empty( $f['deporte'] ) ) {
 			$tokens   = Text::tokens( $f['deporte'] );
@@ -678,8 +695,9 @@ final class Query {
 			} ) );
 		}
 
-		$limit = self::clamp( isset( $f['limite'] ) ? $f['limite'] : 30, 1, 100 );
-		$out   = array(
+		$limit   = self::clamp( isset( $f['limite'] ) ? $f['limite'] : 12, 1, 100 );
+		$mostrar = empty( $f['genero'] ) ? self::balance_by_gender( $rows, $limit ) : array_slice( $rows, 0, $limit );
+		$out     = array(
 			'anio_referencia' => $year,
 			'total'           => count( $rows ),
 			'categorias'      => array_map( function ( $r ) {
@@ -693,16 +711,73 @@ final class Query {
 					'horarios'  => isset( $r['horarios'] ) ? $r['horarios'] : array(),
 					'url'       => isset( $r['url'] ) ? $r['url'] : null,
 				) );
-			}, array_slice( $rows, 0, $limit ) ),
+			}, $mostrar ),
 		);
+		$por_genero = self::count_by_gender( $rows );
+		if ( count( $por_genero ) > 1 ) {
+			$out['total_por_genero'] = $por_genero;
+		}
+		$out = array_merge( $out, $meta );
 		if ( ! $f && ! empty( $this->index['especiales']['federados_resumen'] ) ) {
 			$out['resumen_sitio'] = $this->index['especiales']['federados_resumen'][0]['notas'];
 		}
 		if ( $sin_edad ) {
 			$out['sin_datos_de_edad'] = $sin_edad . ' categorías no tienen edad cargada (ej. hockey por divisiones, vóley) y se excluyeron. Consultá sin edad para verlas.';
 		}
-		if ( count( $rows ) > $limit ) {
-			$out['aviso'] = sprintf( 'Se muestran %d de %d. Filtrá por deporte, género o edad.', $limit, count( $rows ) );
+		if ( count( $rows ) > count( $mostrar ) ) {
+			$detalle = array();
+			$shown   = self::count_by_gender( $mostrar );
+			foreach ( $por_genero as $g => $n ) {
+				$detalle[] = sprintf( '%d de %d %s', isset( $shown[ $g ] ) ? $shown[ $g ] : 0, $n, $g );
+			}
+			$out['aviso'] = sprintf(
+				'Se muestran %d de %d categorías (%s). Hay más: mostrá estas, decí cuántas más hay y preguntá género, edad o año de nacimiento para listar el resto. No mandes la lista completa: WhatsApp corta los mensajes largos.',
+				count( $mostrar ),
+				count( $rows ),
+				implode( ', ', $detalle )
+			);
+		}
+		return $out;
+	}
+
+	/**
+	 * Reparte el límite entre los grupos deporte+género (por turnos, así ninguno se queda sin lugar)
+	 * y devuelve las filas elegidas en el orden original. Con el orden por género de compare_federadas
+	 * y un límite fijo, el bot mostraba sólo caballeros y las damas quedaban afuera (pruebas de Mica, 22/10).
+	 */
+	private static function balance_by_gender( array $rows, $limit ) {
+		$groups = array();
+		foreach ( $rows as $r ) {
+			$key = $r['deporte'] . '|' . ( isset( $r['genero'] ) ? $r['genero'] : '' );
+			$groups[ $key ] = isset( $groups[ $key ] ) ? $groups[ $key ] + 1 : 1;
+		}
+		$cupo  = array_fill_keys( array_keys( $groups ), 0 );
+		$libre = min( $limit, count( $rows ) );
+		while ( $libre > 0 ) {
+			foreach ( $groups as $key => $n ) {
+				if ( $libre > 0 && $cupo[ $key ] < $n ) {
+					$cupo[ $key ]++;
+					$libre--;
+				}
+			}
+		}
+		$out = array();
+		foreach ( $rows as $r ) {
+			$key = $r['deporte'] . '|' . ( isset( $r['genero'] ) ? $r['genero'] : '' );
+			if ( $cupo[ $key ] > 0 ) {
+				$out[] = $r;
+				$cupo[ $key ]--;
+			}
+		}
+		return $out;
+	}
+
+	/** Cantidad de filas por género ("sin dato" si no tiene), en el orden en que aparecen. */
+	private static function count_by_gender( array $rows ) {
+		$out = array();
+		foreach ( $rows as $r ) {
+			$g         = isset( $r['genero'] ) ? $r['genero'] : 'sin dato';
+			$out[ $g ] = isset( $out[ $g ] ) ? $out[ $g ] + 1 : 1;
 		}
 		return $out;
 	}
@@ -782,11 +857,25 @@ final class Query {
 
 	public static function normalize_gender( $g ) {
 		$g = Text::fold( $g );
-		if ( preg_match( '/^(f|fem|femenino|mujer|mujeres|nena|nenas|nina|ninas|chica|chicas|damas?|femenina)$/', $g ) ) {
+		if ( preg_match( '/^(f|fem|femenino|mujer|mujeres|nena|nenas|nina|ninas|chica|chicas|damas?|femenina|hijas?)$/', $g ) ) {
 			return 'femenino';
 		}
-		if ( preg_match( '/^(m|masc|masculino|varon|varones|hombre|hombres|nene|nenes|nino|ninos|chico|chicos|caballeros?|masculina)$/', $g ) ) {
+		if ( preg_match( '/^(m|masc|masculino|varon|varones|hombre|hombres|nene|nenes|nino|ninos|chico|chicos|caballeros?|masculina|hijos?)$/', $g ) ) {
 			return 'masculino';
+		}
+		return null;
+	}
+
+	/**
+	 * Género implícito en el texto libre: "mi hijo" → masculino, "mi hija" → femenino. Sólo el
+	 * singular: "hijos" suele ser genérico. Hijo/hija son stopwords en Text::tokens, así que sin
+	 * esto "fútbol para mi hijo" devolvía categorías femeninas (pruebas de Mica, 22/10).
+	 *
+	 * @return array|null array( genero, palabra ) o null.
+	 */
+	public static function gender_from_text( $texto ) {
+		if ( preg_match( '/\b(hijo|hija)\b/', Text::fold( (string) $texto ), $m ) ) {
+			return array( 'hijo' === $m[1] ? 'masculino' : 'femenino', $m[1] );
 		}
 		return null;
 	}
