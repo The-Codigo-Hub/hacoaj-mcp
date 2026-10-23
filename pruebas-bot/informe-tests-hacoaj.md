@@ -133,3 +133,22 @@ Las fallas reales son de **criterio**:
 - `resultados/caso-01r.json`: la repetición del caso 01 con memoria limpia.
 - `resultados/resumen.json` y `resultados/log.txt`: un resumen por turno.
 - Para recalcular los chequeos sin volver a llamar al bot: `python3 correr_casos.py --rechequear`.
+
+## 6. Repetición después del plugin 1.4.7 (23/10, 07:41 UTC)
+
+El sitio confirmó `"version":"1.4.7"` en `/health`. Repetí los casos 01 a 05 con chatIds nuevos (`test-claude-20261023-<caso>v2`). Las respuestas están en `resultados/caso-XXv2.json`. Los chequeos A1 a A7 pasan en todas: el largo máximo bajó de 983 a 632 caracteres.
+
+| Caso | Antes (1.4.6) | Ahora (1.4.7) | Ejecución |
+|---|---|---|---|
+| 01 | Resumen vago: «Hay más de 20 categorías», con los ejemplos mezclados. | ✅ «Hay 22 categorías de Básquet Federado (18 masculino y 4 femenino)», con ejemplos agrupados: «Masculino: Mosquitos, Cadetes Celeste (Flex), Primera H» y «Femenino: Mini femenino, Cadetas femenino, Mayor femenino». | 1262266 |
+| 02 | Listaba 12 de 22 categorías, sin el total. | ❌ **Regresión del prompt, no del plugin:** «Para poder mostrarte las actividades disponibles necesito saber el año de nacimiento…». No llamó a ninguna herramienta: aplicó la rama de «sin actividad mencionada» aunque el mensaje dice «basquet». La primera corrida del mismo mensaje sí listó, así que es intermitente. | 1262267 |
+| 03 | Listaba 12 de 22 categorías. | ✅ El mismo resumen del 01. Mensaje 2 igual que antes: los horarios coinciden y ofrece derivar con Deportes. | 1262268, 1262269 |
+| 04 | ✅ 19 femeninas con ejemplos. | ✅ «Hay 19 categorías de hockey federado femenino (por ejemplo: 9na división A, 7ma división C, 4ta división)». Ahora los ejemplos cubren el rango completo. | 1262270 |
+| 05 | ❌ Aparecía «Futbol Recreativo Femenino Adultas». | 🟡 Federadas bien: «Hay 15 categorías de Fútbol Federado masculino» con 3 ejemplos. Ya no aparece la femenina, pero **porque el modelo omitió todo el bloque de Deportes Adultos**, incluido «Fútbol Recreativo +18 (caballeros)», y también «Fútbol Sala de 5». La herramienta devolvió los 7 ítems y la femenina sigue con `genero: mixto` en WordPress. | 1262271 |
+
+**Conclusión:** el cambio del plugin resolvió el listado de federadas: ahora siempre da el total por género, ejemplos de los dos géneros y nunca lista las 22. Siguen pendientes:
+
+- **Prompt:**
+  - El 02 a veces pide el año aunque se mencione la actividad: reforzar la «REGLA DE ORDEN DE EVALUACIÓN» con este mensaje como ejemplo ❌.
+  - El 05 omite ítems devueltos: punto 7 de la sección 4.
+- **Datos de WordPress:** el género de `futbol-recreativo-adultos` (punto 1).

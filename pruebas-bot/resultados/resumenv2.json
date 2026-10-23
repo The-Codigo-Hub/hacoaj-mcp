@@ -1,0 +1,62 @@
+[
+  {
+    "caso": "01",
+    "turno": 1,
+    "msg": "Tiene básquet el club",
+    "inicio_utc": "2026-10-23T07:41:16.976102+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 631,
+    "fallas": []
+  },
+  {
+    "caso": "02",
+    "turno": 1,
+    "msg": "Estoy buscando información de basquet",
+    "inicio_utc": "2026-10-23T07:41:37.720858+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 235,
+    "fallas": []
+  },
+  {
+    "caso": "03",
+    "turno": 1,
+    "msg": "Tiene básquet el club",
+    "inicio_utc": "2026-10-23T07:41:44.623208+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 632,
+    "fallas": []
+  },
+  {
+    "caso": "03",
+    "turno": 2,
+    "msg": "Básquet Jardín",
+    "inicio_utc": "2026-10-23T07:42:07.762947+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 320,
+    "fallas": []
+  },
+  {
+    "caso": "04",
+    "turno": 1,
+    "msg": "Quiero info de hockey",
+    "inicio_utc": "2026-10-23T07:42:23.429725+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 569,
+    "fallas": []
+  },
+  {
+    "caso": "05",
+    "turno": 1,
+    "msg": "Quiero anotar a mi hijo en fútbol",
+    "inicio_utc": "2026-10-23T07:42:42.889611+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 559,
+    "fallas": []
+  }
+]
