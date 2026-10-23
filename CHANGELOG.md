@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.7] - 2026-10-23
+
+- deportes_federados: con más de 8 categorías el aviso pide resumir (total por género y 2 o 3 ejemplos de cada género, sin listar) y la respuesta trae ejemplos_por_genero. El aviso anterior decía "mostrá estas" y el bot listaba 12 de 22 categorías (pruebas del 23/10)
+
 ## [1.4.6] - 2026-10-22
 
 - Las actividades salen únicamente de WordPress: las del catálogo que no existen como término en WP ya no se agregan al índice (eran actividades viejas que seguían apareciendo en búsquedas). Ajustes → Diagnóstico y stats.actividades_solo_catalogo listan los slugs del catálogo que WP ya no tiene

@@ -195,7 +195,7 @@ final class MCP_Server {
 			. 'Flujo recomendado: buscar_actividades (qué hay según edad/sede/día) → obtener_agenda (horarios concretos). '
 			. 'Competencia: deportes_federados. Traslados: transporte. Direcciones y contactos: listar_sedes. '
 			. 'Los días "hoy"/"mañana" se resuelven con la hora de Argentina. "Mi hijo"/"mi hija" es un dato de género: pasalo en genero. '
-			. 'WhatsApp corta los mensajes largos: si una tool trae aviso de que hay más resultados, no listes todo; decí cuántos más hay y preguntá para afinar. '
+			. 'WhatsApp corta los mensajes largos: si una tool trae aviso, seguilo: no listes todo; decí el total, da algunos ejemplos y preguntá para afinar. '
 			. 'Si un dato no está, sugerí contactar a la sede; no inventes horarios ni precios.';
 	}
 

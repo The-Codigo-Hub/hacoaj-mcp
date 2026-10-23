@@ -467,7 +467,19 @@ check(
 	array( 'Masc 0', 'Masc 1', 'Masc 2', 'Fem 0', 'Fem 1', 'Fem 2' )
 );
 check( 'federadas balanceadas: total_por_genero', $r['total_por_genero'], array( 'masculino' => 10, 'femenino' => 3 ) );
-check( 'federadas balanceadas: aviso con detalle', false !== strpos( $r['aviso'], 'Se muestran 6 de 13 categorías (3 de 10 masculino, 3 de 3 femenino)' ), true );
+// Más de 8 categorías: el aviso pide resumir (total + ejemplos de los dos géneros), no listar.
+// El aviso viejo decía "mostrá estas" y el bot listaba 12 de 22 (pruebas del 23/10).
+check( 'federadas resumen: aviso con total por género', false !== strpos( $r['aviso'], 'Son 13 categorías (10 masculino, 3 femenino). No las listes' ), true );
+check( 'federadas resumen: el aviso ya no dice "mostrá estas"', false === strpos( $r['aviso'], 'mostrá estas' ), true );
+check(
+	'federadas resumen: ejemplos repartidos por género',
+	$r['ejemplos_por_genero'],
+	array( 'masculino' => array( 'Masc 0', 'Masc 5', 'Masc 9' ), 'femenino' => array( 'Fem 0', 'Fem 1', 'Fem 2' ) )
+);
+$r = $bal_q->deportes_federados( array( 'deporte' => 'basquet', 'limite' => 20 ) );
+check( 'federadas resumen: más de 8 aunque entren en el límite', array( count( $r['categorias'] ), isset( $r['aviso'] ) ), array( 13, true ) );
+$r = $bal_q->deportes_federados( array( 'deporte' => 'basquet', 'genero' => 'femenino' ) );
+check( 'federadas resumen: 8 o menos sin aviso ni ejemplos', array( isset( $r['aviso'] ), isset( $r['ejemplos_por_genero'] ) ), array( false, false ) );
 $r = $bal_q->deportes_federados( array( 'deporte' => 'basquet', 'limite' => 8 ) );
 check( 'federadas balanceadas: sobrante va al género con más', count( array_keys( array_column( $r['categorias'], 'genero' ), 'masculino', true ) ), 5 );
 $r = $bal_q->deportes_federados( array( 'deporte' => 'basquet', 'genero' => 'masculino', 'limite' => 6 ) );
