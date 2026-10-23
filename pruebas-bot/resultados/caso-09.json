@@ -1,0 +1,132 @@
+{
+  "caso": "09",
+  "chatId": "test-claude-20261023-09",
+  "turnos": [
+    {
+      "chatId": "test-claude-20261023-09",
+      "msg": "Me pasas info de gimnasia artistica",
+      "inicio_utc": "2026-10-23T07:06:31.943311+00:00",
+      "segundos": 16.4,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"La Gimnasia Artística se organiza por niveles, no por edad ni categoría, así que el nivel lo define el área de Deportes del club según la experiencia de cada persona 🤸\\n\\n¿Querés que te derive con alguien de Deportes para que te asesoren sobre el nivel y los horarios?\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "La Gimnasia Artística se organiza por niveles, no por edad ni categoría, así que el nivel lo define el área de Deportes del club según la experiencia de cada persona 🤸\n\n¿Querés que te derive con alguien de Deportes para que te asesoren sobre el nivel y los horarios?",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 266,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "¿Querés que te derive con alguien de Deportes para que te asesoren sobre el nivel y los horarios?"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    },
+    {
+      "chatId": "test-claude-20261023-09",
+      "msg": "Mi hija tiene 10",
+      "inicio_utc": "2026-10-23T07:06:50.301480+00:00",
+      "segundos": 13.0,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"Perfecto, gracias por el dato. Igual en Gimnasia Artística la edad no define el grupo: se organiza por niveles técnicos, y el área de Deportes evalúa en qué nivel corresponde cada chico o chica 🤸\\n\\n¿Querés que te derive con alguien de Deportes para que te asesoren sobre el nivel adecuado para tu hija de 10 años y los horarios disponibles?\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "Perfecto, gracias por el dato. Igual en Gimnasia Artística la edad no define el grupo: se organiza por niveles técnicos, y el área de Deportes evalúa en qué nivel corresponde cada chico o chica 🤸\n\n¿Querés que te derive con alguien de Deportes para que te asesoren sobre el nivel adecuado para tu hija de 10 años y los horarios disponibles?",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 339,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "¿Querés que te derive con alguien de Deportes para que te asesoren sobre el nivel adecuado para tu hija de 10 años y los horarios disponibles?"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    },
+    {
+      "chatId": "test-claude-20261023-09",
+      "msg": "sí",
+      "inicio_utc": "2026-10-23T07:07:05.314264+00:00",
+      "segundos": 5.5,
+      "http_status": 200,
+      "crudo": "{\"context\":\"agent\",\"text\":\"¡Genial! Te conecto con alguien del área de Deportes para que te asesoren 🙌\",\"continue\":false}",
+      "respuesta": {
+        "context": "agent",
+        "text": "¡Genial! Te conecto con alguien del área de Deportes para que te asesoren 🙌",
+        "continue": false
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 75,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "¡Genial! Te conecto con alguien del área de Deportes para que te asesoren 🙌"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    }
+  ]
+}

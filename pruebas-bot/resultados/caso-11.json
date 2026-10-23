@@ -1,0 +1,48 @@
+{
+  "caso": "11",
+  "chatId": "test-claude-20261023-11",
+  "turnos": [
+    {
+      "chatId": "test-claude-20261023-11",
+      "msg": "cómo hago para invitar a alguien al club",
+      "inicio_utc": "2026-10-23T07:07:27.988186+00:00",
+      "segundos": 5.6,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"¡Qué bueno que quieras invitar a alguien al club! 😊\\n\\nHay dos tipos de invitaciones y cada una tiene un proceso distinto:\\n\\n🎟️ Invitación regular\\nPara traer amigos o familiares al club en cualquier momento (hasta 4 invitados, con ciertas condiciones).\\n\\n🎂 Invitación de cumpleaños\\nPara festejar tu cumple en Sede Tigre Maliar con hasta 20 invitados no socios.\\n\\n¿De qué tipo de invitación se trata?\\n\\n1) Invitación regular\\n2) Invitación de cumpleaños\\n\\nRespondeme con 1 o 2 así te explico el paso a paso y, si querés, la gestionamos ahora mismo 😊\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "¡Qué bueno que quieras invitar a alguien al club! 😊\n\nHay dos tipos de invitaciones y cada una tiene un proceso distinto:\n\n🎟️ Invitación regular\nPara traer amigos o familiares al club en cualquier momento (hasta 4 invitados, con ciertas condiciones).\n\n🎂 Invitación de cumpleaños\nPara festejar tu cumple en Sede Tigre Maliar con hasta 20 invitados no socios.\n\n¿De qué tipo de invitación se trata?\n\n1) Invitación regular\n2) Invitación de cumpleaños\n\nRespondeme con 1 o 2 así te explico el paso a paso y, si querés, la gestionamos ahora mismo 😊",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 540,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "Respondeme con 1 o 2 así te explico el paso a paso y, si querés, la gestionamos ahora mismo 😊"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    }
+  ]
+}

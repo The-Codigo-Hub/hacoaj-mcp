@@ -1,0 +1,174 @@
+{
+  "caso": "06",
+  "chatId": "test-claude-20261023-06",
+  "turnos": [
+    {
+      "chatId": "test-claude-20261023-06",
+      "msg": "Quiero información sobre cultura",
+      "inicio_utc": "2026-10-23T07:04:59.284100+00:00",
+      "segundos": 21.4,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"Las actividades culturales del club incluyen:\\n\\n🎭 Teatro\\n💃 Rikudim (danzas israelíes)\\n🎶 Netzaj (elenco de danzas)\\n🎵 Grupo Vocal\\n🧘 Tai Chi\\n🖌️ Curso de Arte\\n🎬 Talleres de Cine\\n👥 Grupo Encuentro\\n🎉 Eventos especiales\\n\\n¿Sobre cuál de estas actividades culturales te gustaría más información? 😊\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "Las actividades culturales del club incluyen:\n\n🎭 Teatro\n💃 Rikudim (danzas israelíes)\n🎶 Netzaj (elenco de danzas)\n🎵 Grupo Vocal\n🧘 Tai Chi\n🖌️ Curso de Arte\n🎬 Talleres de Cine\n👥 Grupo Encuentro\n🎉 Eventos especiales\n\n¿Sobre cuál de estas actividades culturales te gustaría más información? 😊",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 287,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "¿Sobre cuál de estas actividades culturales te gustaría más información? 😊"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    },
+    {
+      "chatId": "test-claude-20261023-06",
+      "msg": "gracias te consulto por fútbol",
+      "inicio_utc": "2026-10-23T07:05:22.640320+00:00",
+      "segundos": 16.6,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"Te cuento las opciones de fútbol que hay en el club:\\n\\n🎽 *Actividades*\\n📚 *Escuelas Deportivas*\\n • *Fútbol Jardín*\\n • *Fútbol Primaria*\\n • *Fútbol Femenino Primaria*\\n • *Fútbol Recreativo Niños*\\n🧑 *Deportes Adultos*\\n • *Fútbol Recreativo +18* (caballeros)\\n • *Futbol Recreativo Femenino Adultas*\\n\\n🏅 *Federadas*\\nHay 20 categorías de Fútbol Federado (masculino y femenino). Algunos ejemplos:\\n • Fútbol Federado - Categoría 2017 masculino\\n • Fútbol Federado - Categoría 2016 masculino\\n • Fútbol Federado - Categoría 2015 masculino\\n • Fútbol Federado - Sub 10 femenino\\n • Fútbol Federado - Sub 12 femenino\\n • Fútbol Federado - Sub 14 femenino\\n • Fútbol Federado - Sub 17 femenino\\n • Fútbol Federado - Primera LUEFI femenino\\n\\n¿Te interesa algo recreativo/escuela o competitivo (federado)? ¿Y para qué edad o año de nacimiento sería?\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "Te cuento las opciones de fútbol que hay en el club:\n\n🎽 *Actividades*\n📚 *Escuelas Deportivas*\n • *Fútbol Jardín*\n • *Fútbol Primaria*\n • *Fútbol Femenino Primaria*\n • *Fútbol Recreativo Niños*\n🧑 *Deportes Adultos*\n • *Fútbol Recreativo +18* (caballeros)\n • *Futbol Recreativo Femenino Adultas*\n\n🏅 *Federadas*\nHay 20 categorías de Fútbol Federado (masculino y femenino). Algunos ejemplos:\n • Fútbol Federado - Categoría 2017 masculino\n • Fútbol Federado - Categoría 2016 masculino\n • Fútbol Federado - Categoría 2015 masculino\n • Fútbol Federado - Sub 10 femenino\n • Fútbol Federado - Sub 12 femenino\n • Fútbol Federado - Sub 14 femenino\n • Fútbol Federado - Sub 17 femenino\n • Fútbol Federado - Primera LUEFI femenino\n\n¿Te interesa algo recreativo/escuela o competitivo (federado)? ¿Y para qué edad o año de nacimiento sería?",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 825,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "¿Te interesa algo recreativo/escuela o competitivo (federado)? ¿Y para qué edad o año de nacimiento sería?"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    },
+    {
+      "chatId": "test-claude-20261023-06",
+      "msg": "es para mi hijo de 10",
+      "inicio_utc": "2026-10-23T07:05:41.232371+00:00",
+      "segundos": 5.9,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"Perfecto, para tu hijo de 10 años hay varias opciones de fútbol. Para poder decirte exactamente cuáles le corresponden (sobre todo en federado), necesito el año de nacimiento.\\n\\n¿En qué año nació tu hijo? (si te resulta más fácil, podés decirme también el mes y año)\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "Perfecto, para tu hijo de 10 años hay varias opciones de fútbol. Para poder decirte exactamente cuáles le corresponden (sobre todo en federado), necesito el año de nacimiento.\n\n¿En qué año nació tu hijo? (si te resulta más fácil, podés decirme también el mes y año)",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 265,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "¿En qué año nació tu hijo? (si te resulta más fácil, podés decirme también el mes y año)"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    },
+    {
+      "chatId": "test-claude-20261023-06",
+      "msg": "y para mi hijo de 18",
+      "inicio_utc": "2026-10-23T07:05:49.179038+00:00",
+      "segundos": 5.6,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"Buenísimo, así veo opciones para los dos.\\n\\nPara poder decirte exactamente qué fútbol federado y recreativo le corresponde a cada uno, necesito el año de nacimiento de cada hijo.\\n\\n¿En qué año nació tu hijo de 10 y en qué año nació tu hijo de 18?\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "Buenísimo, así veo opciones para los dos.\n\nPara poder decirte exactamente qué fútbol federado y recreativo le corresponde a cada uno, necesito el año de nacimiento de cada hijo.\n\n¿En qué año nació tu hijo de 10 y en qué año nació tu hijo de 18?",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 244,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "¿En qué año nació tu hijo de 10 y en qué año nació tu hijo de 18?"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    }
+  ]
+}

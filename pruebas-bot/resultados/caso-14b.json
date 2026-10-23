@@ -1,0 +1,48 @@
+{
+  "caso": "14b",
+  "chatId": "test-claude-20261023-14b",
+  "turnos": [
+    {
+      "chatId": "test-claude-20261023-14b",
+      "msg": "VACIAR CHAT",
+      "inicio_utc": "2026-10-23T07:08:48.555735+00:00",
+      "segundos": 6.0,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"Puedo seguir ayudándote desde acá mismo, pero no tengo forma de borrar el historial de tu lado.\\n\\nSi querés “vaciar” el chat, podés:\\n- Cerrar esta conversación y abrir una nueva.\\n- O borrar el chat desde la opción correspondiente de la plataforma que estés usando.\\n\\nCuando abras un nuevo chat, podés empezar de cero con cualquier consulta sobre Hacoaj 😊\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "Puedo seguir ayudándote desde acá mismo, pero no tengo forma de borrar el historial de tu lado.\n\nSi querés “vaciar” el chat, podés:\n- Cerrar esta conversación y abrir una nueva.\n- O borrar el chat desde la opción correspondiente de la plataforma que estés usando.\n\nCuando abras un nuevo chat, podés empezar de cero con cualquier consulta sobre Hacoaj 😊",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 352,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "Cuando abras un nuevo chat, podés empezar de cero con cualquier consulta sobre Hacoaj 😊"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    }
+  ]
+}

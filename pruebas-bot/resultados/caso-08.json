@@ -1,0 +1,48 @@
+{
+  "caso": "08",
+  "chatId": "test-claude-20261023-08",
+  "turnos": [
+    {
+      "chatId": "test-claude-20261023-08",
+      "msg": "fútbol para mi hijo/a de 10",
+      "inicio_utc": "2026-10-23T07:06:13.614783+00:00",
+      "segundos": 16.3,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"🎽 *Actividades*\\nPor el momento no encontré actividades recreativas o de escuela de fútbol para 10 años en la búsqueda general.\\n\\n🏅 *Federadas*\\n • Fútbol Federado - Categoría 2016 masculino (10 años, sede Club de Campo)\\n\\nEsta categoría entrena:\\n📍 Club de Campo\\n🕐 Lunes y miércoles de 18 a 20 h\\n🕐 Sábados de 9.30 a 11 h\\n\\n¿Querés que te derive con alguien de Deportes para que te asesoren sobre la inscripción y el nivel de tu hijo? 😊\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "🎽 *Actividades*\nPor el momento no encontré actividades recreativas o de escuela de fútbol para 10 años en la búsqueda general.\n\n🏅 *Federadas*\n • Fútbol Federado - Categoría 2016 masculino (10 años, sede Club de Campo)\n\nEsta categoría entrena:\n📍 Club de Campo\n🕐 Lunes y miércoles de 18 a 20 h\n🕐 Sábados de 9.30 a 11 h\n\n¿Querés que te derive con alguien de Deportes para que te asesoren sobre la inscripción y el nivel de tu hijo? 😊",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 430,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "¿Querés que te derive con alguien de Deportes para que te asesoren sobre la inscripción y el nivel de tu hijo? 😊"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    }
+  ]
+}

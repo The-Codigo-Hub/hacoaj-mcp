@@ -1,0 +1,254 @@
+[
+  {
+    "caso": "01",
+    "turno": 1,
+    "msg": "Tiene básquet el club",
+    "inicio_utc": "2026-10-23T07:03:04.376982+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 922,
+    "fallas": []
+  },
+  {
+    "caso": "02",
+    "turno": 1,
+    "msg": "Estoy buscando información de basquet",
+    "inicio_utc": "2026-10-23T07:03:17.222823+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 981,
+    "fallas": []
+  },
+  {
+    "caso": "03",
+    "turno": 1,
+    "msg": "Tiene básquet el club",
+    "inicio_utc": "2026-10-23T07:03:44.475697+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 983,
+    "fallas": []
+  },
+  {
+    "caso": "03",
+    "turno": 2,
+    "msg": "Básquet Jardín",
+    "inicio_utc": "2026-10-23T07:04:04.683012+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 332,
+    "fallas": []
+  },
+  {
+    "caso": "04",
+    "turno": 1,
+    "msg": "Quiero info de hockey",
+    "inicio_utc": "2026-10-23T07:04:19.997805+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 516,
+    "fallas": []
+  },
+  {
+    "caso": "05",
+    "turno": 1,
+    "msg": "Quiero anotar a mi hijo en fútbol",
+    "inicio_utc": "2026-10-23T07:04:41.890498+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 612,
+    "fallas": []
+  },
+  {
+    "caso": "06",
+    "turno": 1,
+    "msg": "Quiero información sobre cultura",
+    "inicio_utc": "2026-10-23T07:04:59.284100+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 287,
+    "fallas": []
+  },
+  {
+    "caso": "06",
+    "turno": 2,
+    "msg": "gracias te consulto por fútbol",
+    "inicio_utc": "2026-10-23T07:05:22.640320+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 825,
+    "fallas": []
+  },
+  {
+    "caso": "06",
+    "turno": 3,
+    "msg": "es para mi hijo de 10",
+    "inicio_utc": "2026-10-23T07:05:41.232371+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 265,
+    "fallas": []
+  },
+  {
+    "caso": "06",
+    "turno": 4,
+    "msg": "y para mi hijo de 18",
+    "inicio_utc": "2026-10-23T07:05:49.179038+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 244,
+    "fallas": []
+  },
+  {
+    "caso": "07",
+    "turno": 1,
+    "msg": "básquet para mi hija de 12",
+    "inicio_utc": "2026-10-23T07:05:56.756043+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 331,
+    "fallas": []
+  },
+  {
+    "caso": "08",
+    "turno": 1,
+    "msg": "fútbol para mi hijo/a de 10",
+    "inicio_utc": "2026-10-23T07:06:13.614783+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 430,
+    "fallas": []
+  },
+  {
+    "caso": "09",
+    "turno": 1,
+    "msg": "Me pasas info de gimnasia artistica",
+    "inicio_utc": "2026-10-23T07:06:31.943311+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 266,
+    "fallas": []
+  },
+  {
+    "caso": "09",
+    "turno": 2,
+    "msg": "Mi hija tiene 10",
+    "inicio_utc": "2026-10-23T07:06:50.301480+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 339,
+    "fallas": [
+      "A7_internos"
+    ]
+  },
+  {
+    "caso": "09",
+    "turno": 3,
+    "msg": "sí",
+    "inicio_utc": "2026-10-23T07:07:05.314264+00:00",
+    "context": "agent",
+    "continue": false,
+    "largo": 75,
+    "fallas": []
+  },
+  {
+    "caso": "10",
+    "turno": 1,
+    "msg": "Quiero saber el valor de las cuotas",
+    "inicio_utc": "2026-10-23T07:07:12.828353+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 358,
+    "fallas": []
+  },
+  {
+    "caso": "11",
+    "turno": 1,
+    "msg": "cómo hago para invitar a alguien al club",
+    "inicio_utc": "2026-10-23T07:07:27.988186+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 540,
+    "fallas": []
+  },
+  {
+    "caso": "12",
+    "turno": 1,
+    "msg": "Quiero información sobre cultura",
+    "inicio_utc": "2026-10-23T07:07:35.626771+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 438,
+    "fallas": []
+  },
+  {
+    "caso": "12",
+    "turno": 2,
+    "msg": "Quiero info de teatro",
+    "inicio_utc": "2026-10-23T07:07:43.807549+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 245,
+    "fallas": []
+  },
+  {
+    "caso": "12",
+    "turno": 3,
+    "msg": "Cómo me puedo anotar? Puedo hablar con alguien",
+    "inicio_utc": "2026-10-23T07:07:58.291442+00:00",
+    "context": "agent",
+    "continue": false,
+    "largo": 242,
+    "fallas": []
+  },
+  {
+    "caso": "13",
+    "turno": 1,
+    "msg": "quiero info de natación",
+    "inicio_utc": "2026-10-23T07:08:05.662507+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 558,
+    "fallas": []
+  },
+  {
+    "caso": "13",
+    "turno": 2,
+    "msg": "y de vóley?",
+    "inicio_utc": "2026-10-23T07:08:26.764031+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 433,
+    "fallas": []
+  },
+  {
+    "caso": "14a",
+    "turno": 1,
+    "msg": "vaciar chat",
+    "inicio_utc": "2026-10-23T07:08:45.183986+00:00",
+    "context": "end",
+    "continue": false,
+    "largo": 37,
+    "fallas": []
+  },
+  {
+    "caso": "14b",
+    "turno": 1,
+    "msg": "VACIAR CHAT",
+    "inicio_utc": "2026-10-23T07:08:48.555735+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 352,
+    "fallas": []
+  },
+  {
+    "caso": "14c",
+    "turno": 1,
+    "msg": "Vaciar chat",
+    "inicio_utc": "2026-10-23T07:08:56.517467+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 417,
+    "fallas": []
+  }
+]
