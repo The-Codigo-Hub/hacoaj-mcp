@@ -1,0 +1,90 @@
+{
+  "caso": "13",
+  "chatId": "test-claude-20261023-13",
+  "turnos": [
+    {
+      "chatId": "test-claude-20261023-13",
+      "msg": "quiero info de natación",
+      "inicio_utc": "2026-10-23T07:08:05.662507+00:00",
+      "segundos": 19.1,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"Te cuento las opciones de natación que hay en el club:\\n\\n🎽 *Actividades*\\n🏊 *Natación - Pileta*\\n • *Acquagym*\\n • *Natación Adultos y Adolescentes*\\n • *Natación Niños*\\n • *Natación niños y adolescentes*\\n • *Natación Pileta Adolescentes*\\n • *Natación Pileta Adultos*\\n • *Natación Pileta Escuelas*\\n • *Natación Pileta Jardín*\\n • *Natación Pileta Libre*\\n • *Natación Pileta Primaria*\\n • *Natación Pileta Verano*\\n\\nPor ahora no hay natación federada publicada.\\n\\n¿Para quién buscás (edad aproximada) y qué opción te interesa de la lista así te paso días y horarios? 😊\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "Te cuento las opciones de natación que hay en el club:\n\n🎽 *Actividades*\n🏊 *Natación - Pileta*\n • *Acquagym*\n • *Natación Adultos y Adolescentes*\n • *Natación Niños*\n • *Natación niños y adolescentes*\n • *Natación Pileta Adolescentes*\n • *Natación Pileta Adultos*\n • *Natación Pileta Escuelas*\n • *Natación Pileta Jardín*\n • *Natación Pileta Libre*\n • *Natación Pileta Primaria*\n • *Natación Pileta Verano*\n\nPor ahora no hay natación federada publicada.\n\n¿Para quién buscás (edad aproximada) y qué opción te interesa de la lista así te paso días y horarios? 😊",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 558,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "¿Para quién buscás (edad aproximada) y qué opción te interesa de la lista así te paso días y horarios? 😊"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    },
+    {
+      "chatId": "test-claude-20261023-13",
+      "msg": "y de vóley?",
+      "inicio_utc": "2026-10-23T07:08:26.764031+00:00",
+      "segundos": 16.4,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"Te cuento lo que hay de vóley en Hacoaj:\\n\\n🎽 *Actividades*\\n🏐 *Escuelas Deportivas / Adultos*\\n • *Voley Adultos Mixto*\\n • *Voley Escuela*\\n\\n🏅 *Federadas*\\nHay 18 categorías de *Voley Federado* (inferiores caballeros y femenino, sub 11 a sub 16, principalmente en Ben Gurión).\\n\\nPara no marearte con tanta info, decime:\\n• ¿Es para vos o para un/a chico/a? ¿Qué edad tiene?\\n• ¿Te interesa algo recreativo/escuela o competitivo (federado)? 😊\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "Te cuento lo que hay de vóley en Hacoaj:\n\n🎽 *Actividades*\n🏐 *Escuelas Deportivas / Adultos*\n • *Voley Adultos Mixto*\n • *Voley Escuela*\n\n🏅 *Federadas*\nHay 18 categorías de *Voley Federado* (inferiores caballeros y femenino, sub 11 a sub 16, principalmente en Ben Gurión).\n\nPara no marearte con tanta info, decime:\n• ¿Es para vos o para un/a chico/a? ¿Qué edad tiene?\n• ¿Te interesa algo recreativo/escuela o competitivo (federado)? 😊",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 433,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "• ¿Te interesa algo recreativo/escuela o competitivo (federado)? 😊"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    }
+  ]
+}

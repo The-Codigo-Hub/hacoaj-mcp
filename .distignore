@@ -8,5 +8,6 @@ build
 dev
 bin
 tests
+pruebas-bot
 node_modules
 *.zip

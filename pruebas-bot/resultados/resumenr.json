@@ -1,0 +1,12 @@
+[
+  {
+    "caso": "01",
+    "turno": 1,
+    "msg": "Tiene básquet el club",
+    "inicio_utc": "2026-10-23T07:09:11.741391+00:00",
+    "context": "search",
+    "continue": true,
+    "largo": 518,
+    "fallas": []
+  }
+]

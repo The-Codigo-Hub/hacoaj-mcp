@@ -649,6 +649,9 @@ final class Query {
 	/** Orden de género en deportes_federados: caballeros, damas, mixto, sin dato. */
 	const ORDEN_GENERO = array( 'masculino' => 0, 'femenino' => 1, 'mixto' => 2 );
 
+	/** Desde cuántas federadas el bot resume (total + ejemplos) en vez de listar: misma cifra que el prompt. */
+	const RESUMIR_FEDERADAS = 8;
+
 	/**
 	 * Ordena las federadas en origen: deporte, género, edad (menor primero) y nombre. Antes salían
 	 * en orden alfabético de slug, con damas y caballeros intercalados ("Cadetas femenino",
@@ -804,18 +807,44 @@ final class Query {
 		if ( $sin_edad ) {
 			$out['sin_datos_de_edad'] = $sin_edad . ' categorías no tienen edad cargada (ej. hockey por divisiones, vóley) y se excluyeron. Consultá sin edad para verlas.';
 		}
-		if ( count( $rows ) > count( $mostrar ) ) {
+		// Con más de RESUMIR_FEDERADAS el bot tiene que resumir, no listar. El aviso viejo decía
+		// "mostrá estas" y el bot listaba 12 de 22, contra la regla del prompt (pruebas del 23/10).
+		if ( count( $rows ) > count( $mostrar ) || count( $rows ) > self::RESUMIR_FEDERADAS ) {
 			$detalle = array();
-			$shown   = self::count_by_gender( $mostrar );
 			foreach ( $por_genero as $g => $n ) {
-				$detalle[] = sprintf( '%d de %d %s', isset( $shown[ $g ] ) ? $shown[ $g ] : 0, $n, $g );
+				$detalle[] = sprintf( '%d %s', $n, $g );
 			}
-			$out['aviso'] = sprintf(
-				'Se muestran %d de %d categorías (%s). Hay más: mostrá estas, decí cuántas más hay y preguntá género, edad o año de nacimiento para listar el resto. No mandes la lista completa: WhatsApp corta los mensajes largos.',
-				count( $mostrar ),
+			$out['ejemplos_por_genero'] = self::examples_by_gender( $rows, 3 );
+			$out['aviso']               = sprintf(
+				'Son %d categorías (%s). No las listes: decí el total, nombrá 2 o 3 ejemplos de cada género tomados de ejemplos_por_genero (primero caballeros, después damas, sin mezclarlos) y preguntá edad, año de nacimiento o género para mostrar las que le corresponden. WhatsApp corta los mensajes largos.',
 				count( $rows ),
 				implode( ', ', $detalle )
 			);
+		}
+		return $out;
+	}
+
+	/**
+	 * Hasta $k nombres de categoría por género, repartidos a lo largo de la lista (la más chica,
+	 * una del medio y la más grande) para que los ejemplos muestren el rango completo.
+	 */
+	private static function examples_by_gender( array $rows, $k ) {
+		$groups = array();
+		foreach ( $rows as $r ) {
+			$groups[ isset( $r['genero'] ) ? $r['genero'] : 'sin dato' ][] = $r['categoria'];
+		}
+		$out = array();
+		foreach ( $groups as $g => $names ) {
+			$n = count( $names );
+			if ( $n <= $k ) {
+				$out[ $g ] = $names;
+				continue;
+			}
+			$pick = array();
+			for ( $i = 0; $i < $k; $i++ ) {
+				$pick[] = $names[ (int) round( $i * ( $n - 1 ) / ( $k - 1 ) ) ];
+			}
+			$out[ $g ] = $pick;
 		}
 		return $out;
 	}

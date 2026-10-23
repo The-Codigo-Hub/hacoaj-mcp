@@ -1,0 +1,48 @@
+{
+  "caso": "05",
+  "chatId": "test-claude-20261023-05",
+  "turnos": [
+    {
+      "chatId": "test-claude-20261023-05",
+      "msg": "Quiero anotar a mi hijo en fútbol",
+      "inicio_utc": "2026-10-23T07:04:41.890498+00:00",
+      "segundos": 15.4,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"¡Qué bueno que tu hijo quiera hacer fútbol en Hacoaj! ⚽\\n\\n🎽 *Actividades*\\n📚 *Escuelas Deportivas*\\n • *Fútbol Jardín*\\n • *Fútbol Primaria*\\n • *Fútbol Recreativo Niños*\\n🧑 *Deportes Adultos*\\n • *Fútbol Recreativo +18* (caballeros)\\n • *Futbol Recreativo Femenino Adultas*\\n\\n🏅 *Federadas*\\nHay al menos 15 categorías de *Fútbol Federado masculino* (por ejemplo: Categoría 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008, Primera AIFA, Primera FACCMA).\\n\\nPara orientarte bien necesito saber la edad o año de nacimiento de tu hijo, y si te interesa algo recreativo/escuela o competitivo (federado). ¿Me contás? 😊\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "¡Qué bueno que tu hijo quiera hacer fútbol en Hacoaj! ⚽\n\n🎽 *Actividades*\n📚 *Escuelas Deportivas*\n • *Fútbol Jardín*\n • *Fútbol Primaria*\n • *Fútbol Recreativo Niños*\n🧑 *Deportes Adultos*\n • *Fútbol Recreativo +18* (caballeros)\n • *Futbol Recreativo Femenino Adultas*\n\n🏅 *Federadas*\nHay al menos 15 categorías de *Fútbol Federado masculino* (por ejemplo: Categoría 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008, Primera AIFA, Primera FACCMA).\n\nPara orientarte bien necesito saber la edad o año de nacimiento de tu hijo, y si te interesa algo recreativo/escuela o competitivo (federado). ¿Me contás? 😊",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 612,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "Para orientarte bien necesito saber la edad o año de nacimiento de tu hijo, y si te interesa algo recreativo/escuela o competitivo (federado). ¿Me contás? 😊"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    }
+  ]
+}

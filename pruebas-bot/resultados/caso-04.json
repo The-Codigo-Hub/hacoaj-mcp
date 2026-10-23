@@ -1,0 +1,48 @@
+{
+  "caso": "04",
+  "chatId": "test-claude-20261023-04",
+  "turnos": [
+    {
+      "chatId": "test-claude-20261023-04",
+      "msg": "Quiero info de hockey",
+      "inicio_utc": "2026-10-23T07:04:19.997805+00:00",
+      "segundos": 19.9,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"Te cuento las opciones de hockey que tenemos:\\n\\n🎽 *Actividades*\\n📚 *Escuelas Deportivas*\\n • *Hockey Jardín*\\n • *Hockey 10ma*\\n • *Hockey Primaria*\\n🎡 *Recreación y Tiempo Libre*\\n • *Hockey Sala de 5*\\n🧑 *Deportes Adultos*\\n • *Hockey Recreativo*\\n\\n🏅 *Federadas*\\nHay 19 categorías de *hockey federado* (por ejemplo 9na, 8va, 7ma y 6ta división femeninas).\\n\\nPara ayudarte mejor, contame:\\n• ¿Es para vos o para un hijo/hija?\\n• ¿Qué edad tiene (o en qué año nació)?\\n• ¿Buscás algo recreativo/escuela o competitivo (federado)? 😊\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "Te cuento las opciones de hockey que tenemos:\n\n🎽 *Actividades*\n📚 *Escuelas Deportivas*\n • *Hockey Jardín*\n • *Hockey 10ma*\n • *Hockey Primaria*\n🎡 *Recreación y Tiempo Libre*\n • *Hockey Sala de 5*\n🧑 *Deportes Adultos*\n • *Hockey Recreativo*\n\n🏅 *Federadas*\nHay 19 categorías de *hockey federado* (por ejemplo 9na, 8va, 7ma y 6ta división femeninas).\n\nPara ayudarte mejor, contame:\n• ¿Es para vos o para un hijo/hija?\n• ¿Qué edad tiene (o en qué año nació)?\n• ¿Buscás algo recreativo/escuela o competitivo (federado)? 😊",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 516,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "• ¿Buscás algo recreativo/escuela o competitivo (federado)? 😊"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    }
+  ]
+}

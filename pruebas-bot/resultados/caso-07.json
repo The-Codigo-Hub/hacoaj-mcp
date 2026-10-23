@@ -1,0 +1,48 @@
+{
+  "caso": "07",
+  "chatId": "test-claude-20261023-07",
+  "turnos": [
+    {
+      "chatId": "test-claude-20261023-07",
+      "msg": "básquet para mi hija de 12",
+      "inicio_utc": "2026-10-23T07:05:56.756043+00:00",
+      "segundos": 14.9,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"🎽 *Actividades*\\nPor el momento no encontré actividades recreativas de básquet para 12 años.\\n\\n🏅 *Federadas*\\n • Básquet Federado - Infantil femenino\\n\\nEsta categoría es competitiva (federada) y está pensada para chicas de 12 a 13 años.\\n\\n¿Querés que te cuente los horarios y cómo se entrena en *Básquet Federado - Infantil femenino*? 😊\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "🎽 *Actividades*\nPor el momento no encontré actividades recreativas de básquet para 12 años.\n\n🏅 *Federadas*\n • Básquet Federado - Infantil femenino\n\nEsta categoría es competitiva (federada) y está pensada para chicas de 12 a 13 años.\n\n¿Querés que te cuente los horarios y cómo se entrena en *Básquet Federado - Infantil femenino*? 😊",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 331,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "¿Querés que te cuente los horarios y cómo se entrena en *Básquet Federado - Infantil femenino*? 😊"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    }
+  ]
+}

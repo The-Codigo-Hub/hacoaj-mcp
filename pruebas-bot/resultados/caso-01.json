@@ -1,0 +1,48 @@
+{
+  "caso": "01",
+  "chatId": "test-claude-20261023-01",
+  "turnos": [
+    {
+      "chatId": "test-claude-20261023-01",
+      "msg": "Tiene básquet el club",
+      "inicio_utc": "2026-10-23T07:03:04.376982+00:00",
+      "segundos": 10.8,
+      "http_status": 200,
+      "crudo": "{\"context\":\"search\",\"text\":\"Sí, en Hacoaj hay básquet 😊\\n\\n🎽 *Actividades*\\n📚 *Escuelas Deportivas*\\n • *Basquet Jardín*\\n • *Basquet Primaria*\\n • *Basquet Primaria CdC*\\n • *Básquet Sala de 5*\\n🧑 *Deportes Adultos*\\n • *Básquet Femenino*\\n • *Básquet Recreativo Adultos*\\n\\n🏅 *Federadas*\\nMasculino:\\n • Básquet Federado - Mosquitos masculino\\n • Básquet Federado - Premini Azul masculino\\n • Básquet Federado - Premini Blanco masculino\\n • Básquet Federado - Mini Azul masculino\\n • Básquet Federado - Mini Blanco masculino\\n • Básquet Federado - Infantil Azul masculino\\n • Básquet Federado - Infantil Blanco masculino\\n • Básquet Federado - Cadete Azul masculino\\nFemenino:\\n • Básquet Federado - Mini femenino\\n • Básquet Federado - Infantil femenino\\n • Básquet Federado - Cadetas femenino\\n • Básquet Federado - Mayor femenino\\n\\nContame: ¿es para vos o para otra persona? ¿Y qué edad o año de nacimiento tiene, así te digo qué opciones le corresponden y los horarios? 😊\",\"continue\":true}",
+      "respuesta": {
+        "context": "search",
+        "text": "Sí, en Hacoaj hay básquet 😊\n\n🎽 *Actividades*\n📚 *Escuelas Deportivas*\n • *Basquet Jardín*\n • *Basquet Primaria*\n • *Basquet Primaria CdC*\n • *Básquet Sala de 5*\n🧑 *Deportes Adultos*\n • *Básquet Femenino*\n • *Básquet Recreativo Adultos*\n\n🏅 *Federadas*\nMasculino:\n • Básquet Federado - Mosquitos masculino\n • Básquet Federado - Premini Azul masculino\n • Básquet Federado - Premini Blanco masculino\n • Básquet Federado - Mini Azul masculino\n • Básquet Federado - Mini Blanco masculino\n • Básquet Federado - Infantil Azul masculino\n • Básquet Federado - Infantil Blanco masculino\n • Básquet Federado - Cadete Azul masculino\nFemenino:\n • Básquet Federado - Mini femenino\n • Básquet Federado - Infantil femenino\n • Básquet Federado - Cadetas femenino\n • Básquet Federado - Mayor femenino\n\nContame: ¿es para vos o para otra persona? ¿Y qué edad o año de nacimiento tiene, así te digo qué opciones le corresponden y los horarios? 😊",
+        "continue": true
+      },
+      "chequeos": {
+        "A3_json": {
+          "ok": true
+        },
+        "A1_largo": {
+          "ok": true,
+          "largo": 922,
+          "riesgo": false
+        },
+        "A2_ultima_linea": {
+          "ok": true,
+          "ultima": "Contame: ¿es para vos o para otra persona? ¿Y qué edad o año de nacimiento tiene, así te digo qué opciones le corresponden y los horarios? 😊"
+        },
+        "A4_generales": {
+          "ok": true
+        },
+        "A5_datos_al_lado": {
+          "ok": true,
+          "lineas": []
+        },
+        "A6_precios": {
+          "ok": true,
+          "montos": []
+        },
+        "A7_internos": {
+          "ok": true,
+          "encontrados": []
+        }
+      }
+    }
+  ]
+}
