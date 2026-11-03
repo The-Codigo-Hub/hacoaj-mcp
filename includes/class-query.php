@@ -12,12 +12,18 @@ defined( 'ABSPATH' ) || defined( 'HACOAJ_MCP_TESTING' ) || exit;
 
 final class Query {
 
+	/** Hasta esta cantidad, un filtro de categoría devuelve la lista entera. */
+	const LISTA_CORTA = 30;
+
 	/** @var array */
 	private $index;
 	/** @var Catalog */
 	private $catalog;
 	/** @var \DateTimeImmutable */
 	private $now;
+
+	/** @var array<string, string[]>|null grupo => categorías que nombra */
+	private $categorias_de_grupos = null;
 
 	public function __construct( array $index, Catalog $catalog, \DateTimeImmutable $now ) {
 		$this->index   = $index;
@@ -32,14 +38,14 @@ final class Query {
 	 */
 	public function buscar_actividades( array $f ) {
 		$limit    = self::clamp( isset( $f['limite'] ) ? $f['limite'] : 15, 1, 50 );
-		// Cultura es una lista corta que el bot muestra entera: con limite=15 quedaba incompleta (pruebas del 2/11).
-		if ( ! empty( $f['categoria'] ) && self::asks_cultura( $f['categoria'] ) ) {
-			$limit = 50;
-		}
 		$filtered = $this->filter_activities( $f );
 		$acts     = $filtered['actividades'];
 
 		$grupos = $this->group_by_name( $acts );
+		// Una categoría chica sale entera: con limite=15 Cultura quedaba incompleta (pruebas del 2/11).
+		if ( ! empty( $f['categoria'] ) && count( $grupos ) <= self::LISTA_CORTA ) {
+			$limit = max( $limit, self::LISTA_CORTA );
+		}
 
 		$out = array(
 			'total'       => count( $grupos ),
@@ -222,21 +228,12 @@ final class Query {
 		}
 
 		if ( ! empty( $f['categoria'] ) ) {
-			$q       = Text::fold( $f['categoria'] );
-			$qs      = Text::slugify( $f['categoria'] );
-			$cultura = self::asks_cultura( $f['categoria'] );
-			$acts    = array_values( array_filter( $acts, function ( $a ) use ( $q, $qs, $cultura ) {
-				if ( $cultura ) {
-					return self::in_cultura( $a );
-				}
-				$cat = $a['categoria'] && isset( $this->index['categorias'][ $a['categoria'] ] ) ? $this->index['categorias'][ $a['categoria'] ] : null;
-				$hay = array( (string) self::grupo( $a ), $a['categoria'], $cat ? Text::fold( $cat['nombre'] ) : '' );
-				foreach ( $hay as $h ) {
-					if ( $h && ( $h === $qs || false !== strpos( Text::fold( $h ), Text::stem( $q ) ) ) ) {
-						return true;
-					}
-				}
-				return false;
+			// La categoría de la web manda. El grupo (ACF, no se ve en la web) solo se usa si el filtro no
+			// nombra ninguna categoría, como "generales" (revisión de Diego, 31/10).
+			$cats = $this->categories_named( $f['categoria'] );
+			$g    = Text::slugify( $f['categoria'] );
+			$acts = array_values( array_filter( $acts, function ( $a ) use ( $cats, $g ) {
+				return $cats ? in_array( $a['categoria'] ? $a['categoria'] : $a['slug'], $cats, true ) : $g === $this->grupo( $a );
 			} ) );
 		}
 
@@ -324,7 +321,7 @@ final class Query {
 			array( 5, Text::tokens( $a['nombre'] . ' ' . str_replace( '-', ' ', $a['slug'] ), true ) ),
 			array( 4, Text::tokens( ( isset( $a['base'] ) ? $a['base'] : '' ) . ' ' . implode( ' ', isset( $a['aliases'] ) ? (array) $a['aliases'] : array() ) . ' ' . ( isset( $a['nombre_bot'] ) ? $a['nombre_bot'] : '' ), true ) ),
 			array( 2, Text::tokens( implode( ' ', $a['titulos'] ), true ) ),
-			array( 1, Text::tokens( $cat . ' ' . self::grupo( $a ), true ) ),
+			array( 1, Text::tokens( $cat . ' ' . $this->grupo( $a ), true ) ),
 		);
 		$matched = 0;
 		$score   = 0;
@@ -449,7 +446,7 @@ final class Query {
 			'slug'      => $a['slug'],
 			'nombre'    => $a['nombre'],
 			'categoria' => $cat,
-			'grupo'     => self::grupo( $a ),
+			'grupo'     => $this->grupo( $a ),
 			'edades'    => Catalog::age_label( $a ),
 			'genero'    => isset( $a['genero'] ) ? $a['genero'] : null,
 			'sedes'     => $this->sede_labels( $a['sedes'] ),
@@ -684,25 +681,45 @@ final class Query {
 		return strnatcmp( Text::fold( $a['categoria'] ), Text::fold( $b['categoria'] ) );
 	}
 
-	/** true si el filtro de categoría pide Cultura ("culturales", "cultura", "actividades culturales"). */
-	private static function asks_cultura( $categoria ) {
-		return false !== strpos( Text::fold( $categoria ), 'cultura' );
-	}
-
-	/** true si la actividad cuelga de la categoría Cultura de la web. */
-	private static function in_cultura( array $a ) {
-		return ! empty( $a['categoria'] ) && false !== strpos( $a['categoria'], 'cultura' );
+	/**
+	 * Slugs de las categorías que nombra un filtro: "culturales" -> cultura, "escuelas" -> las dos
+	 * Escuelas Deportivas.
+	 *
+	 * @return string[]
+	 */
+	private function categories_named( $filtro ) {
+		$q   = Text::stem( trim( preg_replace( '/^actividad(es)?\s+/', '', Text::fold( $filtro ) ) ) );
+		$out = array();
+		foreach ( $this->index['categorias'] as $slug => $c ) {
+			$nombre = Text::fold( $c['nombre'] );
+			if ( false !== strpos( Text::fold( $slug ), $q ) || false !== strpos( $nombre, $q ) || 0 === strpos( $q, $nombre ) ) {
+				$out[] = $slug;
+			}
+		}
+		return $out;
 	}
 
 	/**
-	 * Grupo de la actividad. "culturales" solo vale dentro de la categoría Cultura: el ACF no se ve
-	 * en la web y marcaba como culturales actividades de Recreación (revisión de Diego, 31/10).
+	 * Grupo de la actividad, salvo que contradiga su categoría: si el grupo nombra una categoría y la
+	 * actividad está en otra que también es de un grupo (Recreación con grupo culturales, Deportes
+	 * Adultos con grupo escuelas). Natación o Náuticas no son de ningún grupo: ahí vale.
 	 */
-	private static function grupo( array $a ) {
-		if ( ! isset( $a['grupo'] ) || ( 'culturales' === $a['grupo'] && ! self::in_cultura( $a ) ) ) {
+	private function grupo( array $a ) {
+		if ( ! isset( $a['grupo'] ) ) {
 			return null;
 		}
-		return $a['grupo'];
+		if ( null === $this->categorias_de_grupos ) {
+			$this->categorias_de_grupos = array();
+			foreach ( array( 'escuelas', 'adultos', 'culturales', 'hadraja', 'recreacion' ) as $g ) {
+				$this->categorias_de_grupos[ $g ] = $this->categories_named( $g );
+			}
+		}
+		if ( ! isset( $this->categorias_de_grupos[ $a['grupo'] ] ) ) {
+			return $a['grupo'];
+		}
+		$de_grupos = array_merge( ...array_values( $this->categorias_de_grupos ) );
+		$propias   = $this->categorias_de_grupos[ $a['grupo'] ];
+		return in_array( $a['categoria'], $de_grupos, true ) && ! in_array( $a['categoria'], $propias, true ) ? null : $a['grupo'];
 	}
 
 	/** false si la actividad tiene el ACF "grupo" mal cargado (ver Index_Builder::GRUPOS_VALIDOS). */

@@ -2,8 +2,9 @@
 
 ## [1.4.8] - 2026-11-03
 
-- buscar_actividades: "culturales" filtra por la categoría Cultura de la web y no por el ACF grupo. Las actividades de otra categoría con grupo=culturales (Noche de Amigos, Randomingos, etc.) ya no salen como culturales ni exponen ese grupo (revisión de Diego, 31/10)
-- buscar_actividades: con categoría Cultura el límite es siempre 50, para que la lista salga completa (con limite=15 el bot mostraba 11 de 25, pruebas del 2/11)
+- buscar_actividades y obtener_agenda: el filtro de categoría usa la categoría de la web, no el ACF grupo; el grupo solo se usa si el filtro no nombra ninguna categoría, como "generales" (revisión de Diego, 31/10)
+- El grupo que contradice la categoría (Recreación con culturales, Deportes Adultos con escuelas) ya no cuenta en la búsqueda por texto ni aparece en la respuesta
+- buscar_actividades: con filtro de categoría, hasta 30 resultados salen enteros aunque pidan un límite menor (con limite=15 el bot mostraba 11 de 25 en Cultura, pruebas del 2/11)
 
 ## [1.4.7] - 2026-10-23
 
