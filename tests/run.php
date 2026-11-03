@@ -506,6 +506,49 @@ check( 'mismo nombre en otra categoría no se agrupa', array( count( $r['activid
 $r = $q->buscar_actividades( array( 'texto' => 'hockey jardin' ) );
 check( 'actividad única: mismo formato de siempre', array( $r['actividades'][0]['slug'], isset( $r['actividades'][0]['variantes'] ) ), array( 'hockey-jardin', false ) );
 
+// La categoría de la web manda sobre el ACF grupo, que no se ve en la web (revisión de Diego, 31/10).
+$cul_snap = $snap;
+foreach ( array( array( 9401, 'Cultura', 'cultura-test' ), array( 9402, 'Recreación y Tiempo Libre', 'recreacion-test' ), array( 9406, 'Deportes Adultos', 'deportes-adultos-test' ), array( 9407, 'Natación Test', 'natacion-test' ) ) as $c ) {
+	$cul_snap['actividad'][] = array( 'id' => $c[0], 'name' => $c[1], 'slug' => $c[2], 'parent' => 0, 'description' => '' );
+}
+foreach ( array(
+	array( 9403, 'Taller de Prueba', 'taller-prueba', 9401, 'culturales' ),
+	array( 9404, 'Ciclo de Prueba', 'ciclo-prueba', 9401, 'generales' ),
+	array( 9405, 'Noche de Prueba', 'noche-prueba', 9402, 'culturales' ),
+	array( 9408, 'Judo de Prueba', 'judo-prueba', 9406, 'escuelas' ),
+	array( 9409, 'Pileta de Prueba', 'pileta-prueba', 9407, 'adultos' ),
+) as $c ) {
+	$cul_snap['actividad'][] = array( 'id' => $c[0], 'name' => $c[1], 'slug' => $c[2], 'parent' => $c[3], 'description' => '', 'grupo' => $c[4], 'tipo_categoria' => 'hija' );
+}
+$cul_q = new Query( Index_Builder::build( $cul_snap, $catalog, 'https://hacoaj.org.ar' ), $catalog, $sept );
+$cul_slugs = function ( array $f ) use ( $cul_q ) {
+	return array_column( $cul_q->buscar_actividades( $f + array( 'limite' => 50 ) )['actividades'], 'slug' );
+};
+foreach ( array( 'culturales', 'cultura', 'Cultural', 'actividades culturales' ) as $c ) {
+	$s = $cul_slugs( array( 'categoria' => $c ) );
+	check( "categoría ($c): entra lo de Cultura", array( in_array( 'taller-prueba', $s, true ), in_array( 'ciclo-prueba', $s, true ) ), array( true, true ) );
+	check( "categoría ($c): no entra Recreación con ACF culturales", in_array( 'noche-prueba', $s, true ), false );
+}
+check( 'categoría: Recreación entra por su categoría', in_array( 'noche-prueba', $cul_slugs( array( 'categoria' => 'recreacion' ) ), true ), true );
+$s = $cul_slugs( array( 'categoria' => 'escuelas' ) );
+check( 'categoría: escuelas sin Deportes Adultos con ACF escuelas', array( in_array( 'judo-prueba', $s, true ), in_array( 'hockey-jardin', $s, true ) ), array( false, true ) );
+$s = $cul_slugs( array( 'categoria' => 'adultos' ) );
+check( 'categoría: adultos entra por su categoría, no por el ACF', array( in_array( 'judo-prueba', $s, true ), in_array( 'pileta-prueba', $s, true ) ), array( true, false ) );
+check( 'categoría: sin categoría con ese nombre, entra por grupo', $cul_slugs( array( 'categoria' => 'generales' ) ), array( 'ciclo-prueba' ) );
+check( 'categoría: el texto no matchea un ACF que contradice', in_array( 'noche-prueba', $cul_slugs( array( 'texto' => 'culturales' ) ), true ), false );
+$grupo_de = function ( $texto ) use ( $cul_q ) {
+	$a = $cul_q->buscar_actividades( array( 'texto' => $texto ) )['actividades'][0];
+	return array( $a['slug'], isset( $a['grupo'] ) ? $a['grupo'] : null );
+};
+check( 'grupo: contradice la categoría, no se expone', $grupo_de( 'noche prueba' ), array( 'noche-prueba', null ) );
+check( 'grupo: Deportes Adultos con ACF escuelas, no se expone', $grupo_de( 'judo prueba' ), array( 'judo-prueba', null ) );
+check( 'grupo: coherente, se conserva', $grupo_de( 'taller prueba' ), array( 'taller-prueba', 'culturales' ) );
+check( 'grupo: categoría sin grupo propio, se conserva', $grupo_de( 'pileta prueba' ), array( 'pileta-prueba', 'adultos' ) );
+$r = $cul_q->buscar_actividades( array( 'categoria' => 'culturales', 'limite' => 15 ) );
+check( 'límite: categoría chica sale entera', array( $r['total'] > 15, count( $r['actividades'] ) === $r['total'], isset( $r['aviso'] ) ), array( true, true, false ) );
+$r = $cul_q->buscar_actividades( array( 'categoria' => 'adultos', 'limite' => 5 ) );
+check( 'límite: categoría grande lo respeta y avisa', array( $r['total'] > 30, count( $r['actividades'] ), isset( $r['aviso'] ) ), array( true, 5, true ) );
+
 $r = $q->transporte();
 check( 'transporte rutas', count( $r['transporte'] ), 2 );
 check( 'transporte servicios', count( $r['transporte'][0]['servicios'] ) > 0 && count( $r['transporte'][1]['servicios'] ) > 0, true );
