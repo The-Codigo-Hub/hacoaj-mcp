@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.9] - 2026-11-03
+
+- Export de actividades en CSV (Ajustes → Hacoaj MCP → Datos de actividades, o `wp hacoaj-mcp export`): nombre, slug, actividad superior, edades, género, grupo y observaciones sobre los datos a revisar con el cliente
+
 ## [1.4.8] - 2026-11-03
 
 - buscar_actividades y obtener_agenda: el filtro de categoría usa la categoría de la web, no el ACF grupo; el grupo solo se usa si el filtro no nombra ninguna categoría, como "generales" (revisión de Diego, 31/10)

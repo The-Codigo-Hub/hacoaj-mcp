@@ -29,6 +29,8 @@ Reemplaza a `/bot/filter.php`: lee la agenda **en vivo** desde WordPress (CPT `a
 
 Probar una tool sin n8n: `wp hacoaj-mcp call obtener_agenda --args='{"sede":"tigre","dia":"hoy"}'`
 
+Exportar las actividades con sus datos, para revisarlas con el cliente: `wp hacoaj-mcp export > actividades.csv` o *Ajustes → Hacoaj MCP → Datos de actividades*.
+
 ## Instalación (una sola vez)
 
 1. Descargar `hacoaj-mcp.zip` del [último release](https://github.com/The-Codigo-Hub/hacoaj-mcp/releases/latest).

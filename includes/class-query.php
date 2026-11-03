@@ -682,6 +682,89 @@ final class Query {
 	}
 
 	/**
+	 * Todas las actividades del índice en CSV, para revisar con el cliente los datos del ACF.
+	 * El separador es ";" y lleva BOM para que Excel en español lo abra en columnas y con tildes.
+	 */
+	public function actividades_csv() {
+		$h = fopen( 'php://temp', 'r+' );
+		fputcsv( $h, array( 'Nombre', 'Slug', 'Actividad superior', 'Edad mín', 'Edad máx', 'Edad (texto)', 'Año nac. mín', 'Año nac. máx', 'Género', 'Grupo', 'Horarios cargados', 'Observaciones' ), ';', '"', '' );
+		foreach ( $this->index['actividades'] as $a ) {
+			$cat = $a['categoria'] && isset( $this->index['categorias'][ $a['categoria'] ] ) ? $this->index['categorias'][ $a['categoria'] ]['nombre'] : '';
+			$row = array(
+				$a['nombre'],
+				$a['slug'],
+				$cat,
+				isset( $a['edad_min'] ) ? $a['edad_min'] : '',
+				isset( $a['edad_max'] ) ? $a['edad_max'] : '',
+				(string) Catalog::age_label( $a ),
+				isset( $a['anio_nacimiento_min'] ) ? $a['anio_nacimiento_min'] : '',
+				isset( $a['anio_nacimiento_max'] ) ? $a['anio_nacimiento_max'] : '',
+				isset( $a['genero'] ) ? $a['genero'] : '',
+				isset( $a['grupo'] ) ? $a['grupo'] : ( isset( $a['grupo_invalido'] ) ? $a['grupo_invalido'] : '' ),
+				$a['tiene_agenda'] ? 'sí' : 'no',
+				implode( ' | ', $this->data_warnings( $a ) ),
+			);
+			// Una celda que empieza con estos caracteres Excel la ejecuta como fórmula.
+			$row = array_map( function ( $v ) {
+				return is_string( $v ) && preg_match( '/^[=+\-@]/', $v ) ? "'" . $v : $v;
+			}, $row );
+			fputcsv( $h, $row, ';', '"', '' );
+		}
+		rewind( $h );
+		$csv = stream_get_contents( $h );
+		fclose( $h );
+		return "\xEF\xBB\xBF" . $csv;
+	}
+
+	/**
+	 * Datos de una actividad que conviene revisar. Son señales para verificar, no errores seguros.
+	 *
+	 * @return string[]
+	 */
+	private function data_warnings( array $a ) {
+		$out = array();
+		if ( isset( $a['grupo_invalido'] ) ) {
+			$out[] = 'Grupo inválido';
+		} elseif ( ! isset( $a['grupo'] ) ) {
+			$out[] = 'Sin grupo';
+		} elseif ( null === $this->grupo( $a ) ) {
+			$out[] = 'El grupo no coincide con la actividad superior';
+		}
+
+		$min = isset( $a['edad_min'] ) ? (int) $a['edad_min'] : null;
+		$max = isset( $a['edad_max'] ) ? (int) $a['edad_max'] : null;
+		if ( null === $min && null === $max && ! isset( $a['edad_min_meses'] ) && ! isset( $a['anio_nacimiento_min'] ) && ! isset( $a['anio_nacimiento_max'] ) ) {
+			$out[] = empty( $a['rango'] ) ? 'Sin edad' : 'Edad solo como texto';
+		}
+		if ( 0 === $min && ! isset( $a['edad_min_meses'] ) ) {
+			$out[] = 'Edad mínima 0';
+		}
+		if ( null !== $min && null !== $max && $max < $min ) {
+			$out[] = 'Edad máxima menor que la mínima';
+		}
+		$escuela = in_array( $a['categoria'], $this->categories_named( 'escuelas' ), true );
+		if ( $escuela && null !== $min && ( null === $max || $max >= 99 || $min >= 18 ) ) {
+			$out[] = 'Escuela deportiva sin edad máxima o para mayores';
+		}
+		if ( in_array( $a['categoria'], $this->categories_named( 'adultos' ), true ) && null !== $max && $max < 16 ) {
+			$out[] = 'Edades de menores en una categoría de adultos';
+		}
+
+		$genero = isset( $a['genero'] ) ? $a['genero'] : null;
+		if ( ! $genero ) {
+			$out[] = 'Sin género';
+		}
+		$nombre = Text::fold( $a['nombre'] );
+		if ( preg_match( '/\b(adultas|femenin[oa]s?|damas|mujeres)\b/', $nombre ) && $genero && 'femenino' !== $genero ) {
+			$out[] = 'El nombre indica femenino y el género no';
+		}
+		if ( preg_match( '/\b(masculin[oa]s?|caballeros|varones)\b/', $nombre ) && $genero && 'masculino' !== $genero ) {
+			$out[] = 'El nombre indica masculino y el género no';
+		}
+		return $out;
+	}
+
+	/**
 	 * Slugs de las categorías que nombra un filtro: "culturales" -> cultura, "escuelas" -> las dos
 	 * Escuelas Deportivas.
 	 *
