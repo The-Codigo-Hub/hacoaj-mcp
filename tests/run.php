@@ -506,6 +506,32 @@ check( 'mismo nombre en otra categoría no se agrupa', array( count( $r['activid
 $r = $q->buscar_actividades( array( 'texto' => 'hockey jardin' ) );
 check( 'actividad única: mismo formato de siempre', array( $r['actividades'][0]['slug'], isset( $r['actividades'][0]['variantes'] ) ), array( 'hockey-jardin', false ) );
 
+// "culturales" sale de la categoría Cultura, no del ACF grupo: el ACF marcaba como culturales
+// actividades de Recreación que en la web no están en Cultura (revisión de Diego, 31/10).
+$cul_snap                = $snap;
+$cul_snap['actividad'][] = array( 'id' => 9401, 'name' => 'Cultura', 'slug' => 'cultura-test', 'parent' => 0, 'description' => '' );
+$cul_snap['actividad'][] = array( 'id' => 9402, 'name' => 'Recreación', 'slug' => 'recreacion-test', 'parent' => 0, 'description' => '' );
+$cul_snap['actividad'][] = array( 'id' => 9403, 'name' => 'Taller de Prueba', 'slug' => 'taller-prueba', 'parent' => 9401, 'description' => '', 'grupo' => 'culturales', 'tipo_categoria' => 'hija' );
+$cul_snap['actividad'][] = array( 'id' => 9404, 'name' => 'Ciclo de Prueba', 'slug' => 'ciclo-prueba', 'parent' => 9401, 'description' => '', 'grupo' => 'generales', 'tipo_categoria' => 'hija' );
+$cul_snap['actividad'][] = array( 'id' => 9405, 'name' => 'Noche de Prueba', 'slug' => 'noche-prueba', 'parent' => 9402, 'description' => '', 'grupo' => 'culturales', 'tipo_categoria' => 'hija' );
+$cul_q = new Query( Index_Builder::build( $cul_snap, $catalog, 'https://hacoaj.org.ar' ), $catalog, $sept );
+$cul_slugs = function ( array $f ) use ( $cul_q ) {
+	return array_column( $cul_q->buscar_actividades( $f + array( 'limite' => 50 ) )['actividades'], 'slug' );
+};
+foreach ( array( 'culturales', 'cultura', 'Cultural', 'actividades culturales' ) as $c ) {
+	$s = $cul_slugs( array( 'categoria' => $c ) );
+	check( "cultura ($c): entra lo de la categoría", array( in_array( 'taller-prueba', $s, true ), in_array( 'ciclo-prueba', $s, true ) ), array( true, true ) );
+	check( "cultura ($c): no entra Recreación con ACF culturales", in_array( 'noche-prueba', $s, true ), false );
+}
+check( 'cultura: el texto no matchea el ACF de otra categoría', in_array( 'noche-prueba', $cul_slugs( array( 'texto' => 'culturales' ) ), true ), false );
+$r = $cul_q->buscar_actividades( array( 'texto' => 'noche prueba' ) );
+check( 'cultura: fuera de Cultura no expone grupo culturales', array( $r['actividades'][0]['slug'], isset( $r['actividades'][0]['grupo'] ) ), array( 'noche-prueba', false ) );
+check( 'cultura: dentro de Cultura conserva el grupo', $cul_q->buscar_actividades( array( 'texto' => 'taller prueba' ) )['actividades'][0]['grupo'], 'culturales' );
+$r = $cul_q->buscar_actividades( array( 'categoria' => 'culturales', 'limite' => 15 ) );
+check( 'cultura: la lista sale completa aunque pidan limite 15', array( $r['total'] > 15, count( $r['actividades'] ) === $r['total'], isset( $r['aviso'] ) ), array( true, true, false ) );
+check( 'otras categorías: respetan el limite', count( $cul_q->buscar_actividades( array( 'categoria' => 'escuelas', 'limite' => 5 ) )['actividades'] ), 5 );
+check( 'otras categorías: sigue entrando por grupo', in_array( 'ciclo-prueba', $cul_slugs( array( 'categoria' => 'generales' ) ), true ), true );
+
 $r = $q->transporte();
 check( 'transporte rutas', count( $r['transporte'] ), 2 );
 check( 'transporte servicios', count( $r['transporte'][0]['servicios'] ) > 0 && count( $r['transporte'][1]['servicios'] ) > 0, true );
