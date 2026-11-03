@@ -2,6 +2,10 @@
 
 ## [1.4.8] - 2026-11-03
 
+- Filtro de categoría: la categoría de la web manda sobre el ACF grupo
+
+## [1.4.8] - 2026-11-03
+
 - buscar_actividades y obtener_agenda: el filtro de categoría usa la categoría de la web, no el ACF grupo; el grupo solo se usa si el filtro no nombra ninguna categoría, como "generales" (revisión de Diego, 31/10)
 - El grupo que contradice la categoría (Recreación con culturales, Deportes Adultos con escuelas) ya no cuenta en la búsqueda por texto ni aparece en la respuesta
 - buscar_actividades: con filtro de categoría, hasta 30 resultados salen enteros aunque pidan un límite menor (con limite=15 el bot mostraba 11 de 25 en Cultura, pruebas del 2/11)
