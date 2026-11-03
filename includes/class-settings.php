@@ -68,6 +68,13 @@ final class Settings {
 				$this->plugin->updater()->check_now();
 				$notice = 'checked';
 				break;
+			case 'export_actividades':
+				Repository::flush();
+				nocache_headers();
+				header( 'Content-Type: text/csv; charset=utf-8' );
+				header( 'Content-Disposition: attachment; filename="hacoaj-actividades-' . gmdate( 'Y-m-d' ) . '.csv"' );
+				echo $this->plugin->repository()->query()->actividades_csv(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- descarga CSV, no HTML.
+				exit;
 			case 'save_settings':
 				update_option( Updater::OPTION_AUTO, empty( $_POST['auto_update'] ) ? '0' : '1', false );
 				update_option( self::OPTION_DELETE_UNINSTALL, empty( $_POST['delete_on_uninstall'] ) ? '0' : '1', false );
@@ -169,6 +176,10 @@ final class Settings {
 				</td></tr>
 				<tr><th>Diagnóstico</th><td>
 					<?php $this->render_health_probe(); ?>
+				</td></tr>
+				<tr><th>Datos de actividades</th><td>
+					<?php self::form_button( 'export_actividades', 'Descargar CSV' ); ?>
+					<p class="description">Nombre, slug, actividad superior, edades, género y grupo tal como los usa el bot, con observaciones sobre los datos a revisar.</p>
 				</td></tr>
 			</table>
 

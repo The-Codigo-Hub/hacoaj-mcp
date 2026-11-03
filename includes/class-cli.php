@@ -1,6 +1,6 @@
 <?php
 /**
- * Comandos WP-CLI: wp hacoaj-mcp <token|tools|call|cache|update|stats>
+ * Comandos WP-CLI: wp hacoaj-mcp <token|tools|call|cache|update|stats|export>
  *
  * @package HacoajMCP
  */
@@ -103,6 +103,18 @@ final class CLI {
 			return;
 		}
 		\WP_CLI::line( 'Instalada: ' . HACOAJ_MCP_VERSION . ' · Última: ' . $release['version'] );
+	}
+
+	/**
+	 * Exporta las actividades en CSV, con observaciones sobre los datos a revisar.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp hacoaj-mcp export > actividades.csv
+	 */
+	public function export() {
+		Repository::flush();
+		echo $this->plugin->repository()->query()->actividades_csv(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CSV por consola.
 	}
 
 	/**

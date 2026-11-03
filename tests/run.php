@@ -549,6 +549,37 @@ check( 'límite: categoría chica sale entera', array( $r['total'] > 15, count( 
 $r = $cul_q->buscar_actividades( array( 'categoria' => 'adultos', 'limite' => 5 ) );
 check( 'límite: categoría grande lo respeta y avisa', array( $r['total'] > 30, count( $r['actividades'] ), isset( $r['aviso'] ) ), array( true, 5, true ) );
 
+// Export CSV para revisar los datos del ACF con el cliente.
+$exp_snap = $cul_snap;
+foreach ( array(
+	array( 9501, 'Golf Prueba', 'golf-prueba', 93, array( 'grupo' => 'escuelas', 'genero' => 'mixto', 'edad_min' => 16 ) ),
+	array( 9502, 'Cesto Adultas Prueba', 'cesto-adultas-prueba', 9406, array( 'grupo' => 'generales', 'genero' => 'mixto', 'edad_min' => 18 ) ),
+	array( 9503, 'Verano Prueba', 'verano-prueba', 9407, array( 'grupo' => 'generales', 'genero' => 'mixto', 'edad_min' => 0 ) ),
+	array( 9504, 'Judo Menores Prueba', 'judo-menores-prueba', 9406, array( 'grupo' => 'escuelas', 'genero' => 'mixto', 'edad_min' => 4, 'edad_max' => 10 ) ),
+	array( 9505, 'Grupo Roto Prueba', 'grupo-roto-prueba', 9407, array( 'grupo' => 'f', 'genero' => 'mixto', 'edad_min' => 10, 'edad_max' => 12 ) ),
+	array( 9506, '=Formula', 'formula-prueba', 9407, array( 'grupo' => 'generales', 'genero' => 'mixto', 'edad_min' => 10, 'edad_max' => 12 ) ),
+	array( 9507, 'Correcta Prueba', 'correcta-prueba', 9407, array( 'grupo' => 'generales', 'genero' => 'mixto', 'edad_min' => 10, 'edad_max' => 12 ) ),
+) as $c ) {
+	$exp_snap['actividad'][] = array( 'id' => $c[0], 'name' => $c[1], 'slug' => $c[2], 'parent' => $c[3], 'description' => '', 'tipo_categoria' => 'hija' ) + $c[4];
+}
+$csv = ( new Query( Index_Builder::build( $exp_snap, $catalog, 'https://hacoaj.org.ar' ), $catalog, $sept ) )->actividades_csv();
+check( 'csv: BOM para Excel', substr( $csv, 0, 3 ), "\xEF\xBB\xBF" );
+$exp_rows = array();
+foreach ( array_filter( explode( "\n", substr( $csv, 3 ) ) ) as $line ) {
+	$cols = str_getcsv( $line, ';', '"', '' );
+	$exp_rows[ $cols[1] ] = $cols;
+}
+check( 'csv: columnas', $exp_rows['Slug'], array( 'Nombre', 'Slug', 'Actividad superior', 'Edad mín', 'Edad máx', 'Edad (texto)', 'Año nac. mín', 'Año nac. máx', 'Género', 'Grupo', 'Horarios cargados', 'Observaciones' ) );
+check( 'csv: una fila por actividad del índice', count( $exp_rows ) - 1, count( Index_Builder::build( $exp_snap, $catalog, 'https://hacoaj.org.ar' )['actividades'] ) );
+check( 'csv: datos de la fila', array_slice( $exp_rows['judo-menores-prueba'], 0, 11 ), array( 'Judo Menores Prueba', 'judo-menores-prueba', 'Deportes Adultos', '4', '10', '4 a 10 años', '', '', 'mixto', 'escuelas', 'no' ) );
+check( 'csv: grupo que contradice y edades de menores', $exp_rows['judo-menores-prueba'][11], 'El grupo no coincide con la actividad superior | Edades de menores en una categoría de adultos' );
+check( 'csv: escuela sin edad máxima', strpos( $exp_rows['golf-prueba'][11], 'Escuela deportiva sin edad máxima' ) !== false, true );
+check( 'csv: nombre femenino y género mixto', $exp_rows['cesto-adultas-prueba'][11], 'El nombre indica femenino y el género no' );
+check( 'csv: edad mínima 0', $exp_rows['verano-prueba'][11], 'Edad mínima 0' );
+check( 'csv: grupo inválido con su valor', array( $exp_rows['grupo-roto-prueba'][9], $exp_rows['grupo-roto-prueba'][11] ), array( 'f', 'Grupo inválido' ) );
+check( 'csv: fórmula neutralizada', $exp_rows['formula-prueba'][0], "'=Formula" );
+check( 'csv: datos coherentes sin observaciones', $exp_rows['correcta-prueba'][11], '' );
+
 $r = $q->transporte();
 check( 'transporte rutas', count( $r['transporte'] ), 2 );
 check( 'transporte servicios', count( $r['transporte'][0]['servicios'] ) > 0 && count( $r['transporte'][1]['servicios'] ) > 0, true );
