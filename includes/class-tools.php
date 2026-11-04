@@ -12,6 +12,10 @@ defined( 'ABSPATH' ) || exit;
 
 final class Tools {
 
+	/** noticias con detalle=true: tope de notas y de palabras por nota (el contenido completo pesa en tokens). */
+	const NOTICIAS_DETALLE_MAX      = 3;
+	const NOTICIAS_DETALLE_PALABRAS = 600;
+
 	/** @var Repository */
 	private $repo;
 
@@ -188,7 +192,7 @@ final class Tools {
 			),
 			'noticias'           => array(
 				'title'       => 'Noticias',
-				'description' => 'Últimas noticias publicadas en hacoaj.org.ar (título, fecha, resumen, link). Opcionalmente filtra por texto.',
+				'description' => 'Últimas noticias publicadas en hacoaj.org.ar (título, fecha, resumen, link). Opcionalmente filtra por texto. Con detalle=true devuelve además el contenido completo de la nota (fechas, precios, condiciones): usalo cuando el usuario pida esos datos de una noticia concreta, porque el resumen no los trae.',
 				'inputSchema' => self::schema(
 					array(
 						'texto'    => array(
@@ -196,6 +200,10 @@ final class Tools {
 							'description' => 'Texto a buscar en las noticias.',
 						),
 						'cantidad' => $limite( 5, 20 ),
+						'detalle'  => array(
+							'type'        => 'boolean',
+							'description' => 'true para incluir el contenido completo de cada noticia (máximo 3 noticias). Por defecto false: solo resumen.',
+						),
 					)
 				),
 				'handler'     => array( $this, 'noticias' ),
@@ -294,11 +302,16 @@ final class Tools {
 	// ------------------------------------------------------------------ Tools que consultan WordPress directo.
 
 	public function noticias( array $args ) {
+		$detalle  = ! empty( $args['detalle'] );
+		$cantidad = isset( $args['cantidad'] ) ? (int) $args['cantidad'] : 5;
+		if ( $detalle ) {
+			$cantidad = min( $cantidad, self::NOTICIAS_DETALLE_MAX );
+		}
 		$q     = new \WP_Query(
 			array(
 				'post_type'           => 'post',
 				'post_status'         => 'publish',
-				'posts_per_page'      => isset( $args['cantidad'] ) ? (int) $args['cantidad'] : 5,
+				'posts_per_page'      => $cantidad,
 				's'                   => isset( $args['texto'] ) ? $args['texto'] : '',
 				'ignore_sticky_posts' => true,
 				'no_found_rows'       => true,
@@ -306,13 +319,17 @@ final class Tools {
 		);
 		$items = array();
 		foreach ( $q->posts as $post ) {
-			$items[] = array(
+			$item = array(
 				'titulo'     => html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' ),
 				'fecha'      => get_the_date( 'Y-m-d', $post ),
 				'resumen'    => self::excerpt( $post, 45 ),
 				'categorias' => wp_list_pluck( get_the_category( $post->ID ), 'name' ),
 				'url'        => get_permalink( $post ),
 			);
+			if ( $detalle && '' === $post->post_password ) {
+				$item['contenido'] = self::contenido( $post, self::NOTICIAS_DETALLE_PALABRAS );
+			}
+			$items[] = $item;
 		}
 		return array( 'noticias' => $items );
 	}
@@ -385,6 +402,24 @@ final class Tools {
 			'resultados' => $items,
 			'nota'       => $items ? null : 'Sin resultados. Probá con otras palabras.',
 		);
+	}
+
+	/**
+	 * Cuerpo completo de la nota como lo ve el visitante (the_content: bloques, shortcodes, maquetadores),
+	 * pasado a texto plano. A diferencia de excerpt(), ignora el extracto escrito a mano.
+	 */
+	private static function contenido( \WP_Post $post, $words ) {
+		$previo = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		$GLOBALS['post'] = $post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
+		setup_postdata( $post );
+		$html = apply_filters( 'the_content', $post->post_content );
+		if ( $previo instanceof \WP_Post ) {
+			$GLOBALS['post'] = $previo; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
+			setup_postdata( $previo );
+		} else {
+			wp_reset_postdata();
+		}
+		return Text::html_to_text( $html, $words );
 	}
 
 	private static function excerpt( \WP_Post $post, $words ) {
@@ -468,6 +503,8 @@ final class Tools {
 				}
 			} elseif ( 'number' === $type ) {
 				$value = (float) $value;
+			} elseif ( 'boolean' === $type ) {
+				$value = filter_var( $value, FILTER_VALIDATE_BOOLEAN );
 			} elseif ( 'string' === $type ) {
 				$value = sanitize_text_field( (string) $value );
 			}

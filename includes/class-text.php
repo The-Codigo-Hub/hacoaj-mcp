@@ -110,6 +110,43 @@ final class Text {
 		);
 	}
 
+	/**
+	 * HTML de una nota a texto legible para el bot: conserva los saltos de párrafo y separa las
+	 * celdas de las tablas con " | " (si no, "30 A 70 AÑOS" y "$ 389.000" quedan pegados).
+	 * Corta en $max_words palabras (0 = sin tope) agregando "…".
+	 *
+	 * @param string $html
+	 * @param int    $max_words
+	 * @return string
+	 */
+	public static function html_to_text( $html, $max_words = 0 ) {
+		$html  = preg_replace( '#<(script|style)\b[^>]*>.*?</\1>#is', '', (string) $html );
+		$html  = preg_replace( '#</t[dh]>#i', ' | ', $html );
+		$html  = preg_replace( '#<(p|div|ul|ol|li|h[1-6]|table|tr)\b#i', "\n<$1", $html );
+		$lines = array();
+		foreach ( self::html_to_lines( $html )['lines'] as $line ) {
+			$line = trim( preg_replace( '/^(\s*\|\s*)+|(\s*\|\s*)+$/u', '', $line ) );
+			if ( '' !== $line ) {
+				$lines[] = $line;
+			}
+		}
+		if ( $max_words <= 0 ) {
+			return implode( "\n", $lines );
+		}
+		$out  = array();
+		$left = (int) $max_words;
+		foreach ( $lines as $i => $line ) {
+			$words = preg_split( '/\s+/u', $line, -1, PREG_SPLIT_NO_EMPTY );
+			if ( count( $words ) > $left || ( count( $words ) === $left && isset( $lines[ $i + 1 ] ) ) ) {
+				$out[] = implode( ' ', array_slice( $words, 0, $left ) ) . '…';
+				break;
+			}
+			$out[]  = $line;
+			$left  -= count( $words );
+		}
+		return implode( "\n", $out );
+	}
+
 	public static function truncate( $s, $max ) {
 		$s = (string) $s;
 		if ( function_exists( 'mb_strlen' ) ? mb_strlen( $s, 'UTF-8' ) <= $max : strlen( $s ) <= $max ) {

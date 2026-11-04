@@ -594,5 +594,51 @@ check( 'institucional magal', array_column( $q->info_institucional( array( 'tema
 $json = json_encode( $q->obtener_agenda( array( 'sede' => 'tigre-maliar', 'limite' => 80 ) ), JSON_UNESCAPED_UNICODE );
 printf( "Respuesta más pesada (Tigre, 80 items): %d KB\n", strlen( $json ) / 1024 );
 
+// ---------------------------------------------------------------- noticias con detalle=true (carnet de verano, K12).
+// HTML real de la nota (content.rendered de la API REST): los precios están en una tabla y el extracto
+// escrito a mano ("Pileta + música…") no los trae, por eso el bot no podía darlos.
+$nota = file_get_contents( __DIR__ . '/fixtures/noticia-carnet-verano.html' );
+$txt  = Text::html_to_text( $nota );
+check( 'nota: sin etiquetas ni entidades', preg_match( '/<|&#|&amp;|&nbsp;/', $txt ), 0 );
+check( 'nota: fila de la tabla con celdas separadas', strpos( $txt, "30 A 70 AÑOS | \$ 389.000 | \$ 129.700 C/U\n" ) !== false, true );
+check( 'nota: otras filas de precios', array( strpos( $txt, "6 A 17 AÑOS | \$ 319.000 | \$ 106.300 C/U" ) !== false, strpos( $txt, "MÁS DE 71 AÑOS | \$ 319.000 | \$ 106.300 C/U" ) !== false ), array( true, true ) );
+check( 'nota: encabezado de la tabla', strpos( $txt, 'TEMPORADA | CONTADO | 3 CUOTAS' ) !== false, true );
+check( 'nota: sin pipes sueltos al borde de línea', preg_match( '/^\s*\||\|\s*$/m', $txt ), 0 );
+check( 'nota: fechas de temporada', strpos( $txt, '14 DE NOVIEMBRE 2026 AL DOMINGO 28 DE MARZO 2027' ) !== false, true );
+check( 'nota: beneficio 0 a 5 años', strpos( $txt, 'Socios de 0 a 5 años SIN CARGO' ) !== false, true );
+check( 'nota: descuentos familiares', array( strpos( $txt, '30%: primer hijo' ) !== false, strpos( $txt, '100%: tercer y siguientes' ) !== false ), array( true, true ) );
+check( 'nota: entidad &#8211; decodificada', strpos( $txt, '2026 – 2027' ) !== false, true );
+check( 'nota: párrafos en líneas separadas', count( explode( "\n", $txt ) ) > 8, true );
+
+check( 'html_to_text: celdas sin pegar', Text::html_to_text( '<table><tr><td>A</td><td>B</td></tr><tr><td>C</td><td>D</td></tr></table>' ), "A | B\nC | D" );
+check( 'html_to_text: script y style fuera', Text::html_to_text( '<style>.a{color:red}</style><p>Hola</p><script>alert(1)</script>' ), 'Hola' );
+check( 'html_to_text: br y listas', Text::html_to_text( 'Uno<br>Dos<ul><li>Tres</li><li>Cuatro</li></ul>' ), "Uno\nDos\nTres\nCuatro" );
+check( 'html_to_text: nbsp y espacios', Text::html_to_text( "<p>a&nbsp;&nbsp;  b</p>\n\n\n<p>c</p>" ), "a b\nc" );
+check( 'html_to_text: vacío', Text::html_to_text( '' ), '' );
+check( 'html_to_text: sin tope devuelve todo', Text::html_to_text( '<p>uno dos tres cuatro</p>', 0 ), 'uno dos tres cuatro' );
+check( 'html_to_text: tope corta con …', Text::html_to_text( '<p>uno dos tres cuatro</p>', 2 ), 'uno dos…' );
+check( 'html_to_text: tope exacto en la última línea no agrega …', Text::html_to_text( '<p>uno dos</p>', 2 ), 'uno dos' );
+check( 'html_to_text: tope exacto con más líneas agrega …', Text::html_to_text( '<p>uno dos</p><p>tres</p>', 2 ), 'uno dos…' );
+check( 'html_to_text: tope entre líneas', Text::html_to_text( '<p>uno dos</p><p>tres cuatro cinco</p>', 4 ), "uno dos\ntres cuatro…" );
+check( 'nota completa entra en 600 palabras', strpos( Text::html_to_text( $nota, 600 ), '…' ), false );
+
+// Tools::validate / coerce con el parámetro booleano nuevo (la clase exige ABSPATH; se carga sólo para estos checks).
+define( 'ABSPATH', __DIR__ . '/' );
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+	function sanitize_text_field( $s ) {
+		return trim( strip_tags( (string) $s ) );
+	}
+}
+require $root . '/includes/class-tools.php';
+$schema_det = array( 'properties' => array( 'detalle' => array( 'type' => 'boolean' ), 'texto' => array( 'type' => 'string' ) ) );
+check( 'validate: detalle booleano no da error', HacoajMCP\Tools::validate( array( 'detalle' => true ), $schema_det ), array() );
+$coerce = new ReflectionMethod( HacoajMCP\Tools::class, 'coerce' );
+$coerce->setAccessible( true );
+check( 'coerce: true', $coerce->invoke( null, array( 'detalle' => true ), $schema_det ), array( 'detalle' => true ) );
+check( 'coerce: "false" texto es false', $coerce->invoke( null, array( 'detalle' => 'false' ), $schema_det ), array( 'detalle' => false ) );
+check( 'coerce: "true" texto es true', $coerce->invoke( null, array( 'detalle' => 'true' ), $schema_det ), array( 'detalle' => true ) );
+check( 'coerce: 0 es false', $coerce->invoke( null, array( 'detalle' => 0 ), $schema_det ), array( 'detalle' => false ) );
+check( 'constantes de detalle', array( HacoajMCP\Tools::NOTICIAS_DETALLE_MAX, HacoajMCP\Tools::NOTICIAS_DETALLE_PALABRAS ), array( 3, 600 ) );
+
 printf( "%d OK, %d fallas\n", $passes, $failures );
 exit( $failures ? 1 : 0 );
