@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.10] - 2026-11-04
+
+- noticias: parámetro detalle con el contenido completo de la nota (carnet de verano)
+
 ## [1.4.9] - 2026-11-03
 
 - Export de actividades en CSV (Ajustes → Hacoaj MCP → Datos de actividades, o `wp hacoaj-mcp export`): nombre, slug, actividad superior, edades, género, grupo y observaciones sobre los datos a revisar con el cliente
