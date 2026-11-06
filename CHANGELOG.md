@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.11] - 2026-11-05
+
+- Rate limit por token de 720 a 1800 requests/min
+
 ## [1.4.10] - 2026-11-04
 
 - noticias: parámetro detalle con el contenido completo de la nota (carnet de verano)
