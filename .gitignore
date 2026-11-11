@@ -2,3 +2,6 @@
 build/
 node_modules/
 *.zip
+
+# Material interno del bot (baterías, resultados): va fuera de este repo, que es público
+pruebas-bot/
