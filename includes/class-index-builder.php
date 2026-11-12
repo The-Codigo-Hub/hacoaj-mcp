@@ -35,6 +35,21 @@ final class Index_Builder {
 	}
 
 	/**
+	 * Género que dice el nombre de la actividad ("Cesto Adultas", "Básquet Femenino", "Caballeros") o null.
+	 * Null si nombra los dos ("Tango Damas y Caballeros") o si "damas" es el juego ("Ajedrez y Damas",
+	 * "Taller de Damas").
+	 */
+	public static function gender_from_name( $nombre ) {
+		$n   = Text::fold( (string) $nombre );
+		$fem = preg_match( '/\b(adultas|femenin[oa]s?|mujeres)\b/', $n ) || preg_match( '/(?<!\by |\bde )\bdamas\b/', $n );
+		$mas = preg_match( '/\b(masculin[oa]s?|caballeros|varones|hombres)\b/', $n );
+		if ( $fem xor $mas ) {
+			return $fem ? 'femenino' : 'masculino';
+		}
+		return null;
+	}
+
+	/**
 	 * @param array   $raw     ['actividad' => terms[], 'sede' => terms[], 'agenda_item' => items[]]
 	 * @param Catalog $catalog
 	 * @param string  $site_url Sin barra final.
@@ -321,6 +336,14 @@ final class Index_Builder {
 				if ( isset( $merged[ $k ] ) ) {
 					$a[ $k ] = $merged[ $k ];
 				}
+			}
+			// Si el nombre dice el género ("Cesto Adultas") y el ACF lo deja mixto o vacío, manda el nombre:
+			// con "mixto" el filtro por género le ofrecía Cesto Adultas a un hombre (batería de Pablo, F05).
+			// El CSV de datos lo sigue marcando para que lo corrijan en WordPress.
+			$por_nombre = self::gender_from_name( $a['nombre'] );
+			if ( $por_nombre && ( ! isset( $a['genero'] ) || 'mixto' === $a['genero'] ) ) {
+				$a['genero_acf'] = isset( $a['genero'] ) ? $a['genero'] : null;
+				$a['genero']     = $por_nombre;
 			}
 			$a['fuente_edad']  = $fuente;
 			$a['tiene_agenda'] = ! empty( $a['items'] );

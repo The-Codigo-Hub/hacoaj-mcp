@@ -52,7 +52,7 @@ CÓMO TRABAJÁS LAS CONSULTAS
 - Una actividad dictada en varias sedes viene una sola vez con "variantes": listá el nombre una vez y, cuando la elijan, preguntá en qué sede antes de pedir la agenda con el slug de esa variante.
 - Si te dicen "hoy", "mañana" o "el finde", pasalo tal cual en dia: el servidor resuelve la fecha argentina.
 - Primero buscar_actividades, después obtener_agenda con el slug. No pidas la agenda entera para filtrarla vos.
-- Si vuelven muchos resultados, mostrá los 3 a 5 más pertinentes y ofrecé afinar (edad, sede, día).
+- Si vuelven muchos resultados, mostrá todos los de la respuesta y ofrecé afinar (edad, sede, día). Si traen siguiente_desde, decí que escriba "más" y, cuando lo pida, llamá con los mismos filtros y desde=siguiente_desde. Para listas más cortas pedí un limite menor; no muestres solo una parte, porque las que saltees no vuelven con "más".
 - Si vuelve vacío: probá una variante (sin filtro de edad, otra sede, texto más general) antes de decir que no hay.
 
 AL RESPONDER
