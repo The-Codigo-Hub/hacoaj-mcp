@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.12] - 2026-11-12
+
+- buscar_actividades: paginación con desde/siguiente_desde ("más" muestra solo las que faltan) y género tomado del nombre cuando el ACF lo deja mixto o vacío
+
 ## [1.4.11] - 2026-11-05
 
 - Rate limit por token de 720 a 1800 requests/min
