@@ -245,6 +245,36 @@ check( 'sin ACF no trae edad_max', isset( $A['golf-escuela-deportiva']['edad_max
 check( 'sin ACF fuente_edad null', $A['golf-escuela-deportiva']['fuente_edad'], null );
 check( 'sin ACF no expone fuente_metadata', isset( ( new Query( $index, $catalog, $sept ) )->activity_summary( $A['golf-escuela-deportiva'] )['fuente_metadata'] ), false );
 
+// Si el nombre dice el género y el ACF lo deja mixto o vacío, manda el nombre (batería de Pablo, F05:
+// "Cesto Adultas" cargada como mixta le salía a un hombre). El CSV sigue marcando el dato a corregir.
+$gen_snap = $snap;
+foreach ( $gen_snap['actividad'] as &$t ) {
+	if ( 'golf-escuela-deportiva' === $t['slug'] ) {
+		$t['name']   = 'Golf Adultas';
+		$t['genero'] = 'mixto';
+	}
+	if ( 'golf-clases' === $t['slug'] ) {
+		$t['name'] = 'Golf Caballeros';
+	}
+	if ( 'golf-salidas' === $t['slug'] ) {
+		$t['name']   = 'Golf Damas';
+		$t['genero'] = 'masculino';
+	}
+}
+unset( $t );
+$gen_index = Index_Builder::build( $gen_snap, $catalog, 'https://hacoaj.org.ar' );
+$gen_a     = $gen_index['actividades'];
+check( 'género del nombre: mixto → femenino', array( $gen_a['golf-escuela-deportiva']['genero'], $gen_a['golf-escuela-deportiva']['genero_acf'] ), array( 'femenino', 'mixto' ) );
+check( 'género del nombre: vacío → masculino', array( $gen_a['golf-clases']['genero'], $gen_a['golf-clases']['genero_acf'] ), array( 'masculino', null ) );
+check( 'género del nombre: no pisa un género cargado', array( $gen_a['golf-salidas']['genero'], isset( $gen_a['golf-salidas']['genero_acf'] ) ), array( 'masculino', false ) );
+check( 'nombre sin género no cambia', isset( $gen_a['golf-para-chicos']['genero'] ), false );
+$gen_q = new Query( $gen_index, $catalog, $sept );
+$r     = $gen_q->buscar_actividades( array( 'texto' => 'golf', 'genero' => 'masculino' ) );
+check( 'Golf Adultas no le sale a un hombre', in_array( 'golf-escuela-deportiva', array_column( $r['actividades'], 'slug' ), true ), false );
+$csv = $gen_q->actividades_csv();
+check( 'CSV marca el género mixto que contradice el nombre', false !== strpos( $csv, 'El nombre indica femenino y el género no' ), true );
+check( 'CSV marca el género vacío aunque lo tome del nombre', (bool) preg_match( '/^"?Golf Caballeros"?;.*Sin género/mu', $csv ), true );
+
 $q = new Query( $index, $catalog, $sept );
 
 $r     = $q->buscar_actividades( array( 'texto' => 'golf' ) );
@@ -253,6 +283,17 @@ $slugs = array_map( function ( $a ) {
 }, $r['actividades'] );
 sort( $slugs );
 check( 'buscar golf', $slugs, array( 'golf-clases', 'golf-escuela-deportiva', 'golf-para-chicos', 'golf-principiantes', 'golf-salidas' ) );
+
+// "más": con desde=siguiente_desde salen solo las que faltan, sin repetir (batería de Pablo, B11).
+$p1 = $q->buscar_actividades( array( 'texto' => 'golf', 'limite' => 2 ) );
+$p2 = $q->buscar_actividades( array( 'texto' => 'golf', 'limite' => 2, 'desde' => $p1['siguiente_desde'] ) );
+$p3 = $q->buscar_actividades( array( 'texto' => 'golf', 'limite' => 2, 'desde' => $p2['siguiente_desde'] ) );
+$pag = array_merge( array_column( $p1['actividades'], 'slug' ), array_column( $p2['actividades'], 'slug' ), array_column( $p3['actividades'], 'slug' ) );
+sort( $pag );
+check( 'paginación: siguiente_desde', array( $p1['siguiente_desde'], $p2['siguiente_desde'], isset( $p3['siguiente_desde'] ) ), array( 2, 4, false ) );
+check( 'paginación: recorre todo sin repetir', $pag, $slugs );
+check( 'paginación: la última página no avisa que quedan', isset( $p3['aviso'] ), false );
+check( 'paginación: aviso dice cómo pedir más', false !== strpos( $p1['aviso'], 'desde=2' ), true );
 
 // Sin ACF cargado, golf no tiene edad: el filtro por edad las excluye a todas (no hay respaldo de catalog.json).
 $r     = $q->buscar_actividades( array( 'texto' => 'golf', 'edad' => 8 ) );

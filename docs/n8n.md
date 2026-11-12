@@ -139,7 +139,7 @@ Todas son de sólo lectura e idempotentes. Los parámetros van en `arguments`; s
 
 | Tool | Para qué | Parámetros |
 |---|---|---|
-| `buscar_actividades` | Qué hay para alguien (el punto de entrada habitual) | `texto`, `edad`, `genero`, `sede`, `dia`, `categoria`, `limite` |
+| `buscar_actividades` | Qué hay para alguien (el punto de entrada habitual) | `texto`, `edad`, `genero`, `sede`, `dia`, `categoria`, `limite`, `desde` (paginar: el `siguiente_desde` de la respuesta anterior) |
 | `obtener_agenda` | Horarios concretos | `actividad` (slug), `texto`, `sede`, `dia`, `categoria`, `edad`, `genero`, `desde_hora`, `hasta_hora`, `limite` |
 | `listar_sedes` | Direcciones, teléfonos, links | — |
 | `listar_categorias` | Árbol de categorías con sus actividades | — |

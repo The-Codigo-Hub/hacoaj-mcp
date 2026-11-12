@@ -47,12 +47,20 @@ final class Query {
 			$limit = max( $limit, self::LISTA_CORTA );
 		}
 
-		$out = array(
+		// "desde" pagina el mismo listado: cuando piden "más", se llama con los mismos filtros y
+		// desde=siguiente_desde, y salen solo las que faltan (antes repetía las ya mostradas, B11).
+		$desde = isset( $f['desde'] ) ? max( 0, (int) $f['desde'] ) : 0;
+		$out   = array(
 			'total'       => count( $grupos ),
-			'actividades' => array_map( array( $this, 'group_summary' ), array_slice( $grupos, 0, $limit ) ),
+			'actividades' => array_map( array( $this, 'group_summary' ), array_slice( $grupos, $desde, $limit ) ),
 		);
-		if ( count( $grupos ) > $limit ) {
-			$out['aviso'] = sprintf( 'Se muestran %d de %d. Hay %d actividades más: decí que hay más opciones y preguntá edad, sede o día para afinar, en vez de listar todo (WhatsApp corta los mensajes largos).', $limit, count( $grupos ), count( $grupos ) - $limit );
+		if ( $desde ) {
+			$out['desde'] = $desde;
+		}
+		$restantes = count( $grupos ) - $desde - $limit;
+		if ( $restantes > 0 ) {
+			$out['siguiente_desde'] = $desde + $limit;
+			$out['aviso']           = sprintf( 'Se muestran de la %d a la %d de %d. Quedan %d: decí que hay más opciones y que escriba "más" para verlas, o preguntá edad, sede o día para afinar. Si pide "más", llamá con los mismos filtros y desde=%d (WhatsApp corta los mensajes largos).', $desde + 1, $desde + $limit, count( $grupos ), $restantes, $desde + $limit );
 		}
 		if ( count( $grupos ) < count( $acts ) ) {
 			$out['nota_variantes'] = 'Algunas actividades están en varias sedes y vienen una sola vez, con "variantes". Listá el nombre una vez; cuando la elijan, preguntá en qué sede (opciones: sedes) y usá el slug de esa variante en obtener_agenda.';
@@ -750,16 +758,14 @@ final class Query {
 			$out[] = 'Edades de menores en una categoría de adultos';
 		}
 
-		$genero = isset( $a['genero'] ) ? $a['genero'] : null;
+		// Lo cargado en WordPress, no el género que el índice tomó del nombre.
+		$genero = array_key_exists( 'genero_acf', $a ) ? $a['genero_acf'] : ( isset( $a['genero'] ) ? $a['genero'] : null );
 		if ( ! $genero ) {
 			$out[] = 'Sin género';
 		}
-		$nombre = Text::fold( $a['nombre'] );
-		if ( preg_match( '/\b(adultas|femenin[oa]s?|damas|mujeres)\b/', $nombre ) && $genero && 'femenino' !== $genero ) {
-			$out[] = 'El nombre indica femenino y el género no';
-		}
-		if ( preg_match( '/\b(masculin[oa]s?|caballeros|varones)\b/', $nombre ) && $genero && 'masculino' !== $genero ) {
-			$out[] = 'El nombre indica masculino y el género no';
+		$por_nombre = Index_Builder::gender_from_name( $a['nombre'] );
+		if ( $por_nombre && $genero && $por_nombre !== $genero ) {
+			$out[] = 'El nombre indica ' . $por_nombre . ' y el género no';
 		}
 		return $out;
 	}

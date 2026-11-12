@@ -36,7 +36,7 @@ final class Tools {
 		$genero = array(
 			'type'        => 'string',
 			'enum'        => array( 'femenino', 'masculino' ),
-			'description' => 'Filtra actividades exclusivas de un género. Las mixtas siempre se incluyen. "Mi hijo" = masculino, "mi hija" = femenino.',
+			'description' => 'Filtra actividades exclusivas de un género. Las mixtas siempre se incluyen. "Mi hijo" = masculino, "mi hija" = femenino. Pasalo solo si el usuario lo dijo: no lo supongas (un "bebé" o "chicos" no tienen género).',
 		);
 		$sede   = array(
 			'type'        => 'string',
@@ -78,6 +78,11 @@ final class Tools {
 							'description' => 'Categoría o grupo: "generales", "hadrajá", "escuelas", "culturales". Los deportes federados/competitivos no están acá: usá deportes_federados.',
 						),
 						'limite'    => $limite( 15, 50 ),
+						'desde'     => array(
+							'type'        => 'integer',
+							'minimum'     => 0,
+							'description' => 'Para "más": cuántas actividades ya se mostraron. Usá el siguiente_desde de la respuesta anterior, con los mismos filtros.',
+						),
 					)
 				),
 				'handler'     => function ( $args ) {
