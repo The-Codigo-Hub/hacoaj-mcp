@@ -59,8 +59,12 @@ final class Query {
 		}
 		$restantes = count( $grupos ) - $desde - $limit;
 		if ( $restantes > 0 ) {
+			// siguiente_desde da por mostradas todas las de esta página: si el bot muestra menos, las salteadas
+			// no vuelven. Por eso el aviso pide mostrarlas todas o pedir un limite más chico (revisión del 12/11).
 			$out['siguiente_desde'] = $desde + $limit;
-			$out['aviso']           = sprintf( 'Se muestran de la %d a la %d de %d. Quedan %d: decí que hay más opciones y que escriba "más" para verlas, o preguntá edad, sede o día para afinar. Si pide "más", llamá con los mismos filtros y desde=%d (WhatsApp corta los mensajes largos).', $desde + 1, $desde + $limit, count( $grupos ), $restantes, $desde + $limit );
+			$out['aviso']           = sprintf( 'Se muestran de la %d a la %d de %d. Mostrá todas las de esta respuesta (si son muchas para WhatsApp, volvé a llamar con un limite más chico) y decí que quedan %d y que escriba "más" para verlas, o preguntá edad, sede o día para afinar. Si pide "más", llamá con los mismos filtros y desde=%d.', $desde + 1, $desde + $limit, count( $grupos ), $restantes, $desde + $limit );
+		} elseif ( $desde && $desde >= count( $grupos ) && $grupos ) {
+			$out['aviso'] = sprintf( 'Ya se mostraron las %d actividades: no quedan más con estos filtros.', count( $grupos ) );
 		}
 		if ( count( $grupos ) < count( $acts ) ) {
 			$out['nota_variantes'] = 'Algunas actividades están en varias sedes y vienen una sola vez, con "variantes". Listá el nombre una vez; cuando la elijan, preguntá en qué sede (opciones: sedes) y usá el slug de esa variante en obtener_agenda.';
@@ -707,7 +711,7 @@ final class Query {
 				(string) Catalog::age_label( $a ),
 				isset( $a['anio_nacimiento_min'] ) ? $a['anio_nacimiento_min'] : '',
 				isset( $a['anio_nacimiento_max'] ) ? $a['anio_nacimiento_max'] : '',
-				isset( $a['genero'] ) ? $a['genero'] : '',
+				array_key_exists( 'genero_acf', $a ) ? (string) $a['genero_acf'] : ( isset( $a['genero'] ) ? $a['genero'] : '' ),
 				isset( $a['grupo'] ) ? $a['grupo'] : ( isset( $a['grupo_invalido'] ) ? $a['grupo_invalido'] : '' ),
 				$a['tiene_agenda'] ? 'sí' : 'no',
 				implode( ' | ', $this->data_warnings( $a ) ),

@@ -81,7 +81,7 @@ final class Tools {
 						'desde'     => array(
 							'type'        => 'integer',
 							'minimum'     => 0,
-							'description' => 'Para "más": cuántas actividades ya se mostraron. Usá el siguiente_desde de la respuesta anterior, con los mismos filtros.',
+							'description' => 'Paginación para "más" (no es una hora): usá el siguiente_desde de la respuesta anterior, con los mismos filtros.',
 						),
 					)
 				),

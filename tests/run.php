@@ -273,6 +273,8 @@ $r     = $gen_q->buscar_actividades( array( 'texto' => 'golf', 'genero' => 'masc
 check( 'Golf Adultas no le sale a un hombre', in_array( 'golf-escuela-deportiva', array_column( $r['actividades'], 'slug' ), true ), false );
 $csv = $gen_q->actividades_csv();
 check( 'CSV marca el género mixto que contradice el nombre', false !== strpos( $csv, 'El nombre indica femenino y el género no' ), true );
+check( 'CSV muestra el género cargado en WordPress, no el del nombre', (bool) preg_match( '/^"?Golf Adultas"?;[^\n]*;mixto;/mu', $csv ), true );
+check( 'respuesta no expone genero_acf', array_key_exists( 'genero_acf', $gen_q->activity_summary( $gen_a['golf-escuela-deportiva'] ) ), false );
 check( 'CSV marca el género vacío aunque lo tome del nombre', (bool) preg_match( '/^"?Golf Caballeros"?;.*Sin género/mu', $csv ), true );
 
 $q = new Query( $index, $catalog, $sept );
@@ -294,6 +296,11 @@ check( 'paginación: siguiente_desde', array( $p1['siguiente_desde'], $p2['sigui
 check( 'paginación: recorre todo sin repetir', $pag, $slugs );
 check( 'paginación: la última página no avisa que quedan', isset( $p3['aviso'] ), false );
 check( 'paginación: aviso dice cómo pedir más', false !== strpos( $p1['aviso'], 'desde=2' ), true );
+$p4 = $q->buscar_actividades( array( 'texto' => 'golf', 'limite' => 2, 'desde' => 100 ) );
+check( 'paginación: pasado el final avisa que no quedan', array( $p4['actividades'], false !== strpos( $p4['aviso'], 'no quedan más' ) ), array( array(), true ) );
+$r = $q->buscar_actividades( array( 'categoria' => 'hadraja', 'limite' => 5 ) );
+check( 'paginación: categoría corta sale entera sin siguiente_desde', isset( $r['siguiente_desde'] ), false );
+check( 'género del nombre: los dos géneros o el juego de damas → null', array_map( array( 'HacoajMCP\\Index_Builder', 'gender_from_name' ), array( 'Tango Damas y Caballeros', 'Gimnasia Mujeres y Varones', 'Ajedrez y Damas', 'Taller de Damas', 'Hockey Damas', 'Futbol Recreativo Femenino Adultas' ) ), array( null, null, null, null, 'femenino', 'femenino' ) );
 
 // Sin ACF cargado, golf no tiene edad: el filtro por edad las excluye a todas (no hay respaldo de catalog.json).
 $r     = $q->buscar_actividades( array( 'texto' => 'golf', 'edad' => 8 ) );

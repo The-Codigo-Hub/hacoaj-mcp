@@ -34,14 +34,17 @@ final class Index_Builder {
 		return in_array( $g, self::GRUPOS_VALIDOS, true ) ? $g : null;
 	}
 
-	/** Género que dice el nombre de la actividad ("Cesto Adultas", "Básquet Femenino", "Caballeros") o null. */
+	/**
+	 * Género que dice el nombre de la actividad ("Cesto Adultas", "Básquet Femenino", "Caballeros") o null.
+	 * Null si nombra los dos ("Tango Damas y Caballeros") o si "damas" es el juego ("Ajedrez y Damas",
+	 * "Taller de Damas").
+	 */
 	public static function gender_from_name( $nombre ) {
-		$n = Text::fold( (string) $nombre );
-		if ( preg_match( '/\b(adultas|femenin[oa]s?|damas|mujeres)\b/', $n ) ) {
-			return 'femenino';
-		}
-		if ( preg_match( '/\b(masculin[oa]s?|caballeros|varones)\b/', $n ) ) {
-			return 'masculino';
+		$n   = Text::fold( (string) $nombre );
+		$fem = preg_match( '/\b(adultas|femenin[oa]s?|mujeres)\b/', $n ) || preg_match( '/(?<!\by |\bde )\bdamas\b/', $n );
+		$mas = preg_match( '/\b(masculin[oa]s?|caballeros|varones|hombres)\b/', $n );
+		if ( $fem xor $mas ) {
+			return $fem ? 'femenino' : 'masculino';
 		}
 		return null;
 	}
