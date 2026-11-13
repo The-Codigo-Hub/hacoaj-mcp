@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.14] - 2026-11-13
+
+- deportes_federados: los nombres con el género al final salen con la etiqueta ("Mosquitos masculino" → "Mosquitos (caballeros)")
+
 ## [1.4.13] - 2026-11-13
 
 - Nombres con (damas)/(caballeros), agenda de una actividad con un bloque por sede, propuestas de verano solo si las piden y listado general de menores cortado en 30 con "más"
