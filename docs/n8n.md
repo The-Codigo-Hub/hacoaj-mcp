@@ -156,6 +156,11 @@ Todas son de sólo lectura e idempotentes. Los parámetros van en `arguments`; s
 - **`dia`**: `lunes`…`domingo`, `"hoy"`, `"mañana"`, `"fin de semana"`, `"semana"`. Se resuelven con la fecha de Argentina.
 - **`edad`**: número, admite decimales (`1.5` = 18 meses).
 - **`genero`**: `femenino` o `masculino`. Las actividades mixtas siempre se incluyen.
+  Las actividades y categorías federadas que no son mixtas vuelven con la etiqueta en el nombre: "Mini (damas)", "Mosquitos (caballeros)". No se agrega si el nombre ya dice el género ("Básquet Femenino").
+- **Listado general para menores** (`buscar_actividades` con `edad` menor a 18 y sin `texto`, `categoria`, `sede` ni `dia`): se corta en 30 actividades y sigue con `desde=siguiente_desde`. Con adultos o con sede o día, usa el `limite` pedido.
+- **Verano**: con `texto`, las propuestas que dicen "Verano" en el nombre solo salen si el texto también lo dice. Salen igual si son lo único que coincide o si son las únicas con horarios (temporada de verano). Si se ocultó alguna, la respuesta trae `temporada_oculta`.
+- Si el texto o el deporte llegan con la etiqueta ("Mosquitos (caballeros)"), se saca y se usa como género.
+- **`obtener_agenda` de una actividad en varias sedes**: los items de una misma sede vienen juntos y la respuesta trae `formato` con el pedido de armar un bloque por sede.
 - **`categoria`**: `escuelas`, `adultos`, `cultura`, `hadraja`, `natacion`, `nauticas`, `recreacion`.
 - **`desde_hora` / `hasta_hora`**: `"18:00"`.
 

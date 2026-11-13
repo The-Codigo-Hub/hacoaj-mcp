@@ -46,6 +46,15 @@ final class Query {
 		if ( ! empty( $f['categoria'] ) && count( $grupos ) <= self::LISTA_CORTA ) {
 			$limit = max( $limit, self::LISTA_CORTA );
 		}
+		// El listado general (sin texto ni categoría, "todo lo que puede hacer un nene de 8") se corta en
+		// LISTA_CORTA y sigue con "más": el prompt pide limite 50 y con 33 actividades el bot las mostraba
+		// todas sin ofrecer "más" (B11, 13/11). Con el corte, la respuesta ya trae siguiente_desde y el aviso.
+		// Solo para menores: con adultos el prompt ya resume en 5 por categoría con "(+N más)" y necesita la lista entera.
+		// Sede, día o género solos ("qué hay en Tigre") siguen con el límite pedido.
+		if ( empty( $f['texto'] ) && empty( $f['categoria'] ) && empty( $f['sede'] ) && empty( $f['dia'] )
+			&& isset( $f['edad'] ) && '' !== $f['edad'] && (float) $f['edad'] < 18 ) {
+			$limit = min( $limit, self::LISTA_CORTA );
+		}
 
 		// "desde" pagina el mismo listado: cuando piden "más", se llama con los mismos filtros y
 		// desde=siguiente_desde, y salen solo las que faltan (antes repetía las ya mostradas, B11).
@@ -157,6 +166,27 @@ final class Query {
 			}
 		);
 
+		// Una sola actividad en varias sedes: los items de una misma sede salen juntos y se avisa que van
+		// en un único bloque. Ordenados solo por día, Tigre Maliar quedaba partida en dos (C08, 13/11).
+		$por_sede = 1 === count( (array) $acts ) && ! $sede && ! $dias && count( $items ) > 1;
+		if ( $por_sede ) {
+			$orden_sede = array();
+			foreach ( $items as $it ) {
+				$s = $it['sedes'] ? $it['sedes'][0] : '';
+				if ( ! isset( $orden_sede[ $s ] ) ) {
+					$orden_sede[ $s ] = count( $orden_sede );
+				}
+			}
+			$pos = array_flip( array_keys( $items ) );
+			uksort( $items, function ( $a, $b ) use ( $items, $orden_sede, $pos ) {
+				$sa = $items[ $a ]['sedes'] ? $items[ $a ]['sedes'][0] : '';
+				$sb = $items[ $b ]['sedes'] ? $items[ $b ]['sedes'][0] : '';
+				return ( $orden_sede[ $sa ] - $orden_sede[ $sb ] ) ?: ( $pos[ $a ] - $pos[ $b ] );
+			} );
+			$items    = array_values( $items );
+			$por_sede = count( $orden_sede ) < count( $items );
+		}
+
 		$out = array(
 			'filtros_aplicados' => array_filter(
 				array(
@@ -177,6 +207,9 @@ final class Query {
 		}
 		if ( count( $items ) > $limit ) {
 			$out['aviso'] = sprintf( 'Se muestran %d de %d items. Filtrá por sede, día o actividad para ver el resto.', $limit, count( $items ) );
+		}
+		if ( $por_sede ) {
+			$out['formato'] = 'Hay varios items de la misma sede: mostrá un solo bloque 📍 por sede, con todos sus días y horarios adentro. No repitas la sede.';
 		}
 		if ( 1 === count( (array) $acts ) ) {
 			$out['actividad'] = $this->activity_summary( $acts[0] );
@@ -203,6 +236,9 @@ final class Query {
 		} ) );
 		$meta = array();
 
+		if ( ! empty( $f['texto'] ) ) {
+			$f = self::sin_etiqueta_genero( $f, 'texto' );
+		}
 		if ( empty( $f['genero'] ) && ! empty( $f['texto'] ) ) {
 			$inferido = self::gender_from_text( $f['texto'] );
 			if ( $inferido ) {
@@ -212,6 +248,7 @@ final class Query {
 		}
 
 		$scores = array();
+		$tokens = array();
 		if ( ! empty( $f['texto'] ) ) {
 			$tokens = array_values( array_filter( Text::tokens( $f['texto'] ), function ( $t ) {
 				return ! ctype_digit( $t );
@@ -300,6 +337,33 @@ final class Query {
 			$acts = array_values( array_filter( $acts, function ( $a ) {
 				return $a['tiene_agenda'];
 			} ) );
+		}
+
+		// Las propuestas de temporada ("Natación Pileta Verano") salen solo si el texto habla del verano: con
+		// "natación para mi hija de 15" el bot la ofrecía junto a la que correspondía (H06, 13/11). Va al final,
+		// sobre el resultado ya filtrado, y no se aplica si las demás no tienen horarios y la de verano sí:
+		// en temporada de verano la agenda regular queda vacía y la de verano es la única con horarios.
+		$en_verano = isset( $this->index['stats']['temporada'] ) && 'verano' === $this->index['stats']['temporada'];
+		if ( $tokens && ! $en_verano && ! in_array( 'verano', $tokens, true ) ) {
+			$es_verano  = function ( $a ) {
+				return in_array( 'verano', Text::tokens( $a['nombre'] ), true );
+			};
+			$sin_verano = array_values( array_filter( $acts, function ( $a ) use ( $es_verano ) {
+				return ! $es_verano( $a );
+			} ) );
+			$de_verano  = array_values( array_filter( $acts, $es_verano ) );
+			$con_agenda = function ( array $lista ) {
+				foreach ( $lista as $a ) {
+					if ( $a['tiene_agenda'] ) {
+						return true;
+					}
+				}
+				return false;
+			};
+			if ( $sin_verano && $de_verano && ( $con_agenda( $sin_verano ) || ! $con_agenda( $de_verano ) ) ) {
+				$acts                     = $sin_verano;
+				$meta['temporada_oculta'] = 'Se omitieron las propuestas de verano: aparecen si preguntan por el verano.';
+			}
 		}
 
 		usort(
@@ -456,7 +520,7 @@ final class Query {
 		$cat = $a['categoria'] && isset( $this->index['categorias'][ $a['categoria'] ] ) ? $this->index['categorias'][ $a['categoria'] ]['nombre'] : null;
 		$out = array(
 			'slug'      => $a['slug'],
-			'nombre'    => $a['nombre'],
+			'nombre'    => self::con_genero( $a['nombre'], isset( $a['genero'] ) ? $a['genero'] : null ),
 			'categoria' => $cat,
 			'grupo'     => $this->grupo( $a ),
 			'edades'    => Catalog::age_label( $a ),
@@ -483,7 +547,8 @@ final class Query {
 		$acts = array();
 		foreach ( $item['actividades'] as $slug ) {
 			if ( isset( $this->index['actividades'][ $slug ] ) ) {
-				$acts[] = $this->index['actividades'][ $slug ]['nombre'];
+				$ia     = $this->index['actividades'][ $slug ];
+				$acts[] = self::con_genero( $ia['nombre'], isset( $ia['genero'] ) ? $ia['genero'] : null );
 			}
 		}
 		$notas = array_map( function ( $n ) {
@@ -665,6 +730,37 @@ final class Query {
 
 	/** Orden de género en deportes_federados: caballeros, damas, mixto, sin dato. */
 	const ORDEN_GENERO = array( 'masculino' => 0, 'femenino' => 1, 'mixto' => 2 );
+
+	/** Etiqueta que lleva el nombre de una actividad o categoría que no es mixta. */
+	const ETIQUETA_GENERO = array( 'femenino' => 'damas', 'masculino' => 'caballeros' );
+
+	/**
+	 * "Mini" + femenino → "Mini (damas)". El prompt pedía al modelo que agregara la etiqueta y no lo
+	 * hacía siempre (D01 de la batería, 13/11): ahora el nombre ya sale con ella. No la agrega si el
+	 * nombre ya dice el género ("Básquet Femenino", "Inferiores Caballeros Sub 11").
+	 */
+	public static function con_genero( $nombre, $genero ) {
+		if ( ! isset( self::ETIQUETA_GENERO[ $genero ] ) || null !== Index_Builder::gender_from_name( $nombre )
+			|| preg_match( '/\b(damas?|caballeros?|nenas?|nenes|varones|mujeres|hombres|chicas|femenin|masculin)/', Text::fold( $nombre ) ) ) {
+			return $nombre;
+		}
+		return $nombre . ' (' . self::ETIQUETA_GENERO[ $genero ] . ')';
+	}
+
+	/**
+	 * El bot puede repetir el nombre tal como lo recibió ("Mosquitos (caballeros)"): la etiqueta no está en
+	 * los datos y haría fallar la búsqueda. Se saca del texto y, si no vino género, se usa como género.
+	 */
+	private static function sin_etiqueta_genero( array $f, $campo ) {
+		if ( ! is_string( $f[ $campo ] ) || ! preg_match( '/\(\s*(damas|caballeros)\s*\)/iu', $f[ $campo ], $m ) ) {
+			return $f;
+		}
+		$f[ $campo ] = trim( preg_replace( '/\s*\(\s*(damas|caballeros)\s*\)/iu', '', $f[ $campo ] ) );
+		if ( empty( $f['genero'] ) ) {
+			$f['genero'] = 'damas' === Text::fold( $m[1] ) ? 'femenino' : 'masculino';
+		}
+		return $f;
+	}
 
 	/** Desde cuántas federadas el bot resume (total + ejemplos) en vez de listar: misma cifra que el prompt. */
 	const RESUMIR_FEDERADAS = 8;
@@ -852,6 +948,9 @@ final class Query {
 		$rows = $this->federadas_rows( $year );
 		$meta = array();
 
+		if ( ! empty( $f['deporte'] ) ) {
+			$f = self::sin_etiqueta_genero( $f, 'deporte' );
+		}
 		if ( empty( $f['genero'] ) && ! empty( $f['deporte'] ) ) {
 			$inferido = self::gender_from_text( $f['deporte'] );
 			if ( $inferido ) {
@@ -925,7 +1024,7 @@ final class Query {
 			'categorias'      => array_map( function ( $r ) {
 				return array_filter( array(
 					'deporte'   => $r['deporte'],
-					'categoria' => $r['categoria'],
+					'categoria' => self::con_genero( $r['categoria'], isset( $r['genero'] ) ? $r['genero'] : null ),
 					'genero'    => isset( $r['genero'] ) ? $r['genero'] : null,
 					'edades'    => Catalog::age_label( $r ),
 					'anios_nacimiento' => isset( $r['anio_nacimiento_min'] ) ? ( $r['anio_nacimiento_min'] === $r['anio_nacimiento_max'] ? (string) $r['anio_nacimiento_min'] : $r['anio_nacimiento_min'] . '-' . $r['anio_nacimiento_max'] ) : null,
@@ -970,8 +1069,14 @@ final class Query {
 	private static function examples_by_gender( array $rows, $k ) {
 		$groups = array();
 		foreach ( $rows as $r ) {
-			$groups[ isset( $r['genero'] ) ? $r['genero'] : 'sin dato' ][] = $r['categoria'];
+			$g              = isset( $r['genero'] ) ? $r['genero'] : 'sin dato';
+			$groups[ $g ][] = self::con_genero( $r['categoria'], $g );
 		}
+		// Caballeros primero y después damas, como pide el aviso, aunque las filas vengan de varios deportes.
+		$orden = self::ORDEN_GENERO;
+		uksort( $groups, function ( $a, $b ) use ( $orden ) {
+			return ( isset( $orden[ $a ] ) ? $orden[ $a ] : 3 ) - ( isset( $orden[ $b ] ) ? $orden[ $b ] : 3 );
+		} );
 		$out = array();
 		foreach ( $groups as $g => $names ) {
 			$n = count( $names );
