@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.13] - 2026-11-13
+
+- Nombres con (damas)/(caballeros), agenda de una actividad con un bloque por sede, propuestas de verano solo si las piden y listado general de menores cortado en 30 con "más"
+
 ## [1.4.12] - 2026-11-12
 
 - buscar_actividades: paginación con desde/siguiente_desde ("más" muestra solo las que faltan) y género tomado del nombre cuando el ACF lo deja mixto o vacío
