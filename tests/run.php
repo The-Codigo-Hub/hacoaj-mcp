@@ -444,9 +444,9 @@ $r = $ord_q->deportes_federados( array( 'deporte' => 'basquet' ) );
 check(
 	'federadas ordenadas por género y edad',
 	array_values( array_filter( array_column( $r['categorias'], 'categoria' ), function ( $c ) {
-		return in_array( $c, array( 'Cadetas femenino', 'Cadete Azul masculino', 'Infantil femenino', 'Infantil Azul masculino', 'Mosquitos masculino' ), true );
+		return in_array( $c, array( 'Cadetas (damas)', 'Cadete Azul (caballeros)', 'Infantil (damas)', 'Infantil Azul (caballeros)', 'Mosquitos (caballeros)' ), true );
 	} ) ),
-	array( 'Mosquitos masculino', 'Infantil Azul masculino', 'Cadete Azul masculino', 'Infantil femenino', 'Cadetas femenino' )
+	array( 'Mosquitos (caballeros)', 'Infantil Azul (caballeros)', 'Cadete Azul (caballeros)', 'Infantil (damas)', 'Cadetas (damas)' )
 );
 check( 'grupo inválido: marcado en el índice', $ord_index['actividades']['hockey-8va-a-test']['grupo_invalido'], 'f' );
 check( 'grupo inválido: sin grupo', isset( $ord_index['actividades']['hockey-8va-a-test']['grupo'] ), false );
@@ -737,6 +737,11 @@ check(
 	array_keys( $ej->invoke( null, array( array( 'categoria' => 'Mini', 'genero' => 'femenino' ), array( 'categoria' => 'Mosquitos', 'genero' => 'masculino' ) ), 3 ) ),
 	array( 'masculino', 'femenino' )
 );
+check( 'con_genero: género al final pasa a etiqueta', Query::con_genero( 'Básquet Federado - Mosquitos masculino', 'masculino', true ), 'Básquet Federado - Mosquitos (caballeros)' );
+check( 'con_genero: femenino al final pasa a etiqueta', Query::con_genero( 'Mini femenino', 'femenino', true ), 'Mini (damas)' );
+check( 'con_genero: género del final distinto al cargado no cambia', Query::con_genero( 'Mini femenino', 'masculino', true ), 'Mini femenino' );
+check( 'con_genero: género en el medio no cambia', Query::con_genero( 'Fútbol Femenino Primaria', 'femenino', true ), 'Fútbol Femenino Primaria' );
+check( 'con_genero: actividad no federada con género al final no cambia', Query::con_genero( 'Básquet Femenino', 'femenino' ), 'Básquet Femenino' );
 check( 'con_genero: "Ajedrez y Damas" no se etiqueta', Query::con_genero( 'Ajedrez y Damas', 'femenino' ), 'Ajedrez y Damas' );
 check( 'con_genero: "Fútbol Nenas" no se etiqueta', Query::con_genero( 'Fútbol Nenas', 'femenino' ), 'Fútbol Nenas' );
 
