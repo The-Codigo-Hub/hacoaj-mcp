@@ -386,11 +386,11 @@ $fed_index = Index_Builder::build( $fed_snap, $catalog, 'https://hacoaj.org.ar' 
 $fed_q     = new Query( $fed_index, $catalog, $sept );
 
 $r = $fed_q->deportes_federados( array( 'deporte' => 'basquet' ) );
-check( 'federada por edad fija: categoria', array_column( $r['categorias'], 'categoria' ), array( 'Mosquitos' ) );
+check( 'federada por edad fija: categoria', array_column( $r['categorias'], 'categoria' ), array( 'Mosquitos (caballeros)' ) );
 check( 'federada por edad fija: edades', $r['categorias'][0]['edades'], '4 a 7 años' );
 
 $r = $fed_q->deportes_federados( array( 'deporte' => 'futbol', 'anio_nacimiento' => 2015 ) );
-check( 'federada por año de nacimiento: categoria', array_column( $r['categorias'], 'categoria' ), array( 'Categoría 2015' ) );
+check( 'federada por año de nacimiento: categoria', array_column( $r['categorias'], 'categoria' ), array( 'Categoría 2015 (caballeros)' ) );
 check( 'federada por año de nacimiento: edad recalculada (2026-2015)', $r['categorias'][0]['edades'], '11 años' );
 
 // Las federadas no se duplican en buscar_actividades/obtener_agenda (esas usan deportes_federados).
@@ -512,7 +512,7 @@ $r     = $bal_q->deportes_federados( array( 'deporte' => 'basquet', 'limite' => 
 check(
 	'federadas balanceadas: cupo repartido y agrupado por género',
 	array_column( $r['categorias'], 'categoria' ),
-	array( 'Masc 0', 'Masc 1', 'Masc 2', 'Fem 0', 'Fem 1', 'Fem 2' )
+	array( 'Masc 0 (caballeros)', 'Masc 1 (caballeros)', 'Masc 2 (caballeros)', 'Fem 0 (damas)', 'Fem 1 (damas)', 'Fem 2 (damas)' )
 );
 check( 'federadas balanceadas: total_por_genero', $r['total_por_genero'], array( 'masculino' => 10, 'femenino' => 3 ) );
 // Más de 8 categorías: el aviso pide resumir (total + ejemplos de los dos géneros), no listar.
@@ -522,7 +522,7 @@ check( 'federadas resumen: el aviso ya no dice "mostrá estas"', false === strpo
 check(
 	'federadas resumen: ejemplos repartidos por género',
 	$r['ejemplos_por_genero'],
-	array( 'masculino' => array( 'Masc 0', 'Masc 5', 'Masc 9' ), 'femenino' => array( 'Fem 0', 'Fem 1', 'Fem 2' ) )
+	array( 'masculino' => array( 'Masc 0 (caballeros)', 'Masc 5 (caballeros)', 'Masc 9 (caballeros)' ), 'femenino' => array( 'Fem 0 (damas)', 'Fem 1 (damas)', 'Fem 2 (damas)' ) )
 );
 $r = $bal_q->deportes_federados( array( 'deporte' => 'basquet', 'limite' => 20 ) );
 check( 'federadas resumen: más de 8 aunque entren en el límite', array( count( $r['categorias'] ), isset( $r['aviso'] ) ), array( 13, true ) );
@@ -669,6 +669,141 @@ check( 'html_to_text: tope exacto en la última línea no agrega …', Text::htm
 check( 'html_to_text: tope exacto con más líneas agrega …', Text::html_to_text( '<p>uno dos</p><p>tres</p>', 2 ), 'uno dos…' );
 check( 'html_to_text: tope entre líneas', Text::html_to_text( '<p>uno dos</p><p>tres cuatro cinco</p>', 4 ), "uno dos\ntres cuatro…" );
 check( 'nota completa entra en 600 palabras', strpos( Text::html_to_text( $nota, 600 ), '…' ), false );
+
+// Temporada de verano solo si la piden (H06) y listado general cortado en 30 con "más" (B11), 13/11.
+$nat = array_column( $q->buscar_actividades( array( 'texto' => 'natacion', 'limite' => 50 ) )['actividades'], 'slug' );
+check( 'natación sin "verano": no trae la de verano', in_array( 'natacion-pileta-verano', $nat, true ), false );
+check( 'natación sin "verano": trae las demás', in_array( 'natacion-pileta-adolescentes', $nat, true ), true );
+$nat = array_column( $q->buscar_actividades( array( 'texto' => 'natacion verano', 'limite' => 50 ) )['actividades'], 'slug' );
+check( 'natación con "verano": trae la de verano', in_array( 'natacion-pileta-verano', $nat, true ), true );
+// Listado general con edad: el snapshot no trae edades, así que se cargan 0 a 99 en todas las no federadas.
+$edad_snap = $snap;
+foreach ( $edad_snap['actividad'] as &$t ) {
+	if ( empty( $t['grupo'] ) || 'federadas' !== $t['grupo'] ) {
+		$t['edad_min'] = 0;
+		$t['edad_max'] = 99;
+	}
+}
+unset( $t );
+$edad_q = new Query( Index_Builder::build( $edad_snap, $catalog, 'https://hacoaj.org.ar' ), $catalog, $sept );
+$todo   = $edad_q->buscar_actividades( array( 'edad' => 8, 'limite' => 50 ) );
+check( 'fixture: más de 30 actividades para 8 años', $todo['total'] > Query::LISTA_CORTA, true );
+check( 'listado de menor: corta en 30', count( $todo['actividades'] ), Query::LISTA_CORTA );
+check( 'listado de menor: ofrece "más"', $todo['siguiente_desde'], Query::LISTA_CORTA );
+$resto = $edad_q->buscar_actividades( array( 'edad' => 8, 'limite' => 50, 'desde' => $todo['siguiente_desde'] ) );
+check( 'listado de menor: "más" no repite', array_intersect( array_column( $resto['actividades'], 'nombre' ), array_column( $todo['actividades'], 'nombre' ) ), array() );
+check( 'listado de adulto: no se corta en 30', count( $edad_q->buscar_actividades( array( 'edad' => 40, 'limite' => 50 ) )['actividades'] ), 50 );
+check( 'listado de menor por sede: no se corta en 30', count( $edad_q->buscar_actividades( array( 'edad' => 8, 'sede' => 'tigre', 'limite' => 50 ) )['actividades'] ) > Query::LISTA_CORTA, true );
+
+// En temporada de verano la agenda regular queda vacía y la de verano tiene los horarios: ahí no se oculta.
+$ver_snap = $snap;
+$plantilla = null;
+foreach ( $ver_snap['agenda_item'] as $it ) {
+	if ( array_intersect( array( 'natacion-pileta-adolescentes', 'natacion-pileta-libre' ), (array) $it['actividad'] ) ) {
+		$plantilla = $it;
+		break;
+	}
+}
+$ver_snap['agenda_item'] = array_values( array_filter( $ver_snap['agenda_item'], function ( $it ) {
+	foreach ( (array) $it['actividad'] as $slug ) {
+		if ( 0 === strpos( $slug, 'natacion' ) ) {
+			return false;
+		}
+	}
+	return true;
+} ) );
+$plantilla['id']           = '9950';
+$plantilla['slug']         = 'natacion-verano-test';
+$plantilla['actividad']    = array( 'natacion-pileta-verano' );
+$ver_snap['agenda_item'][] = $plantilla;
+$ver_q = new Query( Index_Builder::build( $ver_snap, $catalog, 'https://hacoaj.org.ar' ), $catalog, $sept );
+$nat   = $ver_q->buscar_actividades( array( 'texto' => 'natacion', 'limite' => 50 ) );
+check( 'verano con agenda y regulares sin: aparece', in_array( 'natacion-pileta-verano', array_column( $nat['actividades'], 'slug' ), true ), true );
+check( 'verano con agenda y regulares sin: sin aviso de temporada', isset( $nat['temporada_oculta'] ), false );
+check( 'verano con agenda: obtener_agenda de natación trae horarios', $ver_q->obtener_agenda( array( 'actividad' => 'natación' ) )['total'] > 0, true );
+$tv = Index_Builder::build( $snap, $catalog, 'https://hacoaj.org.ar' );
+$tv['stats']['temporada'] = 'verano';
+check( 'en temporada de verano no se oculta la de verano', in_array( 'natacion-pileta-verano', array_column( ( new Query( $tv, $catalog, $sept ) )->buscar_actividades( array( 'texto' => 'natacion', 'limite' => 50 ) )['actividades'], 'slug' ), true ), true );
+check( 'sin verano en el resultado: sin aviso de temporada', isset( $q->buscar_actividades( array( 'texto' => 'golf' ) )['temporada_oculta'] ), false );
+
+// El bot repite el nombre con la etiqueta: se saca y se usa como género.
+$r = $fed_q->deportes_federados( array( 'deporte' => 'Mosquitos (caballeros)' ) );
+check( 'federada buscada con etiqueta', array_column( $r['categorias'], 'categoria' ), array( 'Mosquitos (caballeros)' ) );
+check( 'federada buscada con etiqueta: género', isset( $r['genero_inferido'] ) || 'masculino' === $r['categorias'][0]['genero'], true );
+$ej = new ReflectionMethod( Query::class, 'examples_by_gender' );
+$ej->setAccessible( true );
+check(
+	'ejemplos: caballeros antes que damas aunque vengan al revés',
+	array_keys( $ej->invoke( null, array( array( 'categoria' => 'Mini', 'genero' => 'femenino' ), array( 'categoria' => 'Mosquitos', 'genero' => 'masculino' ) ), 3 ) ),
+	array( 'masculino', 'femenino' )
+);
+check( 'con_genero: "Ajedrez y Damas" no se etiqueta', Query::con_genero( 'Ajedrez y Damas', 'femenino' ), 'Ajedrez y Damas' );
+check( 'con_genero: "Fútbol Nenas" no se etiqueta', Query::con_genero( 'Fútbol Nenas', 'femenino' ), 'Fútbol Nenas' );
+
+// ---------------------------------------------------------------- Etiqueta de género y agenda por sede (batería del 13/11, D01 y C08).
+check( 'con_genero: femenino', Query::con_genero( 'Mini', 'femenino' ), 'Mini (damas)' );
+check( 'con_genero: masculino', Query::con_genero( 'Mosquitos', 'masculino' ), 'Mosquitos (caballeros)' );
+check( 'con_genero: mixto no cambia', Query::con_genero( 'Basquet Primaria', 'mixto' ), 'Basquet Primaria' );
+check( 'con_genero: sin dato no cambia', Query::con_genero( 'Judo', null ), 'Judo' );
+check( 'con_genero: el nombre ya dice el género', Query::con_genero( 'Básquet Femenino', 'femenino' ), 'Básquet Femenino' );
+check( 'con_genero: no repite la etiqueta', Query::con_genero( 'Fútbol Primaria (caballeros)', 'masculino' ), 'Fútbol Primaria (caballeros)' );
+check( 'actividad con género sale etiquetada', $gen_q->activity_summary( $gen_a['golf-salidas'] )['nombre'], 'Golf Damas' );
+$lab_snap = $snap;
+foreach ( $lab_snap['actividad'] as &$t ) {
+	if ( 'golf-clases' === $t['slug'] ) {
+		$t['genero'] = 'masculino';
+	}
+}
+unset( $t );
+$lab_q = new Query( Index_Builder::build( $lab_snap, $catalog, 'https://hacoaj.org.ar' ), $catalog, $sept );
+$r     = $lab_q->buscar_actividades( array( 'texto' => 'golf' ) );
+$golf  = array_values( array_filter( $r['actividades'], function ( $a ) {
+	return isset( $a['slug'] ) && 'golf-clases' === $a['slug'];
+} ) );
+check( 'buscar_actividades: nombre con (caballeros)', $golf ? substr( $golf[0]['nombre'], -12 ) : null, '(caballeros)' );
+
+$sede_snap = $snap;
+$base_item = null;
+foreach ( $sede_snap['agenda_item'] as $it ) {
+	if ( in_array( 'golf-clases', (array) $it['actividad'], true ) ) {
+		$base_item = $it;
+		break;
+	}
+}
+if ( $base_item ) {
+	$sede_snap['agenda_item'] = array_values( array_filter( $sede_snap['agenda_item'], function ( $it ) {
+		return ! in_array( 'golf-clases', (array) $it['actividad'], true );
+	} ) );
+	$mk = function ( $id, $sede, $dias, $detalle ) use ( $base_item ) {
+		$it                    = $base_item;
+		$it['id']              = (string) $id;
+		$it['slug']            = 'golf-test-' . $id;
+		$it['title']           = 'Golf ' . $id;
+		$it['sede']            = array( $sede );
+		$it['meta']['dias']    = $dias;
+		$it['meta']['detalle'] = $detalle;
+		return $it;
+	};
+	$sede_snap['agenda_item'][] = $mk( 9901, 'tigre-maliar', array( 'martes', 'jueves' ), '18.30 a 19.30 h' );
+	$sede_snap['agenda_item'][] = $mk( 9902, 'ben-gurion', array( 'miercoles' ), '18.30 a 19.30 h' );
+	$sede_snap['agenda_item'][] = $mk( 9903, 'tigre-maliar', array( 'sabado' ), '13.30 a 15 h' );
+	$sede_q = new Query( Index_Builder::build( $sede_snap, $catalog, 'https://hacoaj.org.ar' ), $catalog, $sept );
+	$r      = $sede_q->obtener_agenda( array( 'actividad' => 'golf-clases' ) );
+	$sedes  = array_map( function ( $i ) {
+		return $i['sedes'][0];
+	}, $r['items'] );
+	$cortes = 0;
+	foreach ( $sedes as $k => $s_ ) {
+		$cortes += ( 0 === $k || $sedes[ $k - 1 ] !== $s_ ) ? 1 : 0;
+	}
+	check( 'agenda de una actividad: la misma sede sale junta', $cortes, count( array_unique( $sedes ) ) );
+	check( 'agenda de una actividad: tres items', count( $r['items'] ), 3 );
+	check( 'agenda de una actividad: avisa un bloque por sede', isset( $r['formato'] ), true );
+	$r = $sede_q->obtener_agenda( array( 'actividad' => 'golf-clases', 'dia' => 'sabado' ) );
+	check( 'agenda con día: sin aviso de bloque por sede', isset( $r['formato'] ), false );
+} else {
+	check( 'fixture: golf-clases tiene agenda', false, true );
+}
 
 // Tools::validate / coerce con el parámetro booleano nuevo (la clase exige ABSPATH; se carga sólo para estos checks).
 define( 'ABSPATH', __DIR__ . '/' );
