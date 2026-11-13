@@ -739,7 +739,14 @@ final class Query {
 	 * hacía siempre (D01 de la batería, 13/11): ahora el nombre ya sale con ella. No la agrega si el
 	 * nombre ya dice el género ("Básquet Femenino", "Inferiores Caballeros Sub 11").
 	 */
-	public static function con_genero( $nombre, $genero ) {
+	public static function con_genero( $nombre, $genero, $federada = false ) {
+		// Solo federadas ($federada): cargadas como "Mosquitos masculino" / "Mini femenino": el género del final pasa a ser la
+		// etiqueta, "Mosquitos (caballeros)". Así se ven igual que el resto (D01, 13/11). Solo si coincide con
+		// el género cargado, para no cambiar el sentido de un nombre mal cargado.
+		if ( $federada && isset( self::ETIQUETA_GENERO[ $genero ] ) && preg_match( '/^(.*\S)\s+(masculin|femenin)[oa]s?\s*$/iu', $nombre, $m )
+			&& ( 'masculin' === Text::fold( $m[2] ) ) === ( 'masculino' === $genero ) ) {
+			return $m[1] . ' (' . self::ETIQUETA_GENERO[ $genero ] . ')';
+		}
 		if ( ! isset( self::ETIQUETA_GENERO[ $genero ] ) || null !== Index_Builder::gender_from_name( $nombre )
 			|| preg_match( '/\b(damas?|caballeros?|nenas?|nenes|varones|mujeres|hombres|chicas|femenin|masculin)/', Text::fold( $nombre ) ) ) {
 			return $nombre;
@@ -1024,7 +1031,7 @@ final class Query {
 			'categorias'      => array_map( function ( $r ) {
 				return array_filter( array(
 					'deporte'   => $r['deporte'],
-					'categoria' => self::con_genero( $r['categoria'], isset( $r['genero'] ) ? $r['genero'] : null ),
+					'categoria' => self::con_genero( $r['categoria'], isset( $r['genero'] ) ? $r['genero'] : null, true ),
 					'genero'    => isset( $r['genero'] ) ? $r['genero'] : null,
 					'edades'    => Catalog::age_label( $r ),
 					'anios_nacimiento' => isset( $r['anio_nacimiento_min'] ) ? ( $r['anio_nacimiento_min'] === $r['anio_nacimiento_max'] ? (string) $r['anio_nacimiento_min'] : $r['anio_nacimiento_min'] . '-' . $r['anio_nacimiento_max'] ) : null,
@@ -1070,7 +1077,7 @@ final class Query {
 		$groups = array();
 		foreach ( $rows as $r ) {
 			$g              = isset( $r['genero'] ) ? $r['genero'] : 'sin dato';
-			$groups[ $g ][] = self::con_genero( $r['categoria'], $g );
+			$groups[ $g ][] = self::con_genero( $r['categoria'], $g, true );
 		}
 		// Caballeros primero y después damas, como pide el aviso, aunque las filas vengan de varios deportes.
 		$orden = self::ORDEN_GENERO;
