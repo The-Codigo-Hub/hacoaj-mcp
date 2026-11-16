@@ -111,8 +111,11 @@ final class Formato {
 	public static function listado_secciones( array $cats, array $federadas, $resumen, $cierre ) {
 		foreach ( array( 'vinetas', 'compacto', 'resumen' ) as $modo ) {
 			$lineas = array();
-			if ( $cats && ( count( $cats ) > 1 || $federadas || $resumen ) ) {
-				$lineas[] = '🎽 *Actividades*';
+			if ( $cats ) {
+				// El título general solo si hay más de una sección (G01: "actividades culturales" va con su subtítulo y nada más).
+				if ( count( $cats ) > 1 || $federadas || $resumen ) {
+					$lineas[] = '🎽 *Actividades*';
+				}
 				foreach ( $cats as $cat => $nombres ) {
 					$e        = self::categoria( $cat );
 					$lineas[] = $e[1] . ' *' . $cat . '*';
