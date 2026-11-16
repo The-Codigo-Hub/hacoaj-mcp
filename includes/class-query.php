@@ -176,8 +176,11 @@ final class Query {
 			return null;
 		}
 		// Con la edad conocida y una sola opción, directamente sus horarios (H06: "natación para mi hija de 15").
-		if ( $con_edad && count( $grupos ) <= 2 && ! $fed_names && ! $fed_res ) {
-			$ag = $this->obtener_agenda( array( '_acts' => array_merge( ...$grupos ), 'edad' => $f['edad'] ) );
+		// Una sola actividad ("horarios de Bitnuah", G04), o hasta dos con la edad conocida: directamente sus horarios.
+		if ( ( 1 === count( $grupos ) || ( $con_edad && 2 === count( $grupos ) ) ) && ! $fed_names && ! $fed_res ) {
+			$ag = $this->obtener_agenda( array_filter( array( '_acts' => array_merge( ...$grupos ), 'edad' => isset( $f['edad'] ) ? $f['edad'] : null ), function ( $v ) {
+				return null !== $v;
+			} ) );
 			if ( ! empty( $ag['respuesta'] ) && empty( $ag['sin_horarios'] ) ) {
 				return $ag['respuesta'];
 			}
