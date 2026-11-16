@@ -176,8 +176,8 @@ final class Query {
 			return null;
 		}
 		// Con la edad conocida y una sola opción, directamente sus horarios (H06: "natación para mi hija de 15").
-		if ( $con_edad && 1 === count( $grupos ) && ! $fed_names && ! $fed_res ) {
-			$ag = $this->obtener_agenda( array( '_acts' => $grupos[0], 'edad' => $f['edad'] ) );
+		if ( $con_edad && count( $grupos ) <= 2 && ! $fed_names && ! $fed_res ) {
+			$ag = $this->obtener_agenda( array( '_acts' => array_merge( ...$grupos ), 'edad' => $f['edad'] ) );
 			if ( ! empty( $ag['respuesta'] ) && empty( $ag['sin_horarios'] ) ) {
 				return $ag['respuesta'];
 			}
@@ -1678,7 +1678,63 @@ final class Query {
 			}
 		}
 		unset( $r );
-		return array( 'resultados' => $rows );
+		$out = array( 'resultados' => $rows );
+		// Un solo programa o espacio: el texto sale armado (G03, K14).
+		$elegido = $this->institucional_elegido( $rows, $tema );
+		if ( $elegido ) {
+			$out['respuesta'] = $this->institucional_texto( $elegido );
+		}
+		return $out;
+	}
+
+	/** El resultado que nombra el tema ("Bitnuah", "Polo Educativo"), si es uno solo. */
+	private function institucional_elegido( array $rows, $tema ) {
+		if ( '' === $tema ) {
+			return null;
+		}
+		$hits = array_values( array_filter( $rows, function ( $r ) use ( $tema ) {
+			$n = Text::fold( $r['name'] );
+			foreach ( Text::tokens( $tema ) as $t ) {
+				if ( strlen( $t ) >= 4 && false !== strpos( $n, $t ) ) {
+					return true;
+				}
+			}
+			return false;
+		} ) );
+		return 1 === count( $hits ) ? $hits[0] : ( 1 === count( $rows ) ? $rows[0] : null );
+	}
+
+	private function institucional_texto( array $r ) {
+		if ( 'programa' === $r['seccion'] ) {
+			$l = array( '🌟 *' . $r['name'] . '*', $r['descripcion'] );
+			if ( ! empty( $r['publico'] ) ) {
+				$l[] = '👥 Dirigido a: ' . $r['publico'];
+			}
+			foreach ( isset( $r['agenda'] ) ? $r['agenda'] : array() as $a ) {
+				$l[] = '📍 ' . implode( ' / ', $a['sedes'] ) . ' — ' . Formato::enumerar( $a['dias'] ) . ( $a['horarios'] ? ' ' . implode( ' / ', $a['horarios'] ) : '' );
+				foreach ( isset( $a['notas'] ) ? $a['notas'] : array() as $n ) {
+					if ( preg_match( '/cupo/iu', $n ) ) {
+						$l[] = 'ℹ️ ' . Text::truncate( $n, 160 );
+					}
+				}
+			}
+			if ( ! empty( $r['contacto'] ) ) {
+				$l[] = '📧 Contacto: ' . $r['contacto'];
+			}
+			$l[] = '🔗 ' . $r['url'];
+			return implode( "\n", $l ) . "\n\n¿Querés que te cuente más sobre las actividades del programa? 😊";
+		}
+		$l = array( '📍 *' . $r['name'] . '*', $r['descripcion'] );
+		if ( ! empty( $r['direccion'] ) ) {
+			$l[] = '📮 ' . $r['direccion'];
+		}
+		if ( ! empty( $r['contacto'] ) ) {
+			$l[] = '📞 ' . $r['contacto'];
+		}
+		if ( ! empty( $r['url'] ) ) {
+			$l[] = '🔗 ' . $r['url'];
+		}
+		return implode( "\n", $l ) . "\n\n¿Te puedo ayudar en algo más? 😊";
 	}
 
 	public function stats() {

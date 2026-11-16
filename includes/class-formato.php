@@ -88,6 +88,11 @@ final class Formato {
 			$cat    = $f['categoria'];
 		}
 		$quedan = $total - $i;
+		// Una sola categoría ("actividades culturales"): sin el título general, solo su subtítulo (G01).
+		$cats_pag = count( array_unique( array_column( array_slice( $filas, $desde, $i - $desde ), 'categoria' ) ) );
+		if ( 1 === $cats_pag && ! $fed ) {
+			array_shift( $lineas );
+		}
 		return array(
 			'texto'     => implode( "\n", $lineas ) . $fed . "\n\n" . $pie( $quedan ),
 			'mostradas' => $i - $desde,
@@ -106,7 +111,7 @@ final class Formato {
 	public static function listado_secciones( array $cats, array $federadas, $resumen, $cierre ) {
 		foreach ( array( 'vinetas', 'compacto', 'resumen' ) as $modo ) {
 			$lineas = array();
-			if ( $cats ) {
+			if ( $cats && ( count( $cats ) > 1 || $federadas || $resumen ) ) {
 				$lineas[] = '🎽 *Actividades*';
 				foreach ( $cats as $cat => $nombres ) {
 					$e        = self::categoria( $cat );
