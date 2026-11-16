@@ -118,6 +118,15 @@ final class Query {
 		}
 		if ( ! $acts && empty( $out['respuesta'] ) ) {
 			$out['sugerencia'] = 'No hubo resultados. Probá con menos filtros, otra palabra (ej. el deporte sin categoría) o listar_categorias.';
+			// Ni actividades ni federadas con ese nombre (H10, rugby): el club no la tiene; se deriva.
+			if ( ! empty( $f['texto'] ) && ! $desde ) {
+				$fed = $this->deportes_federados( array( 'deporte' => $f['texto'], 'limite' => 1 ) );
+				$sin_filtro = $this->filter_activities( array( 'texto' => $f['texto'] ) );
+				if ( ! $fed['total'] && ! $sin_filtro['actividades'] ) {
+					$out['respuesta'] = 'No encontré ' . trim( $f['texto'] ) . ' entre las actividades del club 🔍 Te conecto con alguien del equipo de Hacoaj para que te cuenten las alternativas. ¡Ya te atienden! 🙌';
+					$out['derivar']   = 'atencion_socio';
+				}
+			}
 		}
 		return $out;
 	}
@@ -469,7 +478,16 @@ final class Query {
 		// cumplía a medias: G04, G09, C06).
 		if ( $acts && ( ! empty( $f['actividad'] ) || ! empty( $f['texto'] ) || ! empty( $f['_acts'] ) ) ) {
 			$area = $this->area_de( $acts );
-			if ( ! $items ) {
+			// Días cargados pero ninguna hora (G09, Ulpan "Lunes"): para el socio es lo mismo que no tener horarios.
+			$con_hora = array_filter( $items, function ( $it ) {
+				foreach ( $it['horarios'] as $h ) {
+					if ( ! empty( $h['franjas'] ) ) {
+						return true;
+					}
+				}
+				return false;
+			} );
+			if ( ! $con_hora ) {
 				return array(
 					'total'        => 0,
 					'sin_horarios' => true,
