@@ -497,8 +497,16 @@ final class Query {
 		// evita que una misma categoría aparezca duplicada en ambas tools.
 		// Las que tienen el grupo mal cargado en WordPress (grupo_invalido) se descartan: si no,
 		// una federada con grupo "f" aparece como actividad general.
-		$acts = array_values( array_filter( $this->index['actividades'], function ( $a ) {
-			return self::visible( $a ) && ( ! isset( $a['grupo'] ) || 'federadas' !== $a['grupo'] );
+		// Tampoco las que se llaman igual que una categoría ("Escuelas Deportivas" cargada como actividad
+		// sin categoría): son contenedores, no actividades, y salían sueltas en los listados.
+		$categorias = array();
+		foreach ( $this->index['categorias'] as $slug => $c ) {
+			$categorias[ Text::fold( self::categoria_base( $c['nombre'] ) ) ][] = $slug;
+		}
+		$acts = array_values( array_filter( $this->index['actividades'], function ( $a ) use ( $categorias ) {
+			$cat = Text::fold( $a['nombre'] );
+			return self::visible( $a ) && ( ! isset( $a['grupo'] ) || 'federadas' !== $a['grupo'] )
+				&& ! ( empty( $a['categoria'] ) && isset( $categorias[ $cat ] ) && array_diff( $categorias[ $cat ], array( $a['slug'] ) ) );
 		} ) );
 		$meta = array();
 
