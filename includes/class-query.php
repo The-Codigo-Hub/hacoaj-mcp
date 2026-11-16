@@ -37,11 +37,19 @@ final class Query {
 	 * @param array $f texto, edad, genero, sede, dia, categoria, limite
 	 */
 	public function buscar_actividades( array $f ) {
+		$f        = $this->con_edad( $f );
 		$limit    = self::clamp( isset( $f['limite'] ) ? $f['limite'] : 15, 1, 50 );
 		$filtered = $this->filter_activities( $f );
 		$acts     = $filtered['actividades'];
 
 		$grupos = $this->group_by_name( $acts );
+
+		// Listado general (por edad o por categoría, sin nombrar una actividad): sale armado, con las federadas
+		// en un renglón y paginado con "más". Antes el bot llamaba dos tools y armaba el listado siguiendo
+		// unas 10 mil letras de reglas del prompt, con resultados irregulares (A03, B11).
+		if ( empty( $f['texto'] ) && empty( $f['sede'] ) && empty( $f['dia'] ) && ( isset( $f['edad'] ) || ! empty( $f['categoria'] ) ) ) {
+			return $this->listado_general( $f, $grupos, $filtered['meta'] );
+		}
 		// Una categoría chica sale entera: con limite=15 Cultura quedaba incompleta (pruebas del 2/11).
 		if ( ! empty( $f['categoria'] ) && count( $grupos ) <= self::LISTA_CORTA ) {
 			$limit = max( $limit, self::LISTA_CORTA );
@@ -61,7 +69,9 @@ final class Query {
 		$desde = isset( $f['desde'] ) ? max( 0, (int) $f['desde'] ) : 0;
 		$out   = array(
 			'total'       => count( $grupos ),
-			'actividades' => array_map( array( $this, 'group_summary' ), array_slice( $grupos, $desde, $limit ) ),
+			'actividades' => array_map( function ( $g ) {
+				return self::para_bot( $this->group_summary( $g ) );
+			}, array_slice( $grupos, $desde, $limit ) ),
 		);
 		if ( $desde ) {
 			$out['desde'] = $desde;
@@ -78,7 +88,7 @@ final class Query {
 		if ( count( $grupos ) < count( $acts ) ) {
 			$out['nota_variantes'] = 'Algunas actividades están en varias sedes y vienen una sola vez, con "variantes". Listá el nombre una vez; cuando la elijan, preguntá en qué sede (opciones: sedes) y usá el slug de esa variante en obtener_agenda.';
 		}
-		$out = array_merge( $out, $filtered['meta'] );
+		$out = array_merge( $out, self::meta_publica( $filtered['meta'] ) );
 		if ( ! $acts ) {
 			$out['sugerencia'] = 'No hubo resultados. Probá con menos filtros, otra palabra (ej. el deporte sin categoría) o listar_categorias.';
 		}
@@ -86,9 +96,143 @@ final class Query {
 	}
 
 	/**
+	 * Resumen de actividad sin los campos que el bot no usa ni debe mostrar (grupo, género crudo, días, url):
+	 * antes había una sección del prompt solo para decirle cuáles ignorar.
+	 */
+	private static function para_bot( array $r ) {
+		if ( isset( $r['horarios_cargados'] ) && ! $r['horarios_cargados'] ) {
+			$r['sin_horarios'] = true;
+		}
+		unset( $r['grupo'], $r['genero'], $r['dias'], $r['url'], $r['horarios_cargados'], $r['fuente_metadata'] );
+		if ( isset( $r['variantes'] ) ) {
+			$r['variantes'] = array_map( function ( $v ) {
+				if ( isset( $v['horarios_cargados'] ) && ! $v['horarios_cargados'] ) {
+					$v['sin_horarios'] = true;
+				}
+				unset( $v['dias'], $v['url'], $v['horarios_cargados'] );
+				return $v;
+			}, $r['variantes'] );
+		}
+		return $r;
+	}
+
+	/** anio_nacimiento → edad (año en curso menos el de nacimiento), si no vino la edad. */
+	private function con_edad( array $f ) {
+		if ( ( ! isset( $f['edad'] ) || '' === $f['edad'] || null === $f['edad'] ) && ! empty( $f['anio_nacimiento'] ) ) {
+			$f['edad'] = (int) $this->now->format( 'Y' ) - (int) $f['anio_nacimiento'];
+		}
+		if ( isset( $f['edad'] ) && ( '' === $f['edad'] || null === $f['edad'] ) ) {
+			unset( $f['edad'] );
+		}
+		return $f;
+	}
+
+	/** Lo que el bot no necesita ver: avisos internos de datos faltantes. */
+	private static function meta_publica( array $meta ) {
+		unset( $meta['sin_datos_de_edad'] );
+		return $meta;
+	}
+
+	/**
+	 * "Todo lo que puede hacer un nene de 8", "qué actividades culturales hay": respuesta armada.
+	 *
+	 * @param array[] $grupos actividades agrupadas por nombre, en orden de relevancia.
+	 */
+	private function listado_general( array $f, array $grupos, array $meta ) {
+		$edad  = isset( $f['edad'] ) ? (float) $f['edad'] : null;
+		$filas = array();
+		foreach ( $grupos as $g ) {
+			$a       = $g[0];
+			$cat     = self::categoria_base( $this->categoria_nombre( $a ) );
+			$filas[] = array(
+				'categoria' => $cat ? $cat : 'Otras',
+				'nombre'    => self::con_genero( $a['nombre'], isset( $a['genero'] ) ? $a['genero'] : null ),
+				'orden'     => Formato::categoria( $cat )[0],
+				'cercania'  => self::cercania( $a, $edad ),
+			);
+		}
+		// Categorías en orden fijo; adentro, las de edad más cercana primero (un señor de 70 ve antes
+		// "Desde 65" que "Desde 18"), y después alfabético.
+		usort( $filas, function ( $x, $y ) {
+			return array( $x['orden'], $x['categoria'], $x['cercania'], Text::fold( $x['nombre'] ) )
+				<=> array( $y['orden'], $y['categoria'], $y['cercania'], Text::fold( $y['nombre'] ) );
+		} );
+
+		$desde     = isset( $f['desde'] ) ? max( 0, (int) $f['desde'] ) : 0;
+		$federadas = null;
+		if ( 0 === $desde && null !== $edad && empty( $f['categoria'] ) ) {
+			$fed = $this->deportes_federados( array_filter( array(
+				'edad'   => $edad,
+				'genero' => isset( $f['genero'] ) ? $f['genero'] : null,
+				'limite' => 100,
+			) ) );
+			if ( $fed['total'] > 0 ) {
+				$deportes  = array_values( array_unique( array_map( function ( $c ) {
+					return mb_strtolower( trim( preg_replace( '/\s*federad[oa]s?\b/iu', '', $c['deporte'] ) ), 'UTF-8' );
+				}, $fed['categorias'] ) ) );
+				$federadas = 1 === $fed['total']
+					? sprintf( 'Hay 1 categoría federada (%s).', $deportes[0] )
+					: sprintf( 'Hay %d categorías federadas (%s).', $fed['total'], implode( ', ', array_slice( $deportes, 0, 3 ) ) );
+			}
+		}
+
+		if ( ! $filas ) {
+			$out = array(
+				'total'      => 0,
+				'sugerencia' => 'No hay actividades con esos filtros.',
+			);
+			if ( $federadas ) {
+				$out['respuesta'] = "🏅 *Federadas*\n" . $federadas . "\n\n¿Querés que te muestre las categorías? 😊";
+			}
+			return $out;
+		}
+		if ( $desde >= count( $filas ) ) {
+			return array(
+				'total'     => count( $filas ),
+				'respuesta' => 'Ya te mostré todas las actividades con esos datos 😊 ¿Querés el detalle de alguna?',
+			);
+		}
+		$cierre = null !== $edad
+			? '¿Te interesa alguna? Te cuento días, horarios y sedes 😊'
+			: '¿Cuál te interesa? Te cuento días, horarios y sedes 😊';
+		$pag    = Formato::listado( $filas, $desde, $federadas, $cierre );
+		$out    = array(
+			'total'     => count( $filas ),
+			'respuesta' => $pag['texto'],
+			'slugs'     => $this->slugs_de( $grupos ),
+		);
+		if ( $pag['quedan'] > 0 ) {
+			$out['siguiente_desde'] = $desde + $pag['mostradas'];
+		}
+		return $out;
+	}
+
+	/** nombre (con etiqueta) => slug, para pedir la agenda cuando eligen una. Si está en varias sedes, todas. */
+	private function slugs_de( array $grupos ) {
+		$out = array();
+		foreach ( $grupos as $g ) {
+			$nombre         = self::con_genero( $g[0]['nombre'], isset( $g[0]['genero'] ) ? $g[0]['genero'] : null );
+			$out[ $nombre ] = count( $g ) > 1 ? array_map( function ( $a ) {
+				return $a['slug'];
+			}, $g ) : $g[0]['slug'];
+		}
+		return $out;
+	}
+
+	/** Distancia entre la edad de la persona y la edad mínima de la actividad (menor = más cercana). */
+	private static function cercania( array $a, $edad ) {
+		if ( null === $edad || ! isset( $a['edad_min'] ) ) {
+			return 999;
+		}
+		$min = (float) $a['edad_min'];
+		return $min <= $edad ? $edad - $min : 500 + $min - $edad;
+	}
+
+	/**
 	 * @param array $f actividad, texto, sede, dia, categoria, edad, genero, desde_hora, hasta_hora, limite
 	 */
 	public function obtener_agenda( array $f ) {
+		$f     = $this->con_edad( $f );
 		$limit = self::clamp( isset( $f['limite'] ) ? $f['limite'] : 25, 1, 80 );
 		$meta  = array();
 		$acts  = null;
@@ -100,7 +244,8 @@ final class Query {
 			} elseif ( isset( $this->index['actividades'][ $slug ] ) ) {
 				$acts = array();
 			} else {
-				$f['texto'] = trim( ( isset( $f['texto'] ) ? $f['texto'] . ' ' : '' ) . $f['actividad'] );
+				$f['texto']       = trim( ( isset( $f['texto'] ) ? $f['texto'] . ' ' : '' ) . $f['actividad'] );
+				$f['_solo_mejor'] = true;
 			}
 		}
 		$has_activity_filter = ! empty( $f['texto'] ) || isset( $f['edad'] ) || ! empty( $f['genero'] ) || ! empty( $f['categoria'] );
@@ -115,6 +260,10 @@ final class Query {
 			$sede = $this->catalog->resolve_sede( $f['sede'] );
 			if ( ! $sede ) {
 				return array( 'error' => 'Sede desconocida: ' . $f['sede'] . '. Sedes válidas: ' . implode( ', ', $this->sede_slugs() ) );
+			}
+			// Los horarios de Isla Hacoaj y Marinas H los da el departamento de socios.
+			if ( in_array( $sede, Formato::SEDES_POR_MAIL, true ) ) {
+				return array( 'respuesta' => Formato::MAIL_SEDES_POR_MAIL );
 			}
 		}
 		$dias = ! empty( $f['dia'] ) ? Text::parse_dias_input( $f['dia'], $this->now ) : array();
@@ -147,6 +296,12 @@ final class Query {
 			if ( $sede && ! in_array( $sede, $item['sedes'], true ) ) {
 				continue;
 			}
+			// Isla Hacoaj y Marinas H no se muestran en una agenda (salvo que las pidan, ver arriba).
+			$otras = array_values( array_diff( $item['sedes'], Formato::SEDES_POR_MAIL ) );
+			if ( $item['sedes'] && ! $otras ) {
+				continue;
+			}
+			$item['sedes'] = $otras;
 			if ( $dias && ! array_intersect( $dias, $item['dias'] ) ) {
 				continue;
 			}
@@ -187,20 +342,14 @@ final class Query {
 			$por_sede = count( $orden_sede ) < count( $items );
 		}
 
+		// Qué hay en una sede un día, sin nombrar actividad: sale armado (antes eran 900 letras de reglas en el prompt).
+		if ( empty( $f['actividad'] ) && empty( $f['texto'] ) && empty( $f['categoria'] ) && $sede && $dias && $items ) {
+			return $this->agenda_del_dia( $items, $sede, $dias, $f );
+		}
+
 		$out = array(
-			'filtros_aplicados' => array_filter(
-				array(
-					'actividades' => null !== $acts ? array_map( function ( $a ) {
-						return $a['slug'];
-					}, array_slice( $acts, 0, 15 ) ) : null,
-					'sede'        => $sede,
-					'dias'        => $dias ? $dias : null,
-					'desde_hora'  => $desde,
-					'hasta_hora'  => $hasta,
-				)
-			),
-			'total'             => count( $items ),
-			'items'             => array_map( array( $this, 'item_output' ), array_slice( $items, 0, $limit ) ),
+			'total' => count( $items ),
+			'items' => array_map( array( $this, 'item_output' ), array_slice( $items, 0, $limit ) ),
 		);
 		if ( ! empty( $f['dia'] ) && preg_match( '/hoy|ma[nñ]ana/iu', is_array( $f['dia'] ) ? implode( ' ', $f['dia'] ) : $f['dia'] ) ) {
 			$out['fecha_referencia'] = $this->now->format( 'Y-m-d' ) . ' (' . Text::DIAS_NOMBRE[ Text::DIAS[ $now_dow ] ] . ')';
@@ -212,7 +361,7 @@ final class Query {
 			$out['formato'] = 'Hay varios items de la misma sede: mostrá un solo bloque 📍 por sede, con todos sus días y horarios adentro. No repitas la sede.';
 		}
 		if ( 1 === count( (array) $acts ) ) {
-			$out['actividad'] = $this->activity_summary( $acts[0] );
+			$out['actividad'] = self::para_bot( $this->activity_summary( $acts[0] ) );
 			if ( ! $acts[0]['tiene_agenda'] ) {
 				$out['aviso'] = 'Esta actividad no tiene horarios cargados en la agenda del sitio. Sugerí contactar a la sede.';
 			}
@@ -220,7 +369,54 @@ final class Query {
 		if ( ! $items && null !== $acts && ! $acts ) {
 			$out['sugerencia'] = 'No encontré actividades con esos filtros. Probá buscar_actividades con menos filtros.';
 		}
-		return array_merge( $out, $meta );
+		if ( ! $items ) {
+			$out['sin_horarios'] = true;
+		}
+		return array_merge( $out, self::meta_publica( $meta ) );
+	}
+
+	/** Resumen de la agenda de una sede en uno o más días: un renglón por actividad y las federadas en uno. */
+	private function agenda_del_dia( array $items, $sede, array $dias, array $f ) {
+		$filas    = array();
+		$deportes = array();
+		foreach ( $items as $item ) {
+			$federada = false;
+			foreach ( $item['actividades'] as $slug ) {
+				$a = isset( $this->index['actividades'][ $slug ] ) ? $this->index['actividades'][ $slug ] : null;
+				if ( $a && isset( $a['grupo'] ) && 'federadas' === $a['grupo'] ) {
+					$federada = true;
+					$cat      = $this->categoria_nombre( $a );
+					$deportes[] = mb_strtolower( trim( preg_replace( '/\s*federad[oa]s?\b/iu', '', $cat ? $cat : $a['nombre'] ) ), 'UTF-8' );
+				}
+			}
+			if ( $federada ) {
+				continue;
+			}
+			$franjas = array();
+			foreach ( $item['horarios'] as $h ) {
+				$del_texto = Text::dias_from_text( $h['texto'] );
+				if ( ! $del_texto || array_intersect( $dias, $del_texto ) ) {
+					$franjas = array_merge( $franjas, $h['franjas'] );
+				}
+			}
+			$horas  = Formato::franjas( $franjas );
+			$nombre = $item['titulo'];
+			if ( isset( $filas[ $nombre ] ) ) {
+				continue;
+			}
+			$filas[ $nombre ] = $nombre . ( '' !== $horas ? ': ' . $horas : '' );
+		}
+		$deportes = array_values( array_unique( array_filter( $deportes ) ) );
+		$dia_txt  = isset( $f['dia'] ) && is_string( $f['dia'] ) && preg_match( '/hoy|ma[nñ]ana/iu', $f['dia'] )
+			? Text::fold( $f['dia'] ) . ' (' . Text::DIAS_NOMBRE[ $dias[0] ] . ')'
+			: implode( ' y ', array_map( function ( $d ) {
+				return Text::DIAS_NOMBRE[ $d ];
+			}, $dias ) );
+		$titulo   = $this->sede_labels( array( $sede ) )[0] . ' — ' . $dia_txt;
+		return array(
+			'total'     => count( $filas ),
+			'respuesta' => Formato::agenda_dia( $titulo, array_values( $filas ), $deportes ),
+		);
 	}
 
 	/**
@@ -272,6 +468,15 @@ final class Query {
 					$acts = array_values( array_filter( $acts, function ( $a ) use ( $scores, $best ) {
 						return $scores[ $a['slug'] ][0] === $best;
 					} ) );
+					// Pedido de agenda por nombre ("rikudim"): solo las de mejor puntaje, no las que entran por sinónimo.
+					if ( ! empty( $f['_solo_mejor'] ) && $acts ) {
+						$top  = max( array_map( function ( $a ) use ( $scores ) {
+							return $scores[ $a['slug'] ][1];
+						}, $acts ) );
+						$acts = array_values( array_filter( $acts, function ( $a ) use ( $scores, $top ) {
+							return $scores[ $a['slug'] ][1] === $top;
+						} ) );
+					}
 				}
 			}
 		}
@@ -289,7 +494,10 @@ final class Query {
 		if ( ! empty( $f['genero'] ) ) {
 			$g    = self::normalize_gender( $f['genero'] );
 			$acts = array_values( array_filter( $acts, function ( $a ) use ( $g ) {
-				return Catalog::gender_matches( isset( $a['genero'] ) ? $a['genero'] : null, $g );
+				// También por el nombre: hay actividades de damas cargadas como mixtas ("Básquet Femenino").
+				$por_nombre = Index_Builder::gender_from_name( $a['nombre'] );
+				return Catalog::gender_matches( isset( $a['genero'] ) ? $a['genero'] : null, $g )
+					&& ( null === $por_nombre || $por_nombre === $g );
 			} ) );
 		}
 
@@ -303,6 +511,16 @@ final class Query {
 					return false;
 				}
 				return $m;
+			} ) );
+			// Coherencia con la categoría de la web, aunque la edad cargada diga otra cosa: un menor no ve
+			// Deportes Adultos ni nombres "Adultos"; un adulto no ve Escuelas Deportivas.
+			$adultos  = $this->categories_named( 'adultos' );
+			$escuelas = $this->categories_named( 'escuelas' );
+			$acts     = array_values( array_filter( $acts, function ( $a ) use ( $edad, $adultos, $escuelas ) {
+				if ( $edad < 18 ) {
+					return ! in_array( $a['categoria'], $adultos, true ) && ! preg_match( '/\badult[oa]s\b/', Text::fold( $a['nombre'] ) );
+				}
+				return ! in_array( $a['categoria'], $escuelas, true );
 			} ) );
 			if ( $unknown ) {
 				$meta['sin_datos_de_edad'] = array(
@@ -405,7 +623,7 @@ final class Query {
 			$best = 0;
 			foreach ( $fields as $field ) {
 				list( $weight, $hay ) = $field;
-				foreach ( $variants as $variant ) {
+				foreach ( $variants as $vi => $variant ) {
 					$vt = explode( ' ', $variant );
 					$ok = true;
 					foreach ( $vt as $v ) {
@@ -415,7 +633,9 @@ final class Query {
 						}
 					}
 					if ( $ok ) {
-						$best = max( $best, $weight );
+						// La palabra que escribió el usuario pesa más que un sinónimo: "rikudim" tiene que traer
+						// primero Rikudim y no Coreo Zumba (sinónimo por "danza", G07).
+						$best = max( $best, 0 === $vi ? $weight * 2 : $weight * 2 - 1 );
 					}
 				}
 			}
@@ -564,7 +784,8 @@ final class Query {
 			'horarios'    => $item['horarios'],
 			'notas'       => $notas,
 		);
-		foreach ( array( 'lugar', 'profe', 'emails', 'telefonos', 'links', 'precios', 'cupo_completo', 'requiere_inscripcion' ) as $k ) {
+		// Sin precios: el bot no los informa (se derivan); antes había que repetírselo seis veces en el prompt.
+		foreach ( array( 'lugar', 'profe', 'emails', 'telefonos', 'links', 'cupo_completo', 'requiere_inscripcion' ) as $k ) {
 			if ( ! empty( $item[ $k ] ) ) {
 				$out[ $k ] = $item[ $k ];
 			}
@@ -990,7 +1211,8 @@ final class Query {
 		if ( ! empty( $f['genero'] ) ) {
 			$g    = self::normalize_gender( $f['genero'] );
 			$rows = array_values( array_filter( $rows, function ( $r ) use ( $g ) {
-				return Catalog::gender_matches( $r['genero'], $g );
+				$por_nombre = Index_Builder::gender_from_name( $r['categoria'] );
+				return Catalog::gender_matches( $r['genero'], $g ) && ( null === $por_nombre || $por_nombre === $g );
 			} ) );
 		}
 		$edad = null;
@@ -1037,7 +1259,6 @@ final class Query {
 					'anios_nacimiento' => isset( $r['anio_nacimiento_min'] ) ? ( $r['anio_nacimiento_min'] === $r['anio_nacimiento_max'] ? (string) $r['anio_nacimiento_min'] : $r['anio_nacimiento_min'] . '-' . $r['anio_nacimiento_max'] ) : null,
 					'sede'      => isset( $r['sede'] ) && '' !== $r['sede'] ? $r['sede'] : null,
 					'horarios'  => isset( $r['horarios'] ) ? $r['horarios'] : array(),
-					'url'       => isset( $r['url'] ) ? $r['url'] : null,
 				) );
 			}, $mostrar ),
 		);
@@ -1049,9 +1270,7 @@ final class Query {
 		if ( ! $f && ! empty( $this->index['especiales']['federados_resumen'] ) ) {
 			$out['resumen_sitio'] = $this->index['especiales']['federados_resumen'][0]['notas'];
 		}
-		if ( $sin_edad ) {
-			$out['sin_datos_de_edad'] = $sin_edad . ' categorías no tienen edad cargada (ej. hockey por divisiones, vóley) y se excluyeron. Consultá sin edad para verlas.';
-		}
+
 		// Con más de RESUMIR_FEDERADAS el bot tiene que resumir, no listar. El aviso viejo decía
 		// "mostrá estas" y el bot listaba 12 de 22, contra la regla del prompt (pruebas del 23/10).
 		if ( count( $rows ) > count( $mostrar ) || count( $rows ) > self::RESUMIR_FEDERADAS ) {
@@ -1171,6 +1390,15 @@ final class Query {
 	}
 
 	public function info_institucional( array $f ) {
+		// Temas con texto fijo (antes eran plantillas de unas 10 mil letras en el prompt).
+		$tema = isset( $f['tema'] ) ? Text::fold( $f['tema'] ) : '';
+		foreach ( $this->catalog->respuestas_fijas() as $r ) {
+			foreach ( $r['claves'] as $clave ) {
+				if ( '' !== $tema && preg_match( '/\b' . preg_quote( $clave, '/' ) . '/', $tema ) ) {
+					return array( 'respuesta' => $r['texto'] );
+				}
+			}
+		}
 		$rows = array();
 		foreach ( $this->catalog->programas() as $p ) {
 			$rows[] = array_merge( array( 'seccion' => 'programa' ), $p );
@@ -1192,6 +1420,23 @@ final class Query {
 				return false;
 			} ) );
 		}
+		// Programas con actividad en la agenda (Bitnuah): sede y horarios, para no tener que pedirlos aparte.
+		foreach ( $rows as &$r ) {
+			if ( ! empty( $r['actividad'] ) && isset( $this->index['actividades'][ $r['actividad'] ] ) ) {
+				$ag = $this->obtener_agenda( array( 'actividad' => $r['actividad'] ) );
+				$r['agenda'] = isset( $ag['items'] ) ? array_map( function ( $i ) {
+					return array_filter( array(
+						'sedes'    => $i['sedes'],
+						'dias'     => $i['dias'],
+						'horarios' => array_map( function ( $h ) {
+							return $h['texto'];
+						}, $i['horarios'] ),
+						'notas'    => isset( $i['notas'] ) ? $i['notas'] : null,
+					) );
+				}, $ag['items'] ) : array();
+			}
+		}
+		unset( $r );
 		return array( 'resultados' => $rows );
 	}
 

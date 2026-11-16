@@ -46,6 +46,12 @@ final class Tools {
 			'type'        => 'string',
 			'description' => 'Día: lunes..domingo, "hoy", "mañana", "fin de semana" o "semana". Se resuelve con la fecha actual de Argentina.',
 		);
+		$anio   = array(
+			'type'        => 'integer',
+			'minimum'     => 1930,
+			'maximum'     => 2030,
+			'description' => 'Año de nacimiento, si el usuario lo dio en vez de la edad (se convierte solo).',
+		);
 		$limite = function ( $default, $max ) {
 			return array(
 				'type'        => 'integer',
@@ -59,10 +65,10 @@ final class Tools {
 		$defs = array(
 			'buscar_actividades' => array(
 				'title'       => 'Buscar actividades',
-				'description' => 'Busca actividades del Club Náutico Hacoaj (deportes, escuelas deportivas, cultura, Hadrajá, natación, náuticas, recreación) y devuelve un resumen: nombre, categoría, edades, género, sedes, días y link. '
-					. 'Usala primero cuando alguien pregunta "¿qué hay para...?" o por un deporte. Combiná texto con edad/sede/día. Para ver horarios concretos usá obtener_agenda con el slug devuelto. '
-					. 'Si una actividad está en varias sedes viene una sola vez con "variantes" (cada una con su slug y sede): listá el nombre una sola vez y, cuando la elijan, preguntá en qué sede antes de pedir la agenda (si ya dijeron la sede, usá esa variante directo). '
-					. 'Los deportes federados (competitivos) están en deportes_federados.',
+				'description' => 'Actividades no federadas del club (deportes, escuelas, cultura, Hadrajá, natación, náuticas, recreación). '
+					. 'Con texto: las que coinciden (nombre, categoría, edades, sedes, slug). '
+					. 'Sin texto y con edad o categoría: devuelve "respuesta", el listado completo ya armado (incluye las federadas de esa edad); con "más" volvé a llamar igual con desde=siguiente_desde. '
+					. 'Los horarios se piden con obtener_agenda.',
 				'inputSchema' => self::schema(
 					array(
 						'texto'     => array(
@@ -70,6 +76,7 @@ final class Tools {
 							'description' => 'Palabras clave: deporte o actividad ("golf", "natación", "zumba", "básquet femenino"). Tolera acentos y sinónimos.',
 						),
 						'edad'      => $edad,
+						'anio_nacimiento' => $anio,
 						'genero'    => $genero,
 						'sede'      => $sede,
 						'dia'       => $dia,
@@ -91,9 +98,9 @@ final class Tools {
 			),
 			'obtener_agenda'     => array(
 				'title'       => 'Obtener agenda / horarios',
-				'description' => 'Devuelve los horarios publicados en la agenda del sitio: día, franjas horarias (HH:MM), lugar, profesor, notas, precios, contactos e inscripción. '
-					. 'Filtrá por actividad (slug de buscar_actividades o texto libre), sede, día ("hoy", "sábado"), categoría, edad y rango horario. Requiere al menos un filtro. '
-					. 'Cada item trae "horarios": [{texto original, franjas:[{inicio, fin}]}]; citá el texto original si hay dudas.',
+				'description' => 'Horarios publicados: días, horarios (texto original y franjas HH:MM), sede, lugar, profesor, notas, contactos e inscripción. '
+					. 'Filtrá por actividad (slug o nombre), sede, día ("hoy", "martes"), edad y horario. Sede + día sin actividad devuelve "respuesta" con el resumen armado. '
+					. 'No sirve para federadas (sus horarios vienen en deportes_federados). sin_horarios=true: no hay horarios cargados.',
 				'inputSchema' => self::schema(
 					array(
 						'actividad'  => array(
@@ -111,6 +118,7 @@ final class Tools {
 							'description' => 'Categoría o grupo (ver buscar_actividades).',
 						),
 						'edad'       => $edad,
+						'anio_nacimiento' => $anio,
 						'genero'     => $genero,
 						'desde_hora' => array(
 							'type'        => 'string',
@@ -182,12 +190,12 @@ final class Tools {
 			),
 			'info_institucional' => array(
 				'title'       => 'Información institucional',
-				'description' => 'Programas del club (Tikun voluntariado, Magal inclusión, Bitnuah longevidad) y Distrito Hacoaj / Polo Educativo.',
+				'description' => 'Programas del club (Tikun, Magal, Bitnuah, Sustentabilidad), Distrito Hacoaj y sus espacios (Polo Educativo) y propiedades (H-Prop). Algunos temas devuelven "respuesta" con el texto fijo.',
 				'inputSchema' => self::schema(
 					array(
 						'tema' => array(
 							'type'        => 'string',
-							'description' => 'Tema opcional para filtrar ("inclusión", "voluntariado", "colegio").',
+							'description' => 'Tema: "distrito" (qué es el Distrito), un espacio ("Polo Educativo", "Marinas"), "hprop" o "propiedades", un programa ("Bitnuah", "Magal"), "programas".',
 						),
 					)
 				),

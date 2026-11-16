@@ -185,6 +185,11 @@ final class Catalog {
 		return $this->data['programas'];
 	}
 
+	/** @return array<int, array{claves: string[], texto: string}> */
+	public function respuestas_fijas() {
+		return isset( $this->data['respuestas_fijas'] ) ? $this->data['respuestas_fijas'] : array();
+	}
+
 	public function distrito() {
 		return $this->data['distrito'];
 	}

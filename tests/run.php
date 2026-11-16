@@ -16,6 +16,7 @@ set_error_handler(
 $root = dirname( __DIR__ );
 require $root . '/includes/class-text.php';
 require $root . '/includes/class-schedule-parser.php';
+require $root . '/includes/class-formato.php';
 require $root . '/includes/class-catalog.php';
 
 use HacoajMCP\Text;
@@ -299,7 +300,7 @@ check( 'paginación: aviso dice cómo pedir más', false !== strpos( $p1['aviso'
 $p4 = $q->buscar_actividades( array( 'texto' => 'golf', 'limite' => 2, 'desde' => 100 ) );
 check( 'paginación: pasado el final avisa que no quedan', array( $p4['actividades'], false !== strpos( $p4['aviso'], 'no quedan más' ) ), array( array(), true ) );
 $r = $q->buscar_actividades( array( 'categoria' => 'hadraja', 'limite' => 5 ) );
-check( 'paginación: categoría corta sale entera sin siguiente_desde', isset( $r['siguiente_desde'] ), false );
+check( 'listado por categoría: sale armado, entero y sin siguiente_desde', array( isset( $r['respuesta'] ), isset( $r['siguiente_desde'] ) ), array( true, false ) );
 check( 'género del nombre: los dos géneros o el juego de damas → null', array_map( array( 'HacoajMCP\\Index_Builder', 'gender_from_name' ), array( 'Tango Damas y Caballeros', 'Gimnasia Mujeres y Varones', 'Ajedrez y Damas', 'Taller de Damas', 'Hockey Damas', 'Futbol Recreativo Femenino Adultas' ) ), array( null, null, null, null, 'femenino', 'femenino' ) );
 
 // Sin ACF cargado, golf no tiene edad: el filtro por edad las excluye a todas (no hay respaldo de catalog.json).
@@ -308,7 +309,7 @@ $slugs = array_map( function ( $a ) {
 	return $a['slug'];
 }, $r['actividades'] );
 check( 'golf 8 años sin ACF: sin resultados', $slugs, array() );
-check( 'golf 8 años sin ACF: sin_datos_de_edad', $r['sin_datos_de_edad']['cantidad'], 5 );
+check( 'golf 8 años sin ACF: el aviso interno sin_datos_de_edad no le llega al bot', isset( $r['sin_datos_de_edad'] ), false );
 
 $r = $q->buscar_actividades( array( 'texto' => 'basket', 'sede' => 'capital' ) );
 check( 'sinónimo basket en CABA', count( $r['actividades'] ) > 0 && ! array_filter( $r['actividades'], function ( $a ) {
@@ -319,12 +320,12 @@ check( 'sinónimo basket en CABA', count( $r['actividades'] ) > 0 && ! array_fil
 // edad las deja afuera hasta que se migren (comportamiento buscado: nada de catalog.json de respaldo).
 $r = $q->buscar_actividades( array( 'texto' => 'natacion', 'edad' => 5, 'sede' => 'tigre' ) );
 check( 'natación 5 años tigre sin ACF: sin resultados', count( $r['actividades'] ), 0 );
-check( 'natación 5 años tigre sin ACF: sin_datos_de_edad', $r['sin_datos_de_edad']['cantidad'] > 0, true );
+check( 'natación 5 años tigre sin ACF: sin aviso interno', isset( $r['sin_datos_de_edad'] ), false );
 
 $r = $q->buscar_actividades( array( 'categoria' => 'hadraja' ) );
-check( 'hadrajá sin filtro de edad sigue apareciendo', in_array( 'kesher', array_column( $r['actividades'], 'slug' ), true ), true );
+check( 'hadrajá sin filtro de edad sigue apareciendo', false !== strpos( $r['respuesta'], 'Kesher' ) && 'kesher' === $r['slugs']['Kesher'], true );
 $r = $q->buscar_actividades( array( 'categoria' => 'hadraja', 'edad' => 7 ) );
-check( 'hadrajá 7 años sin ACF: sin resultados', $r['actividades'], array() );
+check( 'hadrajá 7 años sin ACF: sin resultados', array( $r['total'], isset( $r['respuesta'] ) ), array( 0, false ) );
 
 $r = $q->buscar_actividades( array( 'texto' => 'futbol', 'genero' => 'nena', 'edad' => 7 ) );
 check( 'fútbol nena 7 sin ACF: sin resultados', $r['actividades'], array() );
@@ -335,10 +336,9 @@ check( 'agenda golf-clases franjas', count( $r['items'][0]['horarios'][0]['franj
 check( 'agenda golf-clases telefono', $r['items'][0]['telefonos'], array( '11 6972-2060' ) );
 
 $r = $q->obtener_agenda( array( 'sede' => 'club de campo', 'dia' => 'domingo', 'limite' => 80 ) );
-check( 'agenda CdC domingo', $r['total'] > 20, true );
-check( 'agenda CdC domingo solo domingo', ! array_filter( $r['items'], function ( $i ) {
-	return ! in_array( 'Domingo', $i['dias'], true );
-} ), true );
+check( 'agenda CdC domingo', $r['total'] > 10, true );
+check( 'agenda CdC domingo: resumen armado', 0 === strpos( $r['respuesta'], '📍 *Club de Campo — Domingo*' ), true );
+check( 'agenda CdC domingo: entra en WhatsApp y no muestra precios', array( HacoajMCP\Formato::largo( $r['respuesta'] ) <= 900, false === strpos( $r['respuesta'], '$' ) ), array( true, true ) );
 
 $r = $q->obtener_agenda( array( 'texto' => 'voley', 'sede' => 'tigre' ) );
 check( 'agenda sin avisos vencidos', array_filter( $r['items'], function ( $i ) {
@@ -346,7 +346,7 @@ check( 'agenda sin avisos vencidos', array_filter( $r['items'], function ( $i ) 
 } ), array() );
 
 $r = $q->obtener_agenda( array( 'sede' => 'tigre', 'dia' => 'hoy', 'desde_hora' => '19', 'hasta_hora' => '20' ) );
-check( 'agenda hoy franja', $r['total'] > 0 && isset( $r['fecha_referencia'] ), true );
+check( 'agenda hoy franja', $r['total'] > 0 && false !== strpos( $r['respuesta'], 'Tigre Maliar — hoy (' ), true );
 
 check( 'agenda sin filtros', isset( $q->obtener_agenda( array() )['error'] ), true );
 check( 'agenda sede inválida', isset( $q->obtener_agenda( array( 'sede' => 'Rosario' ) )['error'] ), true );
@@ -456,7 +456,7 @@ check( 'grupo inválido: no aparece en buscar_actividades', in_array( 'hockey-8v
 $r = $ord_q->obtener_agenda( array( 'actividad' => 'hockey-8va-a-test' ) );
 check( 'grupo inválido: obtener_agenda por slug no devuelve items', $r['total'], 0 );
 $r = $ord_q->obtener_agenda( array( 'sede' => 'club-de-campo', 'dia' => 'domingo', 'limite' => 80 ) );
-check( 'grupo inválido: obtener_agenda por sede no muestra su item', in_array( 'Hockey 8va A', array_column( $r['items'], 'titulo' ), true ), false );
+check( 'grupo inválido: obtener_agenda por sede no muestra su item', false === strpos( $r['respuesta'], 'Hockey 8va A' ), true );
 $r = $ord_q->deportes_federados( array( 'deporte' => 'hockey' ) );
 check( 'grupo inválido: no aparece en deportes_federados', in_array( 'Hockey federado 8va división A', array_column( $r['categorias'], 'categoria' ), true ), false );
 check( 'grupo normalizado (mayúsculas/tildes)', $ord_index['actividades']['hadraja-test']['grupo'], 'hadraja' );
@@ -568,9 +568,19 @@ foreach ( array(
 ) as $c ) {
 	$cul_snap['actividad'][] = array( 'id' => $c[0], 'name' => $c[1], 'slug' => $c[2], 'parent' => $c[3], 'description' => '', 'grupo' => $c[4], 'tipo_categoria' => 'hija' );
 }
-$cul_q = new Query( Index_Builder::build( $cul_snap, $catalog, 'https://hacoaj.org.ar' ), $catalog, $sept );
+$cul_index = Index_Builder::build( $cul_snap, $catalog, 'https://hacoaj.org.ar' );
+$cul_q     = new Query( $cul_index, $catalog, $sept );
+// Con categoría el listado sale armado ("respuesta") y trae nombre => slug(s) en "slugs".
 $cul_slugs = function ( array $f ) use ( $cul_q ) {
-	return array_column( $cul_q->buscar_actividades( $f + array( 'limite' => 50 ) )['actividades'], 'slug' );
+	$r = $cul_q->buscar_actividades( $f + array( 'limite' => 50 ) );
+	if ( isset( $r['actividades'] ) ) {
+		return array_column( $r['actividades'], 'slug' );
+	}
+	$out = array();
+	foreach ( isset( $r['slugs'] ) ? $r['slugs'] : array() as $v ) {
+		$out = array_merge( $out, (array) $v );
+	}
+	return $out;
 };
 foreach ( array( 'culturales', 'cultura', 'Cultural', 'actividades culturales' ) as $c ) {
 	$s = $cul_slugs( array( 'categoria' => $c ) );
@@ -584,18 +594,35 @@ $s = $cul_slugs( array( 'categoria' => 'adultos' ) );
 check( 'categoría: adultos entra por su categoría, no por el ACF', array( in_array( 'judo-prueba', $s, true ), in_array( 'pileta-prueba', $s, true ) ), array( true, false ) );
 check( 'categoría: sin categoría con ese nombre, entra por grupo', $cul_slugs( array( 'categoria' => 'generales' ) ), array( 'ciclo-prueba' ) );
 check( 'categoría: el texto no matchea un ACF que contradice', in_array( 'noche-prueba', $cul_slugs( array( 'texto' => 'culturales' ) ), true ), false );
-$grupo_de = function ( $texto ) use ( $cul_q ) {
-	$a = $cul_q->buscar_actividades( array( 'texto' => $texto ) )['actividades'][0];
+$grupo_de = function ( $texto ) use ( $cul_q, $cul_index ) {
+	$slug = $cul_q->buscar_actividades( array( 'texto' => $texto ) )['actividades'][0]['slug'];
+	$a    = $cul_q->activity_summary( $cul_index['actividades'][ $slug ] );
 	return array( $a['slug'], isset( $a['grupo'] ) ? $a['grupo'] : null );
 };
+check( 'buscar_actividades no expone grupo, género crudo, días ni url', array_intersect( array( 'grupo', 'genero', 'dias', 'url' ), array_keys( $cul_q->buscar_actividades( array( 'texto' => 'taller prueba' ) )['actividades'][0] ) ), array() );
 check( 'grupo: contradice la categoría, no se expone', $grupo_de( 'noche prueba' ), array( 'noche-prueba', null ) );
 check( 'grupo: Deportes Adultos con ACF escuelas, no se expone', $grupo_de( 'judo prueba' ), array( 'judo-prueba', null ) );
 check( 'grupo: coherente, se conserva', $grupo_de( 'taller prueba' ), array( 'taller-prueba', 'culturales' ) );
 check( 'grupo: categoría sin grupo propio, se conserva', $grupo_de( 'pileta prueba' ), array( 'pileta-prueba', 'adultos' ) );
-$r = $cul_q->buscar_actividades( array( 'categoria' => 'culturales', 'limite' => 15 ) );
-check( 'límite: categoría chica sale entera', array( $r['total'] > 15, count( $r['actividades'] ) === $r['total'], isset( $r['aviso'] ) ), array( true, true, false ) );
-$r = $cul_q->buscar_actividades( array( 'categoria' => 'adultos', 'limite' => 5 ) );
-check( 'límite: categoría grande lo respeta y avisa', array( $r['total'] > 30, count( $r['actividades'] ), isset( $r['aviso'] ) ), array( true, 5, true ) );
+// Listado armado: corta en un nombre completo, avisa cuántos quedan y "más" sigue sin repetir (B11).
+$todos = array();
+$desde = 0;
+for ( $pag = 0; $pag < 10; $pag++ ) {
+	$r = $cul_q->buscar_actividades( array( 'categoria' => 'adultos', 'desde' => $desde ) );
+	check( "listado adultos pág. $pag: entra en WhatsApp", HacoajMCP\Formato::largo( $r['respuesta'] ) <= 900, true );
+	preg_match_all( '/^(?!🎽|🏅|.*\*$|Quedan|¿)(.+)$/mu', $r['respuesta'], $m );
+	foreach ( $m[1] as $linea ) {
+		$todos = array_merge( $todos, explode( ' · ', $linea ) );
+	}
+	if ( ! isset( $r['siguiente_desde'] ) ) {
+		check( 'listado adultos: la última página no dice que quedan', false === strpos( $r['respuesta'], 'Quedan' ), true );
+		break;
+	}
+	check( "listado adultos pág. $pag: dice cuántas quedan y cómo pedirlas", (bool) preg_match( '/Quedan \d+ actividades? más: escribí «más»/u', $r['respuesta'] ), true );
+	$desde = $r['siguiente_desde'];
+}
+check( 'listado adultos: recorre todas sin repetir', array( count( $todos ), count( array_unique( $todos ) ) ), array( $r['total'], $r['total'] ) );
+check( 'listado adultos: más de una página', $pag > 0, true );
 
 // Export CSV para revisar los datos del ACF con el cliente.
 $exp_snap = $cul_snap;
@@ -687,13 +714,45 @@ foreach ( $edad_snap['actividad'] as &$t ) {
 unset( $t );
 $edad_q = new Query( Index_Builder::build( $edad_snap, $catalog, 'https://hacoaj.org.ar' ), $catalog, $sept );
 $todo   = $edad_q->buscar_actividades( array( 'edad' => 8, 'limite' => 50 ) );
-check( 'fixture: más de 30 actividades para 8 años', $todo['total'] > Query::LISTA_CORTA, true );
-check( 'listado de menor: corta en 30', count( $todo['actividades'] ), Query::LISTA_CORTA );
-check( 'listado de menor: ofrece "más"', $todo['siguiente_desde'], Query::LISTA_CORTA );
+check( 'fixture: más de 30 actividades para 8 años', $todo['total'] > HacoajMCP\Formato::MAX_NOMBRES, true );
+check( 'listado de menor: ofrece "más"', array( isset( $todo['siguiente_desde'] ), (bool) preg_match( '/Quedan \d+ actividades más: escribí «más»/u', $todo['respuesta'] ) ), array( true, true ) );
+check( 'listado de menor: sin Deportes Adultos', false === strpos( $todo['respuesta'], 'Deportes Adultos' ), true );
 $resto = $edad_q->buscar_actividades( array( 'edad' => 8, 'limite' => 50, 'desde' => $todo['siguiente_desde'] ) );
-check( 'listado de menor: "más" no repite', array_intersect( array_column( $resto['actividades'], 'nombre' ), array_column( $todo['actividades'], 'nombre' ) ), array() );
-check( 'listado de adulto: no se corta en 30', count( $edad_q->buscar_actividades( array( 'edad' => 40, 'limite' => 50 ) )['actividades'] ), 50 );
-check( 'listado de menor por sede: no se corta en 30', count( $edad_q->buscar_actividades( array( 'edad' => 8, 'sede' => 'tigre', 'limite' => 50 ) )['actividades'] ) > Query::LISTA_CORTA, true );
+$nombres = function ( $txt ) {
+	preg_match_all( '/^(?!🎽|🏅|.*\*$|Quedan|¿|Hay )(.+)$/mu', $txt, $m );
+	$out = array();
+	foreach ( $m[1] as $l ) {
+		$out = array_merge( $out, explode( ' · ', $l ) );
+	}
+	return $out;
+};
+check( 'listado de menor: "más" no repite', array_intersect( $nombres( $resto['respuesta'] ), $nombres( $todo['respuesta'] ) ), array() );
+$adulto = $edad_q->buscar_actividades( array( 'edad' => 40 ) );
+check( 'listado de adulto: sin Escuelas Deportivas', false === strpos( $adulto['respuesta'], 'Escuelas Deportivas' ), true );
+check( 'listado por sede: sigue con la forma de siempre', isset( $edad_q->buscar_actividades( array( 'edad' => 8, 'sede' => 'tigre', 'limite' => 50 ) )['actividades'] ), true );
+
+// ---------------------------------------------------------------- Respuestas para el bot (Lab, 16/11).
+$r = $q->obtener_agenda( array( 'sede' => 'isla hacoaj', 'dia' => 'sabado' ) );
+check( 'Isla pedida como sede: mail del departamento de socios', false !== strpos( $r['respuesta'], 'sociosdepartamento@hacoaj.org.ar' ), true );
+$isla = array_filter( $q->obtener_agenda( array( 'texto' => 'natacion', 'limite' => 80 ) )['items'], function ( $i ) {
+	return array_intersect( array( 'Isla Hacoaj', 'Marinas H' ), $i['sedes'] );
+} );
+check( 'agenda: sin Isla Hacoaj ni Marinas H salvo que las pidan', $isla, array() );
+$con_precio = array_filter( $q->obtener_agenda( array( 'sede' => 'tigre', 'limite' => 80 ) )['items'], function ( $i ) {
+	return isset( $i['precios'] );
+} );
+check( 'agenda: sin precios', $con_precio, array() );
+$por_anio = $edad_q->buscar_actividades( array( 'anio_nacimiento' => 2018 ) );
+check( 'año de nacimiento = edad', $por_anio['respuesta'], $edad_q->buscar_actividades( array( 'edad' => 8 ) )['respuesta'] );
+check( 'distrito: texto fijo', 0 === strpos( $q->info_institucional( array( 'tema' => 'Distrito Hacoaj' ) )['respuesta'], '🏛️ *Distrito Hacoaj*' ), true );
+check( 'hprop: texto fijo con el mail', false !== strpos( $q->info_institucional( array( 'tema' => 'propiedades en venta' ) )['respuesta'], 'hprop@hacoaj.org.ar' ), true );
+check( 'polo educativo: sigue buscando en el catálogo', in_array( 'polo-educativo', array_column( $q->info_institucional( array( 'tema' => 'Polo Educativo' ) )['resultados'], 'slug' ), true ), true );
+check( 'sustentabilidad: texto fijo', false !== strpos( $q->info_institucional( array( 'tema' => 'sustentabilidad' ) )['respuesta'], 'en desarrollo' ), true );
+$nom = array_column( $q->buscar_actividades( array( 'texto' => 'rikudim' ) )['actividades'], 'slug' );
+check( 'búsqueda: la palabra exacta gana al sinónimo', array_slice( $nom, 0, 2 ), array( 'rikudim-principiantes', 'rikudim' ) );
+check( 'agenda por nombre: solo las de mejor puntaje', array_unique( array_column( $q->obtener_agenda( array( 'actividad' => 'rikudim principiantes' ) )['items'], 'titulo' ) ), array( 'Rikudim Principiantes' ) );
+check( 'formato: horas', array( HacoajMCP\Formato::hora( '08:30' ), HacoajMCP\Formato::hora( '19:00' ) ), array( '8.30', '19' ) );
+check( 'formato: franjas', HacoajMCP\Formato::franjas( array( array( 'inicio' => '08:30', 'fin' => '19:00' ), array( 'inicio' => '20:00', 'fin' => null ) ) ), '8.30 a 19 y 20 h' );
 
 // En temporada de verano la agenda regular queda vacía y la de verano tiene los horarios: ahí no se oculta.
 $ver_snap = $snap;

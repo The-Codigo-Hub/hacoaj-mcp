@@ -31,7 +31,7 @@ if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
 	return;
 }
 
-foreach ( array( 'text', 'schedule-parser', 'catalog', 'index-builder', 'query', 'repository', 'auth', 'tools', 'mcp-server', 'updater', 'settings', 'cli', 'plugin' ) as $hacoaj_mcp_file ) {
+foreach ( array( 'text', 'schedule-parser', 'formato', 'catalog', 'index-builder', 'query', 'repository', 'auth', 'tools', 'mcp-server', 'updater', 'settings', 'cli', 'plugin' ) as $hacoaj_mcp_file ) {
 	require_once HACOAJ_MCP_DIR . 'includes/class-' . $hacoaj_mcp_file . '.php';
 }
 unset( $hacoaj_mcp_file );
