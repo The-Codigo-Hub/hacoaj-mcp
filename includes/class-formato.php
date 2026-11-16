@@ -172,7 +172,8 @@ final class Formato {
 	 * @param string[] $deportes deportes federados que entrenan.
 	 */
 	public static function agenda_dia( $titulo, array $filas, array $deportes ) {
-		for ( $max = 8; ; $max-- ) {
+		// Todas las que entren en un mensaje (B13 pedía la agenda completa del día), con un mínimo de 3.
+		for ( $max = count( $filas ); ; $max-- ) {
 			$texto = '📍 *' . $titulo . '*';
 			if ( $filas ) {
 				$texto .= "\n🎽 *Actividades*\n" . implode( "\n", array_slice( $filas, 0, $max ) );

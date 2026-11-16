@@ -868,7 +868,10 @@ if ( $base_item ) {
 	}
 	check( 'agenda de una actividad: la misma sede sale junta', $cortes, count( array_unique( $sedes ) ) );
 	check( 'agenda de una actividad: tres items', count( $r['items'] ), 3 );
-	check( 'agenda de una actividad: avisa un bloque por sede', isset( $r['formato'] ), true );
+	check( 'agenda de una actividad: un bloque por sede en la respuesta armada', substr_count( $r['respuesta'], '📍 *' ), count( array_unique( $sedes ) ) );
+	check( 'agenda de una actividad: cierra con la derivación de su área', array( $r['area'], false !== strpos( $r['respuesta'], '¿Querés que te derive con alguien de Deportes' ) ), array( 'deporte', true ) );
+	$sab = $sede_q->obtener_agenda( array( 'actividad' => 'golf-clases', 'dia' => 'sabado' ) );
+	check( 'agenda de una actividad con día: solo ese día', array( false !== strpos( $sab['respuesta'], 'Sábado' ), false === strpos( $sab['respuesta'], 'Martes' ) ), array( true, true ) );
 	$r = $sede_q->obtener_agenda( array( 'actividad' => 'golf-clases', 'dia' => 'sabado' ) );
 	check( 'agenda con día: sin aviso de bloque por sede', isset( $r['formato'] ), false );
 } else {

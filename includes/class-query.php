@@ -92,6 +92,21 @@ final class Query {
 		// Búsqueda de una actividad ("fútbol para mi hijo de 8", "info de hockey"): el listado sale armado y
 		// trae también las federadas de ese deporte. Antes eran dos tools (unos 5 segundos más por mensaje)
 		// y el bot armaba el listado con reglas del prompt.
+		// Actividad y día ("tenis los martes, tengo 30"): directamente los horarios de ese día (H09).
+		if ( ! empty( $f['texto'] ) && ! empty( $f['dia'] ) && ! $desde && $acts ) {
+			$ag = $this->obtener_agenda( array_filter( array(
+				'texto'  => $f['texto'],
+				'dia'    => $f['dia'],
+				'edad'   => isset( $f['edad'] ) ? $f['edad'] : null,
+				'genero' => isset( $f['genero'] ) ? $f['genero'] : null,
+				'sede'   => isset( $f['sede'] ) ? $f['sede'] : null,
+			), function ( $v ) {
+				return null !== $v && '' !== $v;
+			} ) );
+			if ( ! empty( $ag['respuesta'] ) && empty( $ag['sin_horarios'] ) ) {
+				return array( 'total' => $ag['total'], 'respuesta' => $ag['respuesta'], 'area' => $ag['area'] );
+			}
+		}
 		if ( ! empty( $f['texto'] ) && ! $desde ) {
 			$listado = $this->listado_texto( $f, $grupos );
 			if ( $listado ) {
@@ -145,7 +160,8 @@ final class Query {
 		if ( $fed['total'] > 0 ) {
 			if ( $con_edad || $fed['total'] <= self::RESUMIR_FEDERADAS ) {
 				foreach ( $fed['categorias'] as $c ) {
-					$fed_names[] = self::nombre_federada( $c );
+					// Con edad salen pocas y conviene la sede (C07: "Categoría 2012 (Club de Campo)").
+					$fed_names[] = self::nombre_federada( $c ) . ( $con_edad && ! empty( $c['sede'] ) ? ' — ' . $c['sede'] : '' );
 				}
 			} else {
 				$ej = array();
@@ -158,6 +174,13 @@ final class Query {
 		}
 		if ( ! $cats && ! $fed_names && ! $fed_res ) {
 			return null;
+		}
+		// Con la edad conocida y una sola opción, directamente sus horarios (H06: "natación para mi hija de 15").
+		if ( $con_edad && 1 === count( $grupos ) && ! $fed_names && ! $fed_res ) {
+			$ag = $this->obtener_agenda( array( '_acts' => $grupos[0], 'edad' => $f['edad'] ) );
+			if ( ! empty( $ag['respuesta'] ) && empty( $ag['sin_horarios'] ) ) {
+				return $ag['respuesta'];
+			}
 		}
 		$cierre = $fed_res
 			? 'Decime la edad o el año de nacimiento (y si es para mujer o varón) y te muestro las que correspondan 😊'
@@ -307,7 +330,10 @@ final class Query {
 		$meta  = array();
 		$acts  = null;
 
-		if ( ! empty( $f['actividad'] ) ) {
+		// Uso interno: agenda de actividades ya elegidas (listado con una sola opción).
+		if ( ! empty( $f['_acts'] ) ) {
+			$acts = $f['_acts'];
+		} elseif ( ! empty( $f['actividad'] ) ) {
 			$slug = Text::slugify( $f['actividad'] );
 			if ( isset( $this->index['actividades'][ $slug ] ) && self::visible( $this->index['actividades'][ $slug ] ) ) {
 				$acts = array( $this->index['actividades'][ $slug ] );
@@ -417,6 +443,27 @@ final class Query {
 			return $this->agenda_del_dia( $items, $sede, $dias, $f );
 		}
 
+		// Agenda de una actividad elegida: sale armada, un bloque por sede y la pregunta de derivación de su área.
+		// Sin horarios cargados: el texto y el área a la que derivar (antes eran reglas del prompt que el modelo
+		// cumplía a medias: G04, G09, C06).
+		if ( $acts && ( ! empty( $f['actividad'] ) || ! empty( $f['texto'] ) || ! empty( $f['_acts'] ) ) ) {
+			$area = $this->area_de( $acts );
+			if ( ! $items ) {
+				return array(
+					'total'        => 0,
+					'sin_horarios' => true,
+					'respuesta'    => 'Por el momento no encontré horarios cargados para esa actividad 😊 Te conecto con alguien del área de ' . $area[1] . ' para que te pasen la información. ¡Ya te atienden! 🙌',
+					'derivar'      => $area[0],
+				);
+			}
+			return array(
+				'total'     => count( $items ),
+				'respuesta' => $this->agenda_armada( $acts, $items, $dias, $area ),
+				'area'      => $area[0],
+				'items'     => array_map( array( $this, 'item_output' ), array_slice( $items, 0, $limit ) ),
+			);
+		}
+
 		$out = array(
 			'total' => count( $items ),
 			'items' => array_map( array( $this, 'item_output' ), array_slice( $items, 0, $limit ) ),
@@ -443,6 +490,105 @@ final class Query {
 			$out['sin_horarios'] = true;
 		}
 		return array_merge( $out, self::meta_publica( $meta ) );
+	}
+
+	/** Área a la que se deriva una actividad: [campaign, nombre]. */
+	private function area_de( array $acts ) {
+		$cultura = $this->categories_named( 'cultura' );
+		$hadraja = $this->categories_named( 'hadraja' );
+		foreach ( $acts as $a ) {
+			if ( in_array( $a['categoria'], $cultura, true ) || 'culturales' === $this->grupo( $a ) ) {
+				return array( 'cultura', 'Cultura' );
+			}
+			if ( in_array( $a['categoria'], $hadraja, true ) || 'hadraja' === $this->grupo( $a ) ) {
+				return array( 'hadraja', 'Hadrajá' );
+			}
+		}
+		return array( 'deporte', 'Deportes' );
+	}
+
+	/**
+	 * Horarios de una o más actividades, un bloque por sede. Si se pidió un día, solo los turnos de ese día.
+	 *
+	 * @param array[]  $acts
+	 * @param array[]  $items items de agenda ya filtrados y ordenados.
+	 * @param string[] $dias  días pedidos (vacío = todos).
+	 * @param string[] $area  [campaign, nombre].
+	 */
+	private function agenda_armada( array $acts, array $items, array $dias, array $area ) {
+		$titulos = array_values( array_unique( array_map( function ( $i ) {
+			return $i['titulo'];
+		}, $items ) ) );
+		$titulo  = 1 === count( $acts )
+			? self::con_genero( $acts[0]['nombre'], isset( $acts[0]['genero'] ) ? $acts[0]['genero'] : null )
+			: ( 1 === count( $titulos ) ? $titulos[0] : null );
+
+		$por_sede = array();
+		foreach ( $items as $it ) {
+			$sede = $it['sedes'] ? $this->sede_labels( array( $it['sedes'][0] ) )[0] : 'Sede a confirmar con el club';
+			$por_sede[ $sede ][] = $it;
+		}
+		$cierre = '¿Querés que te derive con alguien de ' . $area[1] . ' para anotarte o hacer otra consulta? 😊';
+
+		foreach ( array( 'completo', 'sin_notas', 'sin_profe' ) as $modo ) {
+			$lineas = $titulo ? array( '*' . $titulo . '*' ) : array();
+			foreach ( $por_sede as $sede => $its ) {
+				$lineas[] = '📍 *' . $sede . '*';
+				$profes   = array();
+				$notas    = array();
+				foreach ( $its as $it ) {
+					$dias_item = $dias ? array_values( array_intersect( $it['dias'], $dias ) ) : $it['dias'];
+					$horarios  = array();
+					foreach ( $it['horarios'] as $h ) {
+						$del_texto = Text::dias_from_text( $h['texto'] );
+						if ( $dias && $del_texto && ! array_intersect( $dias, $del_texto ) ) {
+							continue;
+						}
+						$horarios[] = trim( preg_replace( '/\s*\|\s*/', ' | ', $h['texto'] ) );
+					}
+					$linea = ( $titulo ? '' : '*' . $it['titulo'] . '*: ' ) . '📅 ' . Formato::enumerar( array_map( function ( $d ) {
+						return Text::DIAS_NOMBRE[ $d ];
+					}, $dias_item ) );
+					$linea .= $horarios ? ' ⏰ ' . implode( ' / ', $horarios ) : '';
+					if ( ! empty( $it['lugar'] ) && false === stripos( $linea, $it['lugar'] ) ) {
+						$linea .= ' | ' . $it['lugar'];
+					}
+					$lineas[] = $linea;
+					if ( ! empty( $it['profe'] ) ) {
+						$profes[] = $it['profe'];
+					}
+					foreach ( $it['notas'] as $n ) {
+						if ( preg_match( '/inscrip|cupo|forms|whats|tel[eé]f|info|consult|\b\d{2,4}[- ]\d{4}\b/iu', $n ) ) {
+							$notas[] = Text::truncate( $n, 160 );
+						}
+					}
+					if ( ! empty( $it['cupo_completo'] ) ) {
+						$notas[] = 'Cupo completo para nuevos integrantes.';
+					}
+				}
+				if ( $profes && 'sin_profe' !== $modo ) {
+					$lineas[] = '👤 ' . implode( ', ', array_values( array_unique( $profes ) ) );
+				}
+				if ( $notas && 'completo' === $modo ) {
+					foreach ( array_slice( array_values( array_unique( $notas ) ), 0, 2 ) as $n ) {
+						$lineas[] = 'ℹ️ ' . $n;
+					}
+				}
+			}
+			$texto = implode( "\n", $lineas ) . "\n\n" . $cierre;
+			if ( Formato::largo( $texto ) <= Formato::MAX ) {
+				return $texto;
+			}
+		}
+		// Ni así entra: los primeros bloques completos y el aviso de que hay más.
+		$corto = '';
+		foreach ( explode( "\n", implode( "\n", $lineas ) ) as $l ) {
+			if ( Formato::largo( $corto . $l . "\n" ) > Formato::MAX - 120 ) {
+				break;
+			}
+			$corto .= $l . "\n";
+		}
+		return rtrim( $corto ) . "\nHay más horarios: decime qué sede o qué día te queda mejor 😊";
 	}
 
 	/** Resumen de la agenda de una sede en uno o más días: un renglón por actividad y las federadas en uno. */
@@ -590,9 +736,14 @@ final class Query {
 		if ( isset( $f['edad'] ) && '' !== $f['edad'] && null !== $f['edad'] ) {
 			$edad      = (float) $f['edad'];
 			$unknown   = array();
-			$acts      = array_values( array_filter( $acts, function ( $a ) use ( $edad, &$unknown ) {
+			// Cultura no tiene restricción de edad por defecto: sin edad cargada, entra (B04: "tengo 35" no traía Cultura).
+			$cultura   = $this->categories_named( 'cultura' );
+			$acts      = array_values( array_filter( $acts, function ( $a ) use ( $edad, &$unknown, $cultura ) {
 				$m = Catalog::age_matches( $a, $edad );
 				if ( null === $m ) {
+					if ( in_array( $a['categoria'], $cultura, true ) ) {
+						return true;
+					}
 					$unknown[] = $a['nombre'];
 					return false;
 				}
