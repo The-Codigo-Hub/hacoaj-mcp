@@ -46,6 +46,18 @@ final class MCP_Server {
 				),
 			)
 		);
+		// Una tool por pedido HTTP, sin el protocolo MCP: POST /tool/<nombre> con los argumentos como JSON.
+		// Un cliente MCP hace varios pedidos por consulta (inicializar, listar, llamar) y cada pedido
+		// arranca WordPress entero; con esta ruta, un agente con herramientas HTTP hace uno solo.
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/tool/(?P<name>[a-z_]+)',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'handle_tool' ),
+				'permission_callback' => array( $this, 'permission' ),
+			)
+		);
 		register_rest_route(
 			self::REST_NAMESPACE,
 			'/health',
@@ -88,6 +100,26 @@ final class MCP_Server {
 			),
 			200
 		);
+	}
+
+	public function handle_tool( \WP_REST_Request $request ) {
+		$name = (string) $request['name'];
+		if ( ! $this->tools->exists( $name ) ) {
+			return $this->json( array( 'error' => 'Tool desconocida: ' . $name ), 404 );
+		}
+		$args = json_decode( (string) $request->get_body(), true );
+		$args = is_array( $args ) ? $args : array();
+		// Los agentes mandan a veces los argumentos dentro de "query" o "arguments", o vacíos como "".
+		foreach ( array( 'query', 'arguments', 'args' ) as $k ) {
+			if ( isset( $args[ $k ] ) && is_array( $args[ $k ] ) && 1 === count( $args ) ) {
+				$args = $args[ $k ];
+			}
+		}
+		$args   = array_filter( $args, function ( $v ) {
+			return null !== $v && '' !== $v;
+		} );
+		$result = $this->tools->call( $name, $args );
+		return $this->json( $result['ok'] ? $result['data'] : array( 'error' => $result['error'] ), 200 );
 	}
 
 	public function handle_post( \WP_REST_Request $request ) {
@@ -229,7 +261,7 @@ final class MCP_Server {
 	 * Emite nuestras respuestas sin escapar unicode y sin cuerpo en los 202.
 	 */
 	public function serve_raw( $served, $result, $request, $server ) {
-		if ( $served || ! ( $request instanceof \WP_REST_Request ) || 0 !== strpos( $request->get_route(), '/' . self::REST_NAMESPACE . '/mcp' ) ) {
+		if ( $served || ! ( $request instanceof \WP_REST_Request ) || ! preg_match( '#^/' . preg_quote( self::REST_NAMESPACE, '#' ) . '/(mcp|tool/)#', $request->get_route() ) ) {
 			return $served;
 		}
 		if ( ! ( $result instanceof \WP_REST_Response ) || ! $result->get_headers() || empty( $result->get_headers()['X-Hacoaj-MCP'] ) ) {
