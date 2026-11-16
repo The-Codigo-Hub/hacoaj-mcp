@@ -95,6 +95,52 @@ final class Formato {
 		);
 	}
 
+	/**
+	 * Listado de una búsqueda: subtítulo por categoría y una viñeta por nombre; si no entra, un renglón por
+	 * categoría con los nombres separados por " · "; si tampoco, las federadas pasan a un resumen.
+	 *
+	 * @param array<string, string[]> $cats      categoría => nombres.
+	 * @param string[]                $federadas nombres de federadas.
+	 * @param string|null             $resumen   resumen de federadas (en lugar de los nombres).
+	 */
+	public static function listado_secciones( array $cats, array $federadas, $resumen, $cierre ) {
+		foreach ( array( 'vinetas', 'compacto', 'resumen' ) as $modo ) {
+			$lineas = array();
+			if ( $cats ) {
+				$lineas[] = '🎽 *Actividades*';
+				foreach ( $cats as $cat => $nombres ) {
+					$e        = self::categoria( $cat );
+					$lineas[] = $e[1] . ' *' . $cat . '*';
+					if ( 'vinetas' === $modo ) {
+						foreach ( $nombres as $n ) {
+							$lineas[] = ' • ' . $n;
+						}
+					} else {
+						$lineas[] = implode( ' · ', $nombres );
+					}
+				}
+			}
+			if ( $federadas && 'resumen' !== $modo ) {
+				$lineas[] = '🏅 *Federadas*';
+				if ( 'vinetas' === $modo ) {
+					foreach ( $federadas as $n ) {
+						$lineas[] = ' • ' . $n;
+					}
+				} else {
+					$lineas[] = implode( ' · ', $federadas );
+				}
+			} elseif ( $federadas || $resumen ) {
+				$lineas[] = '🏅 *Federadas*';
+				$lineas[] = $resumen ? $resumen : sprintf( 'Hay %d categorías federadas: decime cuál te interesa y te paso los horarios.', count( $federadas ) );
+			}
+			$texto = implode( "\n", $lineas ) . "\n\n" . $cierre;
+			if ( self::largo( $texto ) <= self::MAX ) {
+				return $texto;
+			}
+		}
+		return $texto;
+	}
+
 	/** "08:30" → "8.30", "19:00" → "19". */
 	public static function hora( $hhmm ) {
 		if ( ! preg_match( '/^(\d{1,2}):(\d{2})$/', (string) $hhmm, $m ) ) {

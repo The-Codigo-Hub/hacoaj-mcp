@@ -86,13 +86,83 @@ final class Query {
 			$out['aviso'] = sprintf( 'Ya se mostraron las %d actividades: no quedan más con estos filtros.', count( $grupos ) );
 		}
 		if ( count( $grupos ) < count( $acts ) ) {
-			$out['nota_variantes'] = 'Algunas actividades están en varias sedes y vienen una sola vez, con "variantes". Listá el nombre una vez; cuando la elijan, preguntá en qué sede (opciones: sedes) y usá el slug de esa variante en obtener_agenda.';
+			$out['nota_variantes'] = 'Algunas actividades se dictan en varias sedes y vienen una sola vez, con "variantes": la agenda por nombre trae todas las sedes.';
 		}
 		$out = array_merge( $out, self::meta_publica( $filtered['meta'] ) );
-		if ( ! $acts ) {
+		// Búsqueda de una actividad ("fútbol para mi hijo de 8", "info de hockey"): el listado sale armado y
+		// trae también las federadas de ese deporte. Antes eran dos tools (unos 5 segundos más por mensaje)
+		// y el bot armaba el listado con reglas del prompt.
+		if ( ! empty( $f['texto'] ) && ! $desde ) {
+			$listado = $this->listado_texto( $f, $grupos );
+			if ( $listado ) {
+				$out = array_merge( array( 'respuesta' => $listado ), $out );
+			}
+		}
+		if ( ! $acts && empty( $out['respuesta'] ) ) {
 			$out['sugerencia'] = 'No hubo resultados. Probá con menos filtros, otra palabra (ej. el deporte sin categoría) o listar_categorias.';
 		}
 		return $out;
+	}
+
+	/** Nombre de una categoría federada para mostrar: "Fútbol - Sub 10", "Hockey federado 9na división A (damas)". */
+	private static function nombre_federada( array $c ) {
+		$dep = trim( preg_replace( '/\s*federad[oa]s?\b/iu', '', $c['deporte'] ) );
+		$cat = $c['categoria'];
+		$t   = Text::tokens( $dep );
+		return ( $t && false !== strpos( Text::fold( $cat ), $t[0] ) ) || '' === $dep ? $cat : $dep . ' - ' . $cat;
+	}
+
+	/**
+	 * Listado armado de una búsqueda por actividad: no federadas por categoría y federadas del mismo deporte.
+	 *
+	 * @return string|null null si no hay nada que mostrar.
+	 */
+	private function listado_texto( array $f, array $grupos ) {
+		$cats = array();
+		foreach ( $grupos as $g ) {
+			$a   = $g[0];
+			$cat = self::categoria_base( $this->categoria_nombre( $a ) );
+			$cat = $cat ? $cat : 'Otras';
+			$cats[ $cat ][] = self::con_genero( $a['nombre'], isset( $a['genero'] ) ? $a['genero'] : null );
+		}
+		uksort( $cats, function ( $x, $y ) {
+			return array( Formato::categoria( $x )[0], $x ) <=> array( Formato::categoria( $y )[0], $y );
+		} );
+
+		$fed      = $this->deportes_federados( array_filter( array(
+			'deporte'         => $f['texto'],
+			'edad'            => isset( $f['edad'] ) ? $f['edad'] : null,
+			'genero'          => isset( $f['genero'] ) ? $f['genero'] : null,
+			'sede'            => isset( $f['sede'] ) ? $f['sede'] : null,
+			'dia'             => isset( $f['dia'] ) ? $f['dia'] : null,
+			'limite'          => 100,
+		), function ( $v ) {
+			return null !== $v && '' !== $v;
+		} ) );
+		$con_edad  = isset( $f['edad'] );
+		$fed_names = array();
+		$fed_res   = null;
+		if ( $fed['total'] > 0 ) {
+			if ( $con_edad || $fed['total'] <= self::RESUMIR_FEDERADAS ) {
+				foreach ( $fed['categorias'] as $c ) {
+					$fed_names[] = self::nombre_federada( $c );
+				}
+			} else {
+				$ej = array();
+				foreach ( isset( $fed['ejemplos_por_genero'] ) ? $fed['ejemplos_por_genero'] : array() as $names ) {
+					$ej = array_merge( $ej, array_slice( $names, 0, 2 ) );
+				}
+				$dep     = mb_strtolower( trim( preg_replace( '/\s*federad[oa]s?\b/iu', '', $fed['categorias'][0]['deporte'] ) ), 'UTF-8' );
+				$fed_res = sprintf( 'Hay %d categorías de %s federado (por ejemplo %s).', $fed['total'], $dep, Formato::enumerar( $ej ) );
+			}
+		}
+		if ( ! $cats && ! $fed_names && ! $fed_res ) {
+			return null;
+		}
+		$cierre = $fed_res
+			? 'Decime la edad o el año de nacimiento (y si es para mujer o varón) y te muestro las que correspondan 😊'
+			: '¿De cuál querés días, horarios y sedes? 😊';
+		return Formato::listado_secciones( $cats, $fed_names, $fed_res, $cierre );
 	}
 
 	/**
@@ -453,9 +523,9 @@ final class Query {
 				$expanded = $this->catalog->expand_tokens( $tokens );
 				$kept     = array();
 				foreach ( $acts as $a ) {
-					list( $matched, $score ) = $this->score( $a, $expanded );
+					list( $matched, $score, $exactas ) = $this->score( $a, $expanded );
 					if ( $matched > 0 ) {
-						$scores[ $a['slug'] ] = array( $matched, $score );
+						$scores[ $a['slug'] ] = array( $matched, $score, $exactas );
 						$kept[]               = $a;
 					}
 				}
@@ -468,6 +538,14 @@ final class Query {
 					$acts = array_values( array_filter( $acts, function ( $a ) use ( $scores, $best ) {
 						return $scores[ $a['slug'] ][0] === $best;
 					} ) );
+					// Si alguna coincide con las palabras tal como las escribió el usuario, las que entran solo por
+					// sinónimo sobran: "zumba" no trae Rikudim ni Ritmos (sinónimos de danza), "basket" sí trae básquet.
+					$exactas = array_values( array_filter( $acts, function ( $a ) use ( $scores, $best ) {
+						return $scores[ $a['slug'] ][2] === $best;
+					} ) );
+					if ( $exactas ) {
+						$acts = $exactas;
+					}
 					// Pedido de agenda por nombre ("rikudim"): solo las de mejor puntaje, no las que entran por sinónimo.
 					if ( ! empty( $f['_solo_mejor'] ) && $acts ) {
 						$top  = max( array_map( function ( $a ) use ( $scores ) {
@@ -587,8 +665,8 @@ final class Query {
 		usort(
 			$acts,
 			function ( $a, $b ) use ( $scores ) {
-				$sa = isset( $scores[ $a['slug'] ] ) ? $scores[ $a['slug'] ] : array( 0, 0 );
-				$sb = isset( $scores[ $b['slug'] ] ) ? $scores[ $b['slug'] ] : array( 0, 0 );
+				$sa = isset( $scores[ $a['slug'] ] ) ? $scores[ $a['slug'] ] : array( 0, 0, 0 );
+				$sb = isset( $scores[ $b['slug'] ] ) ? $scores[ $b['slug'] ] : array( 0, 0, 0 );
 				if ( $sa !== $sb ) {
 					return $sa[0] === $sb[0] ? $sb[1] - $sa[1] : $sb[0] - $sa[0];
 				}
@@ -619,8 +697,10 @@ final class Query {
 		);
 		$matched = 0;
 		$score   = 0;
+		$exactas = 0;
 		foreach ( $expanded as $variants ) {
 			$best = 0;
+			$exacta = false;
 			foreach ( $fields as $field ) {
 				list( $weight, $hay ) = $field;
 				foreach ( $variants as $vi => $variant ) {
@@ -635,16 +715,18 @@ final class Query {
 					if ( $ok ) {
 						// La palabra que escribió el usuario pesa más que un sinónimo: "rikudim" tiene que traer
 						// primero Rikudim y no Coreo Zumba (sinónimo por "danza", G07).
-						$best = max( $best, 0 === $vi ? $weight * 2 : $weight * 2 - 1 );
+						$best   = max( $best, 0 === $vi ? $weight * 2 : $weight * 2 - 1 );
+						$exacta = $exacta || 0 === $vi;
 					}
 				}
 			}
 			if ( $best ) {
 				$matched++;
 				$score += $best;
+				$exactas += $exacta ? 1 : 0;
 			}
 		}
-		return array( $matched, $score );
+		return array( $matched, $score, $exactas );
 	}
 
 	private static function token_in( $needle, array $hay ) {

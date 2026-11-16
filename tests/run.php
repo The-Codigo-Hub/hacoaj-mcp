@@ -751,6 +751,12 @@ check( 'sustentabilidad: texto fijo', false !== strpos( $q->info_institucional( 
 $nom = array_column( $q->buscar_actividades( array( 'texto' => 'rikudim' ) )['actividades'], 'slug' );
 check( 'búsqueda: la palabra exacta gana al sinónimo', array_slice( $nom, 0, 2 ), array( 'rikudim-principiantes', 'rikudim' ) );
 check( 'agenda por nombre: solo las de mejor puntaje', array_unique( array_column( $q->obtener_agenda( array( 'actividad' => 'rikudim principiantes' ) )['items'], 'titulo' ) ), array( 'Rikudim Principiantes' ) );
+$z = $q->buscar_actividades( array( 'texto' => 'zumba' ) );
+check( 'búsqueda: los sinónimos sobran si hay coincidencia exacta', array( false !== strpos( $z['respuesta'], 'Coreo Zumba' ), false === strpos( $z['respuesta'], 'Rikudim' ) ), array( true, true ) );
+check( 'búsqueda: sinónimo solo (basket) sigue encontrando', false !== strpos( $q->buscar_actividades( array( 'texto' => 'basket' ) )['respuesta'], 'Básquet' ), true );
+$fx = $fed_q->buscar_actividades( array( 'texto' => 'futbol' ) );
+check( 'búsqueda con federadas: un solo llamado trae las dos cosas', array( false !== strpos( $fx['respuesta'], '🎽 *Actividades*' ), false !== strpos( $fx['respuesta'], '🏅 *Federadas*' ) ), array( true, true ) );
+check( 'búsqueda con federadas: entra en WhatsApp', HacoajMCP\Formato::largo( $fx['respuesta'] ) <= 900, true );
 check( 'formato: horas', array( HacoajMCP\Formato::hora( '08:30' ), HacoajMCP\Formato::hora( '19:00' ) ), array( '8.30', '19' ) );
 check( 'formato: franjas', HacoajMCP\Formato::franjas( array( array( 'inicio' => '08:30', 'fin' => '19:00' ), array( 'inicio' => '20:00', 'fin' => null ) ) ), '8.30 a 19 y 20 h' );
 
