@@ -71,6 +71,10 @@ final class Formato {
 		$i      = $desde;
 		for ( ; $i < $total; $i++ ) {
 			$f      = $filas[ $i ];
+			// Una página no mezcla tandas: si no, la misma categoría aparecería dos veces en el mensaje.
+			if ( $i > $desde && isset( $f['tanda'], $filas[ $i - 1 ]['tanda'] ) && $f['tanda'] !== $filas[ $i - 1 ]['tanda'] ) {
+				break;
+			}
 			$prueba = $lineas;
 			if ( $f['categoria'] !== $cat ) {
 				$e        = self::categoria( $f['categoria'] );

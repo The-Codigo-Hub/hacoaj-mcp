@@ -761,6 +761,8 @@ $una = HacoajMCP\Formato::listado_secciones( array( 'Natación - Pileta' => arra
 check( 'listado de una sola categoría: trae sus nombres y su subtítulo, sin el título general', array( false !== strpos( $una, 'Natación Niños' ), false !== strpos( $una, '*Natación - Pileta*' ), false === strpos( $una, '🎽 *Actividades*' ) ), array( true, true, true ) );
 $dos = HacoajMCP\Formato::listado_secciones( array( 'Natación - Pileta' => array( 'A' ), 'Cultura' => array( 'B' ) ), array(), null, '¿Cuál?' );
 check( 'listado de dos categorías: con el título general', 0 === strpos( $dos, '🎽 *Actividades*' ), true );
+$ad = $edad_q->buscar_actividades( array( 'edad' => 35 ) );
+check( 'listado de adulto: la primera página trae varias categorías, no solo la más grande', substr_count( $ad['respuesta'], "\n" . '🧑 *Deportes Adultos*' ) <= 1 && preg_match_all( '/^\S+ \*[^*]+\*$/mu', $ad['respuesta'] ) >= 3, true );
 check( 'formato: horas', array( HacoajMCP\Formato::hora( '08:30' ), HacoajMCP\Formato::hora( '19:00' ) ), array( '8.30', '19' ) );
 check( 'formato: franjas', HacoajMCP\Formato::franjas( array( array( 'inicio' => '08:30', 'fin' => '19:00' ), array( 'inicio' => '20:00', 'fin' => null ) ) ), '8.30 a 19 y 20 h' );
 

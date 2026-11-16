@@ -12,6 +12,9 @@ defined( 'ABSPATH' ) || defined( 'HACOAJ_MCP_TESTING' ) || exit;
 
 final class Query {
 
+	/** Nombres por categoría en cada tanda de un listado general. */
+	const POR_CATEGORIA = 6;
+
 	/** Hasta esta cantidad, un filtro de categoría devuelve la lista entera. */
 	const LISTA_CORTA = 30;
 
@@ -176,8 +179,9 @@ final class Query {
 			return null;
 		}
 		// Con la edad conocida y una sola opción, directamente sus horarios (H06: "natación para mi hija de 15").
-		// Una sola actividad ("horarios de Bitnuah", G04), o hasta dos con la edad conocida: directamente sus horarios.
-		if ( ( 1 === count( $grupos ) || ( $con_edad && 2 === count( $grupos ) ) ) && ! $fed_names && ! $fed_res ) {
+		// Una sola actividad y sin edad ("horarios de Bitnuah", G04): directamente sus horarios. Con edad se deja el
+		// listado: los horarios mezclaban turnos de otras edades (H06, E03) y tapaban el sí o no de "¿puede ir?" (H17).
+		if ( 1 === count( $grupos ) && ! $con_edad && ! $fed_names && ! $fed_res ) {
 			$ag = $this->obtener_agenda( array_filter( array( '_acts' => array_merge( ...$grupos ), 'edad' => isset( $f['edad'] ) ? $f['edad'] : null ), function ( $v ) {
 				return null !== $v;
 			} ) );
@@ -253,6 +257,20 @@ final class Query {
 			return array( $x['orden'], $x['categoria'], $x['cercania'], Text::fold( $x['nombre'] ) )
 				<=> array( $y['orden'], $y['categoria'], $y['cercania'], Text::fold( $y['nombre'] ) );
 		} );
+		// Por tandas de POR_CATEGORIA: la primera página trae un poco de cada categoría y "más" sigue con el resto.
+		// Antes una categoría grande (42 de Deportes Adultos) llenaba la página y Cultura no aparecía (B04).
+		// Solo en el listado general: el de una categoría ("culturales") sale entero.
+		if ( empty( $f['categoria'] ) ) {
+			$rank = array();
+			foreach ( $filas as $k => $fila ) {
+				$rank[ $fila['categoria'] ] = isset( $rank[ $fila['categoria'] ] ) ? $rank[ $fila['categoria'] ] + 1 : 0;
+				$filas[ $k ]['tanda'] = intdiv( $rank[ $fila['categoria'] ], self::POR_CATEGORIA );
+			}
+			usort( $filas, function ( $x, $y ) {
+				return array( $x['tanda'], $x['orden'], $x['categoria'], $x['cercania'], Text::fold( $x['nombre'] ) )
+					<=> array( $y['tanda'], $y['orden'], $y['categoria'], $y['cercania'], Text::fold( $y['nombre'] ) );
+			} );
+		}
 
 		$desde     = isset( $f['desde'] ) ? max( 0, (int) $f['desde'] ) : 0;
 		$federadas = null;
@@ -561,6 +579,10 @@ final class Query {
 						$profes[] = $it['profe'];
 					}
 					foreach ( $it['notas'] as $n ) {
+						// Nunca montos: los precios se derivan (H09 mostraba "Arancel mensual: $ 65.000").
+						if ( preg_match( '/\$|arancel|precio|valor|cuota/iu', $n ) ) {
+							continue;
+						}
 						if ( preg_match( '/inscrip|cupo|forms|whats|tel[eé]f|info|consult|\b\d{2,4}[- ]\d{4}\b/iu', $n ) ) {
 							$notas[] = Text::truncate( $n, 160 );
 						}
